@@ -2,6 +2,15 @@
 FROM python:3.13-slim
 ENV PYTHONUNBUFFERED=1 PYTHONDONTWRITEBYTECODE=1
 WORKDIR /srv/radar
+
+# Verify the Supabase pooler certificate against trusted CAs, including its
+# project-specific public root. Do not disable sslmode=verify-full.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+COPY certs/supabase-root-2021.crt /usr/local/share/ca-certificates/supabase-root-2021.crt
+RUN update-ca-certificates
+
 COPY requirements-staging.txt .
 RUN pip install --no-cache-dir -r requirements-staging.txt
 COPY . .
