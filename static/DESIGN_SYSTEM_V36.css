@@ -1,0 +1,245 @@
+/* RADAR-CORUÑA v0.36 · unified clinical workspaces
+   Presentation only. No field, endpoint, clinical decision, or persistence changes.
+   Shared treatments for all 12 modules and both main clinical editors. */
+:root{
+  --v36-surface:#ffffff;
+  --v36-canvas:#f7f9fc;
+  --v36-ink:#1d3856;
+  --v36-sub:#687e94;
+  --v36-line:#e5eaf1;
+  --v36-blue:#365f9e;
+  --v36-tint:#f2f6fc;
+  --v36-hover:#f8fbff;
+  --teal:#365f9e;
+  --teal-soft:#eef3fa;
+  --shadow:0 3px 20px rgba(25,50,80,.035);
+}
+html{scroll-padding-top:72px}
+body{background:var(--v36-canvas);color:var(--v36-ink);font-size:13px;line-height:1.55}
+button,input,select,textarea{font-family:inherit}
+button:focus-visible,a:focus-visible,[tabindex]:focus-visible{outline:2px solid #7298cf;outline-offset:3px}
+::selection{background:#dce9f9;color:#19395e}
+/* Navigation: quiet and consistent at every breakpoint. */
+.layout{grid-template-columns:224px minmax(0,1fr)}
+.sidebar{border-right:1px solid var(--v36-line);background:#fff!important;gap:17px;padding:18px 11px 14px}
+.brand-row{padding:0 5px 15px;border-bottom:1px solid #ebeff5}
+.brand strong{font-size:18px;color:#173552;letter-spacing:-.05em}
+.brand strong span{color:#5b82ba}
+.brand small{font-size:10px;color:#7d8e9e}
+.navlabel{font-size:9px;color:#92a0af;letter-spacing:.12em;padding:5px 10px 6px}
+.nav button{min-height:37px;padding:8px 10px;font-size:12px;font-weight:560;color:#536a82;border-radius:7px}
+.nav button:hover{background:#f6f8fc;color:#234e82}
+.nav button.active{background:#eff4fb!important;color:#24538e;font-weight:700}
+.nav .glyph{color:#8298b1}
+.nav-divider{background:#edf1f5;margin:10px 8px 7px}
+.sidebar .foot{color:#8a9db0}
+.sidebar .foot b{color:#46637f}
+.top{height:59px;padding:0 clamp(20px,2.8vw,38px);border-color:#edf1f6;box-shadow:none}
+.top .eyebrow{font-size:10px;letter-spacing:.075em;color:#7890a7}
+.top-right{gap:8px}
+.top .status{font-size:9px;letter-spacing:.045em;border-radius:5px;max-width:190px;overflow:hidden;text-overflow:ellipsis}
+.logout{color:#446481;border-color:#dce5ed;background:#fff;border-radius:7px}
+.content{max-width:1500px;padding:22px clamp(20px,2.8vw,38px) 92px}
+.workspace-context{border-bottom:0;min-height:27px;padding:0;margin-bottom:13px}
+.context-path,.context-actions{align-items:center}
+.context-path{color:#8093a5}
+.context-path strong{color:#426184}
+.context-patient{background:#f0f4f9;color:#45698f;font-weight:650}
+.context-link,.context-export{font-size:11px;color:#315b8c;padding:6px 9px}
+.context-link:hover,.context-export:hover{background:var(--v36-tint)}
+.context-export{background:white;border-color:#dee8f2}
+.head{margin:0 0 19px;align-items:center;gap:15px}
+.head h1{font-size:clamp(27px,2.5vw,34px);font-weight:745;color:#1b3552;line-height:1.15;margin:4px 0 6px;letter-spacing:-.045em}
+.head p{font-size:12px;color:#768a9e;max-width:620px;line-height:1.6}
+.over{font-size:10px;letter-spacing:.105em;color:#6b8bb3;font-weight:730}
+/* Buttons use their content width. Primary means visual priority, not a block of pigment. */
+.btn,.btn.primary,.btn.small,.logout,.context-export,.linklike{transition:background .14s,border-color .14s,color .14s}
+.btn{height:auto;min-height:34px;border:1px solid #d4e0ec;background:#fff;color:#355777;padding:7px 12px;border-radius:7px;font-size:12px;font-weight:620;box-shadow:none;max-width:100%}
+.btn.primary{background:#edf3fc;border-color:#bed1eb;color:#28558e;box-shadow:none}
+.btn.primary:hover{background:#e1ecfa;border-color:#9dbde4;color:#244e83}
+.btn.small{min-height:30px;padding:5px 9px;font-size:11px}
+.btn.textbtn{border-color:transparent;padding:4px 7px;color:#315e99}
+.btn.danger{background:#fff;color:#9e4f5b;border-color:#eed7db}
+.linklike{color:#325d91;font-weight:670;text-decoration:none;white-space:nowrap}
+.linklike:hover{text-decoration:underline;text-underline-offset:3px}
+.head .actions{gap:7px;align-items:center;justify-content:flex-end}
+/* Consistent cards and dense, legible tables */
+.panel,.patient-journey,.journey-review,.crd-workspace{border:1px solid var(--v36-line);border-radius:11px;background:#fff;box-shadow:var(--shadow)}
+.panelhead{padding:16px 20px;border-bottom:1px solid #eef1f6;align-items:center;gap:12px}
+.panelhead h2,.journey-heading h2,.journey-review-head h2{color:#233e5d;font-size:14px;font-weight:720;letter-spacing:-.02em}
+.panelhead p,.journey-heading p,.journey-review-head p{font-size:11.5px;color:#7b8da0;margin-top:3px}
+.panelbody{padding:17px 20px}
+.metrics{gap:10px;margin-bottom:17px}
+.metric{padding:14px 16px;border-radius:10px;border-color:var(--v36-line);box-shadow:none}
+.metric .lab{color:#7f90a4;font-size:11px;font-weight:550}
+.metric .val{font-size:28px;color:#1e3a60;font-weight:735;margin-top:3px}
+.metric .help{font-size:10.5px;color:#8092a5}
+.split,.tilepair{gap:14px}
+.tablewrap{width:100%;max-width:100%;overflow-x:auto;scrollbar-width:thin;scrollbar-color:#c7d5e6 transparent}
+.tablewrap table{width:100%;border-collapse:separate;border-spacing:0}
+.tablewrap th{padding:10px 13px;font-size:10px;letter-spacing:.073em;color:#72879e;background:#f8fafe;border-bottom:1px solid #e5ebf3;white-space:nowrap}
+.tablewrap td{padding:12px 13px;font-size:12px;border-bottom:1px solid #eef2f7;line-height:1.45}
+.tablewrap tr:last-child td{border-bottom:0}
+.tablewrap tbody tr:hover{background:#f8fbff}
+.tablewrap td .btn{margin:0}
+.code{color:#2d537e;letter-spacing:-.015em;font-size:11.5px}
+.tag,.pillinfo{border-radius:6px;font-size:10px;padding:4px 8px;font-weight:690;background:#f0f5fc;border-color:#dce8f6;color:#386394}
+.tag.neutral{background:#f5f7f9;color:#728395;border-color:#e7ecf1}
+.tag.partial{background:#fff8ea;color:#876a36;border-color:#f0e1c5}
+.tag.bad{background:#fff1f2;color:#a5545c;border-color:#f0d9dc}
+.empty{border:1px dashed #dbe5ef;background:#fcfdff;color:#7589a0;font-size:12px;padding:26px 18px;border-radius:8px}
+.notice,.call,.quality-item{border-radius:8px;font-size:12px;line-height:1.55}
+.call,.quality-item{background:#fafcfe;border:1px solid #e8eef5}
+.call.warn{background:#fffaf0;border-color:#efdfbc;color:#866733}
+.call.error{background:#fff3f4;border-color:#efd9db;color:#9d535b}
+/* One shared control specification, without stretching small inputs for decorative symmetry. */
+.field label{font-size:12px;font-weight:635;color:#405b76;line-height:1.42}
+.field input,.field select,.fbar input,.fbar select,
+.crd-editor input,.crd-editor select,.crd-editor textarea{
+  border-radius:7px;border:1px solid #d6e1ed;background:#fff;color:#243e5e;box-shadow:none;
+  font-size:12.5px;min-height:37px;max-width:100%;
+}
+.field input:hover,.field select:hover,.fbar input:hover,.fbar select:hover{border-color:#aac0d9}
+.field input:focus,.field select:focus,.fbar input:focus,.fbar select:focus,
+.crd-editor input:focus,.crd-editor select:focus,.crd-editor textarea:focus{
+  border-color:#7da3d2;box-shadow:0 0 0 3px rgba(86,139,202,.13);outline:0;
+}
+.field small{font-size:10.5px;color:#8495a7}
+.fbar{gap:8px;align-items:center;margin-bottom:12px}
+.fbar input,.fbar select{height:36px;min-width:0;padding:6px 11px}
+.fbar input[type="search"]{width:min(280px,100%);max-width:280px;flex:0 1 280px}
+.fbar select{max-width:225px;flex:0 1 225px}
+.filter-count{font-size:11px;color:#8294a8}
+/* Participant stage cards, longitudinal reading, and data-quality indicators. */
+.patient-journey{padding:18px 20px;margin-bottom:15px}
+.journey-heading{margin-bottom:12px;align-items:center}
+.journey-step{border-color:#e5ebf3;background:#fbfcff;border-radius:8px;padding:12px 14px;gap:5px}
+.journey-step.done{background:#f4f8fd;border-color:#d9e5f5}
+.journey-step .step-top b{color:#2b527e;font-size:13px}
+.journey-step .step-top span{color:#75899f;font-size:10px}
+.journey-step .step-desc{font-size:11px;color:#778da4}
+.journey-actions{border-color:#edf2f7}
+.journey-review-head{padding:14px 18px;border-color:#edf2f6}
+.journey-review-body{padding:15px 18px}
+.journey-review-stat{background:#f9fbff;border:1px solid #e5edf6;padding:11px 12px}
+.journey-review-stat strong{color:#25466c}
+.journey-review-item{border-color:#e6edf6;background:#fff;padding:13px}
+.journey-review-item .line b{color:#2c5682}
+.journey-review-foot{color:#6e849b}
+.quality-item{gap:11px;padding:13px 14px}
+.quality-item .count{color:#3f6699}
+.trend .bar{background:linear-gradient(180deg,#80a4d2,#436da8)}
+.square{background:#476fa7}
+.rscore{background:#f8fafd;border-color:#e2eaf5;padding:17px 20px}
+.rscore .number{color:#294d7a;font-size:43px}
+.stepper span.on{background:#5683b9}
+/* Clinical forms: an editorial record, not nested colored cards. */
+#patientForm,#visitForm{border-color:var(--v36-line)}
+#patientForm>.panelhead,#visitForm>.panelhead{padding-top:16px}
+#patientForm>.panelbody,#visitForm>.panelbody{padding-bottom:20px}
+#patientForm .sectiontitle,#visitForm .sectiontitle{font-size:13px;color:#274668;font-weight:720;margin-top:24px}
+#patientForm .fields:not(.three){display:flex;flex-wrap:wrap;align-items:flex-start;gap:15px 13px}
+#patientForm .fields:not(.three)>.field{flex:0 1 var(--field-measure,222px);width:var(--field-measure,222px);max-width:100%}
+#patientForm .fields:not(.three)>.field.wide{flex:1 1 100%;width:100%;max-width:100%}
+#visitForm .clinical-block-title,#patientForm .clinical-block-title{font-size:14px;color:#28496a}
+#visitForm .question{border-color:#eef2f6}
+#visitForm .question small{color:#8191a1}
+#visitForm .footerbar,#patientForm .footerbar{border-color:#e7edf4}
+#visitForm .visit-completeness{background:#f7faff;border-color:#e2eaf6}
+/* CRD: vertical section list is navigation, not a wall of framed buttons. */
+.crd-context-bar{border-color:#e4ebf4}
+.crd-stage-switch{background:#f7f9fc;border-color:#e3eaf3}
+.crd-tab-navigation{background:#f8fafc;border-color:#e5edf5}
+.crd-section-tab{border-radius:5px;color:#6f8298}
+.crd-section-tab:hover{background:#eff4fb;color:#325e94}
+.crd-section-tab.active{background:#eaf2fb;box-shadow:inset 2px 0 #5d8ac4;color:#28558b}
+.crd-workspace-heading{border-bottom:1px solid #e9edf4}
+.crd-editor-body{padding:18px 20px}
+.crd-save-bar{border-top:1px solid #e8eff6;background:#fff}
+/* Rebalance at laptop and mobile sizes; never force desktop geometry on a phone. */
+@media(max-width:1100px){
+ .layout{grid-template-columns:216px minmax(0,1fr)}
+ .content{padding-left:23px;padding-right:23px}
+ .split{grid-template-columns:minmax(0,1fr)}
+}
+@media(max-width:900px){
+ .layout,body.sidebar-collapsed .layout{display:block}
+ .content{padding:18px 17px 75px}
+ .top{padding:0 17px}
+ .sidebar{padding:18px 12px}
+ .workspace-context{margin-bottom:12px}
+}
+@media(max-width:650px){
+ .content{padding:14px 12px 70px}
+ .head{align-items:flex-start;gap:10px}
+ .head h1{font-size:26px}
+ .head p{font-size:11.5px}
+ .panelhead{padding:13px 14px}
+ .panelbody{padding:14px}
+ .metrics{gap:8px}
+ .metric{padding:12px}
+ .metric .val{font-size:24px}
+ .patient-journey{padding:14px}
+ .journey-review-body{padding:12px}
+ .crd-editor-body{padding:13px}
+ #patientForm .fields:not(.three)>.field{flex:1 1 100%;width:100%}
+ #patientForm .fields:not(.three)>.field[data-field-id="page"],
+ #patientForm .fields:not(.three)>.field[data-field-id="pgold"]{flex:1 1 calc(50% - 8px);width:calc(50% - 8px)}
+ .head .actions{justify-content:flex-start}
+ .fbar input[type="search"],.fbar select{flex:1 1 100%;max-width:100%;width:100%}
+ .tablewrap th,.tablewrap td{padding:10px 11px}
+}
+@media(prefers-reduced-motion:reduce){.btn,.logout,.linklike{transition:none}}
+/* Proportional entry controls throughout *all* clinical modules, not just Visits. */
+.crd-field-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(min(100%,226px),250px));
+  align-items:start;
+  justify-content:start;
+  gap:12px 15px;
+}
+.crd-field-grid>.field{min-width:0;width:100%;max-width:250px;padding-bottom:2px}
+.crd-field-grid>.field input,.crd-field-grid>.field select{height:38px;min-height:38px;width:100%}
+#eventForm .panelbody>.fields,
+#careForm .panelbody>.fields,
+#missingForm .panelbody>.fields,
+#p14Form .fields,
+#patientForm .clinical-block-body>.fields:not(.three){
+  display:flex;flex-wrap:wrap;align-items:start;justify-content:flex-start;gap:16px 14px;
+}
+#eventForm .panelbody>.fields>.field,
+#careForm .panelbody>.fields>.field,
+#missingForm .panelbody>.fields>.field,
+#p14Form .fields>.field,
+#patientForm .clinical-block-body>.fields:not(.three)>.field{
+  flex:0 1 var(--field-measure,228px);width:var(--field-measure,228px);max-width:100%;
+}
+#eventForm .panelbody>.fields>.field:has(input[type="date"]),
+#careForm .panelbody>.fields>.field:has(input[type="date"]){flex-basis:184px;width:184px}
+#eventForm .panelbody>.fields>.field:has(input[type="number"]),
+#careForm .panelbody>.fields>.field:has(input[type="number"]){flex-basis:140px;width:140px}
+#eventForm .panelbody>.fields>.field.wide,
+#careForm .panelbody>.fields>.field.wide,
+#missingForm .panelbody>.fields>.field.wide{flex:1 1 100%;width:100%;max-width:100%}
+.crd-correction input{width:min(460px,100%)}
+/* Text aids are quieter than the form values; alert content retains contrast. */
+.crd-field-grid .field small{font-size:10px;color:#879bb0;line-height:1.4}
+.crd-group-heading{margin-bottom:16px}
+.crd-group-heading h3{color:#2b4d71}
+.crd-sequence{color:#91a1b3}
+/* Reduce the visual density of utility microcopy, not the usable hit target. */
+#root .clinical-toolbar .section-jump{min-height:36px}
+#root .crd-section-tab{min-height:36px}
+#root .crd-stage{min-height:31px}
+#root .crd-context-links .btn{font-size:11px;min-height:32px;padding:6px 10px}
+#root .crd-context-bar{gap:14px}
+#root .crd-person-select{max-width:320px}
+@media(max-width:650px){
+ .crd-field-grid{grid-template-columns:minmax(0,1fr)}
+ .crd-field-grid>.field{max-width:100%}
+ #eventForm .panelbody>.fields>.field,
+ #careForm .panelbody>.fields>.field,
+ #missingForm .panelbody>.fields>.field,
+ #p14Form .fields>.field,
+ #patientForm .clinical-block-body>.fields:not(.three)>.field{flex:1 1 100%;width:100%}
+}

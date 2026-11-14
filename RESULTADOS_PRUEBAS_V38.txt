@@ -1,0 +1,38 @@
+RADAR-CORUÑA v0.38 · Resumen de comprobaciones reproducibles
+Fecha: 2026-11-12 · Entorno sintético local
+
+NUEVAS COMPROBACIONES
+- python -m pytest -q tests/test_phase38_multicentre.py
+  9/9 pruebas correctas.
+- python -m pytest -q tests/test_phase38_multicentre.py tests/test_phase29_reliability.py tests/test_phase32_intelligent_capture.py tests/test_phase33_workflow_intelligence.py
+  36/36 pruebas focalizadas correctas (antes de ampliar v0.38 de 7 a 9 pruebas).
+- python tests/browser_phase38_collaboration.py
+  PASS en 320 / 390 / 768 / 1057 / 1440 px.
+  Activación real mediante API de prueba, sesión y acceso de un único centro; sin errores JS ni scroll horizontal.
+- python tests/browser_phase37_workflow.py
+  PASS en 320 / 390 / 768 / 1057 / 1440 px.
+  Flujo V1 y apertura de CRD sin regresión.
+
+REGRESIÓN HISTÓRICA, ARCHIVOS TERMINADOS POSITIVAMENTE
+- test_audit_v07.py (4)
+- test_clinical_review_v10.py (6)
+- test_crd_workflow_v11.py (5)
+- test_export.py (3)
+- test_phase12_scientific_readiness.py (5)
+- test_phase13_outcomes.py (6)
+- test_phase14_completion.py (8)
+- test_phase15_acceptance.py (1)
+- test_phase16_usability.py (4)
+- test_phase18_reporting.py (6)
+- test_phase19_release.py (2)
+- test_phase20_crd_alignment.py (3)
+- test_phase21_episodes_actions.py (3)
+- test_phase22_episode_care.py (5)
+- test_phase27_concordance.py (3)
+- test_phase28_journey.py (2)
+- test_phase29_reliability.py (5)
+- test_phase31_scientific_uat.py (8)
+- test_phase32_intelligent_capture.py (14)
+Total: 93 pruebas, 19 archivos completados correctamente de forma individual.
+
+LÍMITE: un lanzador de regresión histórica quedó bloqueado en pruebas posteriores; no se afirma que la suite completa haya finalizado ni se considera ese bloqueo un resultado verde. La prueba v0.38 específica y las rutas de navegador sí terminaron por completo.

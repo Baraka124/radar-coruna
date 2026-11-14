@@ -1,0 +1,24 @@
+RADAR-CORUÑA v0.29 · Regression summary · 2026-11-12
+
+PYTHON / FASTAPI:
+python -m pytest -q tests/test_*.py --disable-warnings
+........................................................................ [ 80%]
+..................                                                       [100%]
+90 passed in 107.47s (0:01:47)
+
+BROWSER (Playwright + Chromium, individual scripts):
+PASS browser_phase20_crd.py
+PASS browser_phase21_events.py (after navigation assertion update)
+PASS browser_phase22_care.py (after disclosure assertion update)
+PASS browser_phase23_sidebar.py
+PASS browser_phase24_workspace.py
+PASS browser_phase25_clinical_workspace.py (after targeting the existing dedicated return button)
+PASS browser_phase26_crd_connected.py
+PASS browser_phase27_concordance.py
+PASS browser_phase28_journey.py
+
+PACKAGE:
+Excludes any *.sqlite*, caches and bytecode. Only demo credentials and synthetic IDs.
+
+LIMITATION:
+Local synthetic testing. No institutional/clinical go-live clearance.

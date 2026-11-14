@@ -1,0 +1,35 @@
+RADAR-CORUÑA | Fase 5 | v0.31 | 12/11/2026
+
+Aplicación de prueba con información exclusivamente sintética.
+
+PRUEBAS PYTHON (ejecutadas en cuatro lotes completos sobre la misma v0.31):
+  Lote A · test_audit_v07, test_clinical_review_v10,
+           test_crd_workflow_v11, test_export,
+           test_phase12_scientific_readiness: 23/23 PASSED
+  Lote B · test_phase13_outcomes, test_phase14_completion,
+           test_phase15_acceptance, test_phase16_usability,
+           test_phase18_reporting, test_phase19_release: 27/27 PASSED
+  Lote C · test_phase20_crd_alignment, test_phase21_episodes_actions,
+           test_phase22_episode_care, test_phase27_concordance: 14/14 PASSED
+  Lote D · test_phase28_journey, test_phase29_reliability,
+           test_phase31_scientific_uat, test_pilot, test_portability_v08,
+           test_study_v09: 34/34 PASSED
+  TOTAL: 98 tests distintos / 98 PASSED
+
+PRUEBA BROWSER:
+  python tests/browser_phase30_premium.py
+  PASS: 5 widths (320, 390, 768, 1024, 1440px), 6 routes, form, mobile menu.
+
+OBSERVACIÓN SOBRE LA EJECUCIÓN:
+  La ejecución monolítica de los 98 tests no finalizó de forma fiable
+  en el entorno de la prueba. La evidencia válida es la ejecución por
+  cuatro lotes terminados (no se afirma una única ejecución continua).
+
+QUÉ CERTIFICAN ESTAS PRUEBAS:
+  Funcionalidad técnica del piloto local, comprobaciones de concordancia
+  científica informativas, permisos simulados, exportación y navegación.
+
+QUÉ NO CERTIFICAN:
+  No sustituyen revisión clínica por el IP, prueba humana UAT, firma
+  de acta, autorización del comité de ética, evaluación institucional
+  de privacidad/seguridad ni preparación de producción con datos reales.

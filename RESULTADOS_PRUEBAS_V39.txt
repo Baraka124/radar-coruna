@@ -1,0 +1,20 @@
+RADAR-CORUÑA v0.39 · Evidencia de pruebas, 12/11/2026
+
+FOCALIZADA, EJECUCIÓN CONJUNTA COMPLETADA
+- pytest sobre 15 archivos: 83 passed (20.14 s).
+- Incluye 11/11 tests nuevos de inteligencia, autenticación, aislamiento, CSV, Excel y metodología.
+- Incluye v0.38 colaboración, v0.18 reporting, v0.13 resultados, v0.29 fiabilidad, v0.32 captura, v0.12/0.27/0.28/0.33 flujos, y otros tests históricos.
+- Las comprobaciones previas sobre 41/39 hojas se actualizaron a 46/44 por cinco hojas nuevas; las comprobaciones de contenido/alcance permanecen.
+
+NAVEGADOR
+- python tests/browser_phase39_intelligence.py
+  PASS: 320, 390, 768, 1057, 1440 px; contenido, filtros, controles compactos, sin errores JS ni desbordamiento de página.
+- python tests/browser_phase37_workflow.py
+  PASS: recorrido V1, contexto y guardado hacia CRD en las cinco anchuras.
+- python tests/browser_phase38_collaboration.py
+  PASS: invitaciones, alta personal y aislamiento de centro en las cinco anchuras.
+
+NO CONFIRMADO
+- Una ejecución exploratoria de toda la suite histórica de 25 archivos no terminó. No se afirma certificación completa.
+
+Entorno temporal SQLite exclusivamente sintético; no se usaron datos reales ni se desplegó la aplicación.

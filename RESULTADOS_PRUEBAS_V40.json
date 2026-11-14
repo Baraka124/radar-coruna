@@ -1,0 +1,75 @@
+{
+  "version": "0.40.0",
+  "date": "2026-11-13",
+  "scope": "synthetic local technical validation",
+  "method": "four independent completed command executions with separate test-process batches",
+  "python": {
+    "files_passed": 26,
+    "files_total": 26,
+    "tests_passed": 150,
+    "tests_failed_in_completed_batches": 0,
+    "batches": [
+      {
+        "name": "operational_and_recent",
+        "files": 5,
+        "passed": 47
+      },
+      {
+        "name": "clinical_core",
+        "files": 9,
+        "passed": 41
+      },
+      {
+        "name": "historical_workflows",
+        "files": 5,
+        "passed": 20
+      },
+      {
+        "name": "concordance_portability",
+        "files": 7,
+        "passed": 42
+      }
+    ],
+    "notes": "Two stale historical expectations (local environment label and 44-sheet center export) were updated to current documented contracts. Re-running all batches under one orchestration process timed out and is NOT counted as an additional pass. A final test of concurrent cross-centre writes and stale revisions raised the total from 149 to 150; the recent+operational batch then completed 47/47."
+  },
+  "browser": {
+    "responsive_widths": [
+      320,
+      390,
+      768,
+      1057,
+      1440
+    ],
+    "scripts_completed": [
+      "browser_phase36_system.py (12 routes x 5 widths)",
+      "browser_phase37_workflow.py",
+      "browser_phase38_collaboration.py",
+      "browser_phase39_intelligence.py"
+    ],
+    "notes": "Local, TestClient/Chromium-backed synthetic workflows. No externally hosted browser load test."
+  },
+  "concurrency": {
+    "sessions": 12,
+    "scoped_read_requests": 48,
+    "centres": 2,
+    "kind": "in-process TestClient, single ASGI instance",
+    "notes": "Not representative of real network load, sustained peak, or multi-instance PostgreSQL throughput.",
+    "successful_cross_centre_writes": 10,
+    "optimistic_conflict_status": 409,
+    "additional_write_test": true
+  },
+  "recovery": {
+    "sqlite_verified_backup": true,
+    "restored_to_new_database": true,
+    "integrity_check": true,
+    "tamper_detection": true
+  },
+  "not_executed": [
+    "Docker image build",
+    "actual Railway/other cloud deployment",
+    "PostgreSQL migration",
+    "multiple-host load test",
+    "MFA/account recovery",
+    "data protection/clinical release"
+  ]
+}

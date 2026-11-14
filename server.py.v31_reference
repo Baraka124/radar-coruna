@@ -1,0 +1,1261 @@
+"""RADAR-CORUÑA v0.31. Scientific acceptance candidate, unchanged clinical decision logic; reliability guards and longitudinal review; synthetic data only.
+NOT authorised for real personal or clinical data. No cloud services.
+"""
+from __future__ import annotations
+
+import csv
+import hashlib
+import io
+import json
+import os
+import re
+import secrets
+import sqlite3
+import threading
+from contextlib import asynccontextmanager, contextmanager
+from datetime import date, datetime, timedelta, timezone
+from pathlib import Path
+from typing import Literal
+from urllib.parse import unquote
+
+from argon2 import PasswordHasher
+from argon2.exceptions import VerifyMismatchError, VerificationError
+from fastapi import FastAPI, HTTPException, Request, Response, Depends
+from fastapi.responses import HTMLResponse, StreamingResponse
+from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from study_module import STUDY, CATALOGUE, ALLOWED_EXTRA, public_catalogue, validate as validate_study
+from clinical_review import make_review
+from crd_workflow import build_workflow
+from phase12_analysis import make_analysis, catalogue_coverage
+from phase14_completion import describe as phase14_fields, validate_payload as validate_phase14, valid_key as phase14_key, make_indicators, normalized_events, reconcile_legacy_analysis
+
+ROOT = Path(__file__).resolve().parent
+DB_FILE = Path(os.environ.get('RADAR_DB', str(ROOT / 'radar_synthetic.sqlite3')))
+LOCK = threading.RLock()
+PH = PasswordHasher()
+SESSION_HOURS = 8
+CODE = re.compile(r'^SIM-[A-Za-z0-9_-]{1,20}$')
+CENTRES = [
+    {'code': 'SIM-CS01', 'name': 'Centro ficticio Costa'},
+    {'code': 'SIM-CS02', 'name': 'Centro ficticio Interior'},
+    {'code': 'SIM-CS03', 'name': 'Centro ficticio Urbano'},
+]
+YESNO = Literal['', 'si', 'no', 'nc']
+DATE = re.compile(r'^\d{4}-\d{2}-\d{2}$')
+
+
+def now():
+    return datetime.now(timezone.utc).isoformat()
+
+
+def validate_date(value: str):
+    if value:
+        try:
+            date.fromisoformat(value)
+        except ValueError:
+            raise ValueError('Fecha inválida; se requiere AAAA-MM-DD')
+    return value
+
+
+class Strict(BaseModel):
+    model_config = ConfigDict(extra='forbid', str_strip_whitespace=True)
+
+
+class Patient(Strict):
+    id: str
+    center: Literal['SIM-CS01', 'SIM-CS02', 'SIM-CS03']
+    age: int | None = Field(None, ge=0, le=110)  # legacy; derived from birthDate when supplied
+    birthDate: str = ''  # date-of-birth only for fictitious patients
+    sex: Literal['', 'hombre', 'mujer', 'otro', 'nc'] = ''
+    copd: YESNO = ''
+    regular: YESNO = ''
+    weeks: int | None = Field(None, ge=0, le=520)
+    capacity: Literal['','si','ayuda','no','nc'] = ''  # R016: with help is distinct from No
+    exclusion: YESNO = ''  # legacy aggregate; detail below
+    alternativeDiagnosis: YESNO = ''  # R017
+    seriousDecompensation: YESNO = ''  # R019
+    interferingTrial: YESNO = ''  # R020
+    consent: Literal['','si','no','retirado','nc'] = ''  # R021
+    consentDate: str = ''  # R022
+    status: Literal['cribado', 'incluido'] = 'cribado'
+    activeExacerb: YESNO = ''
+    eligibilityDecision: Literal['pendiente','elegible','no_elegible'] = 'pendiente'
+    screenFailureReason: Literal['','criterios','rechaza','sin_consentimiento','otros'] = ''
+    vitalStatus: Literal['','vivo','fallecido','desconocido'] = ''
+    deathDate: str = ''
+    deathCause: Literal['','respiratoria','otra','indeterminada'] = ''
+    enrolDate: str = ''
+    smoking: Literal['', 'actual', 'ex', 'nunca', 'nc'] = ''
+    packs: float | None = Field(None, ge=0, le=300)
+    spiroDate: str = ''
+    ratio: float | None = Field(None, ge=0, le=1)
+    fev1: float | None = Field(None, ge=0, le=200)
+    priorEx: int | None = Field(None, ge=0, le=50)  # historical total, retained for compatibility
+    priorExModerate: int | None = Field(None, ge=0, le=50)
+    priorExSevere: int | None = Field(None, ge=0, le=50)
+    priorHosp: int | None = Field(None, ge=0, le=50)
+    comorbHtn: YESNO = ''
+    comorbHf: YESNO = ''
+    comorbDm: YESNO = ''
+    comorbOsa: YESNO = ''
+    otherComorbidities: str = Field('', max_length=300)  # R043
+    charlson: int | None = Field(None, ge=0, le=37)  # R044, optional
+    fluVaccination: YESNO = ''  # R051, V0
+    pneumococcalVaccination: YESNO = ''  # R052, V0
+    lastInformationDate: str = ''  # date of last known vital status
+    created: str = ''
+    rev: int | None = None
+
+    @field_validator('id')
+    @classmethod
+    def synthetic_id(cls, v):
+        if not CODE.fullmatch(v):
+            raise ValueError('Sólo se permiten códigos de simulación SIM-')
+        return v
+
+    @field_validator('enrolDate', 'spiroDate', 'created', 'deathDate', 'birthDate', 'consentDate', 'lastInformationDate')
+    @classmethod
+    def dates(cls, v):
+        return validate_date(v)
+
+    @model_validator(mode='after')
+    def clinical_rules(self):
+        if self.birthDate and self.enrolDate:
+            birth, enrol = date.fromisoformat(self.birthDate), date.fromisoformat(self.enrolDate)
+            if birth >= enrol:
+                raise ValueError('La fecha de nacimiento debe preceder a la inclusión')
+            derived_age = enrol.year - birth.year - ((enrol.month, enrol.day) < (birth.month, birth.day))
+            if not 0 <= derived_age <= 110:
+                raise ValueError('Edad derivada fuera del intervalo admitido')
+            self.age = derived_age
+        if self.priorExModerate is not None and self.priorExSevere is not None:
+            count = self.priorExModerate + self.priorExSevere
+            if count > 50:
+                raise ValueError('El recuento total de agudizaciones excede el límite del prototipo')
+            self.priorEx = count
+        if self.status == 'incluido' and self.weeks is not None and self.weeks < 4:
+            raise ValueError('La estabilidad requiere al menos 4 semanas sin agudización')
+        if self.eligibilityDecision == 'no_elegible' and self.status == 'incluido':
+            raise ValueError('Un cribado no elegible no puede quedar incluido')
+        if self.status == 'incluido' and self.activeExacerb == 'si':
+            raise ValueError('Agudización activa: posponer inclusión y revisar según protocolo')
+        if self.status == 'incluido' and self.screenFailureReason:
+            raise ValueError('Un participante incluido no puede conservar motivo de no inclusión')
+        if self.eligibilityDecision == 'elegible' and self.screenFailureReason:
+            raise ValueError('Retire el motivo de exclusión si declara elegible')
+        if self.consentDate and self.enrolDate and self.consentDate > self.enrolDate:
+            raise ValueError('La fecha del consentimiento no puede ser posterior a la inclusión')
+        if self.consentDate and self.consent not in ('si','retirado'):
+            raise ValueError('Fecha de consentimiento: indique firmado o retirado')
+        if self.lastInformationDate and self.enrolDate and self.lastInformationDate < self.enrolDate:
+            raise ValueError('La última información no puede ser anterior a la inclusión')
+        if self.vitalStatus == 'fallecido' and not self.deathDate:
+            raise ValueError('En fallecimiento, registre la fecha; la causa puede ser desconocida')
+        if self.vitalStatus != 'fallecido' and (self.deathDate or self.deathCause):
+            raise ValueError('Fecha y causa de muerte solo se permiten con estado fallecido')
+        if self.deathDate and self.enrolDate and self.deathDate < self.enrolDate:
+            raise ValueError('La fecha de fallecimiento no puede preceder al inicio del estudio')
+        if self.status == 'incluido':
+            if self.consent != 'si' or self.copd != 'si' or not self.enrolDate or not self.spiroDate:
+                raise ValueError('La inclusión exige consentimiento, EPOC y fechas basales')
+        if self.spiroDate and self.enrolDate and self.spiroDate > self.enrolDate:
+            raise ValueError('Espirometría posterior a fecha basal')
+        return self
+
+
+class Visit(Strict):
+    id: str = Field(max_length=64)
+    patient: str
+    type: Literal['V0', 'V1', 'V2']
+    date: str
+    assessorCode: str = Field('', max_length=64)  # R065; no fabricated clinician IDs
+    cat: int | None = Field(None, ge=0, le=40)
+    mmrc: int | None = Field(None, ge=0, le=4)
+    smoking: Literal['', 'actual', 'ex', 'nunca', 'nc'] = ''
+    adherence: Literal['', 'pendiente', 'buena', 'regular', 'mala', 'ne'] = ''  # legacy; not a clinical adherence measure
+    ianusVerified: Literal['', 'si', 'no'] = ''
+    ianusCollected: Literal['', 'si', 'no', 'nv'] = ''
+    ianusCheckedAt: str = ''
+    rescue: YESNO = ''
+    exacerb: YESNO = ''
+    dyspnea: YESNO = ''
+    activity: YESNO = ''
+    action: Literal['', 'seguimiento', 'revision', 'educacion', 'derivacion', 'otro'] = ''
+    inhaler: YESNO = ''
+    education: YESNO = ''
+    referral: YESNO = ''
+    status: Literal['parcial', 'completa', 'no_realizada'] = 'parcial'
+    lama: YESNO = ''
+    laba: YESNO = ''
+    ics: YESNO = ''
+    inhaledRegimen: Literal['','ninguno','mono','dual','triple','laba_ics'] = ''
+    monotherapyClass: Literal['','lama','laba'] = ''
+    roflumilast: YESNO = ''
+    azithromycin: YESNO = ''
+    rescuePrescription: Literal['','saba','sama','ambos','otro','ninguno','nc'] = ''
+    medicationDetails: str = Field('', max_length=500)  # only synthetic medication names
+    reason: Literal['', 'abandono', 'fallecimiento', 'traslado', 'no_contacto', 'otro'] = ''
+    rev: int | None = None
+
+    @field_validator('patient')
+    @classmethod
+    def patient_id(cls, v):
+        if not CODE.fullmatch(v):
+            raise ValueError('Código de participante incorrecto')
+        return v
+
+    @field_validator('date')
+    @classmethod
+    def visit_date(cls, v):
+        if not v:
+            raise ValueError('La fecha es obligatoria')
+        return validate_date(v)
+
+    @field_validator('ianusCheckedAt')
+    @classmethod
+    def ianus_optional_date(cls, v):
+        return validate_date(v)
+
+    @model_validator(mode='after')
+    def rules(self):
+        if self.ianusVerified == 'no' and self.ianusCollected in ('si', 'no'):
+            raise ValueError('No puede declarar recogida Sí/No cuando IANUS no es verificable')
+        if self.ianusVerified == 'si' and self.ianusCollected == 'nv':
+            raise ValueError('NV solo es válido si IANUS no es verificable')
+        regimen_map = {'ninguno': ('no','no','no'), 'dual': ('si','si','no'),
+                       'triple': ('si','si','si'), 'laba_ics': ('no','si','si')}
+        if self.inhaledRegimen == 'mono':
+            if self.monotherapyClass not in ('lama','laba'):
+                raise ValueError('Seleccione LAMA o LABA para la monoterapia')
+            regimen_map['mono'] = ('si','no','no') if self.monotherapyClass == 'lama' else ('no','si','no')
+        elif self.monotherapyClass:
+            raise ValueError('El tipo de monoterapia solo procede con LAMA o LABA')
+        if self.inhaledRegimen:
+            self.lama, self.laba, self.ics = regimen_map[self.inhaledRegimen]
+        if self.status == 'no_realizada' and not self.reason:
+            raise ValueError('Debe indicar motivo de visita no realizada')
+        if self.status == 'completa':
+            if not all(getattr(self, k) in ('si', 'no') for k in ('rescue', 'exacerb', 'dyspnea', 'activity')):
+                raise ValueError('RADAR incompleto')
+            if self.cat is None or self.mmrc is None or not self.action:
+                raise ValueError('Faltan CAT, mMRC o plan clínico')
+        return self
+
+
+class Episode(Strict):
+    @model_validator(mode='after')
+    def episode_rules(self):
+        if self.kind == 'otro' and self.severity not in ('no_aplica','indeterminada'):
+            raise ValueError('Otro evento: gravedad no aplicable o por confirmar')
+        if self.kind == 'agudizacion' and self.severity == 'no_aplica':
+            raise ValueError('Agudización: debe indicar gravedad moderada, grave o pendiente')
+        if self.emergencyDate and self.emergencyStatus != 'si':
+            raise ValueError('Fecha de Urgencias exige respuesta Sí (R081)')
+        if self.admissionDate and self.admissionStatus != 'si':
+            raise ValueError('Fecha de ingreso exige respuesta Sí (R082)')
+        return self
+
+    id: str = Field(max_length=64)
+    patient: str
+    date: str
+    severity: Literal['moderada', 'grave', 'indeterminada', 'no_aplica']
+    kind: Literal['agudizacion', 'otro'] = 'agudizacion'  # R076, E/O
+    episodeNo: int | None = Field(None, ge=1, le=9999)  # R074, assigned on the server
+    emergencyStatus: YESNO = ''   # R081: response recorded for this episode, not a contact count
+    admissionStatus: YESNO = ''   # R082: absent must never be treated as No
+    emergencyDate: str = ''      # documented first visit date, if known
+    admissionDate: str = ''      # documented first admission date, if known
+    careAssessmentRev: int = Field(0, ge=0)  # optimistic concurrency for R081/R082 corrections
+    copd: YESNO = ''
+    steroids: YESNO = ''
+    antibiotics: YESNO = ''
+    source: Literal['', 'hce', 'paciente', 'informe', 'otro'] = ''
+
+    @field_validator('date')
+    @classmethod
+    def check_date(cls, v):
+        if not v:
+            raise ValueError('Fecha obligatoria')
+        return validate_date(v)
+    @field_validator('emergencyDate', 'admissionDate')
+    @classmethod
+    def care_dates(cls, v):
+        return validate_date(v)
+    @field_validator('patient')
+    @classmethod
+    def check_code(cls, v):
+        if not CODE.fullmatch(v):
+            raise ValueError('Código inválido')
+        return v
+
+
+class EpisodeCareAssessment(Strict):
+    emergencyStatus: YESNO = ''
+    admissionStatus: YESNO = ''
+    emergencyDate: str = ''
+    admissionDate: str = ''
+    rev: int = Field(ge=0)
+    reason: str = Field('', max_length=240)
+
+    @field_validator('emergencyDate', 'admissionDate')
+    @classmethod
+    def date_check(cls, v):
+        return validate_date(v)
+
+    @model_validator(mode='after')
+    def check(self):
+        if self.emergencyDate and self.emergencyStatus != 'si':
+            raise ValueError('R081: una fecha de Urgencias requiere Sí')
+        if self.admissionDate and self.admissionStatus != 'si':
+            raise ValueError('R082: una fecha de ingreso requiere Sí')
+        return self
+
+
+class Contact(Strict):
+    id: str = Field(max_length=64)
+    patient: str
+    date: str
+    event: str = Field('', max_length=64)
+    type: Literal['urgencias', 'ingreso', 'otro']
+    copd: YESNO = ''
+    source: Literal['', 'hce', 'paciente', 'informe', 'otro'] = ''
+    dischargeDate: str = ''  # fecha alta, opcional, para contacto documentado
+    careCentre: str = Field('', max_length=100)  # sólo centro ficticio, nunca identificadores reales
+
+    @field_validator('date', 'dischargeDate')
+    @classmethod
+    def check_date(cls, v):
+        return validate_date(v)
+    @field_validator('patient')
+    @classmethod
+    def check_code(cls, v):
+        if not CODE.fullmatch(v):
+            raise ValueError('Código inválido')
+        return v
+    @model_validator(mode='after')
+    def contact_dates(self):
+        if not self.date:
+            raise ValueError('Fecha de contacto obligatoria')
+        if self.dischargeDate and self.dischargeDate < self.date:
+            raise ValueError('El alta no puede preceder al contacto')
+        return self
+
+
+class ObservationBatch(Strict):
+    observations: dict[str, str | int | None]
+    revisions: dict[str, int] = Field(default_factory=dict)
+    reason: str = ''
+
+
+class MissingDatum(Strict):
+    participant: str
+    visit_type: Literal['V0','V1','V2']
+    field_code: str = Field(min_length=3, max_length=20)
+    reason: Literal['no_registrado','no_disponible','no_realizado','no_aplica',
+                    'no_recogido','rechazo','desconocido']
+
+    @field_validator('field_code')
+    @classmethod
+    def permitted_missing_code(cls, value):
+        legacy={'cat','mmrc','rescue','exacerb','dyspnea','activity',
+                'adherence','action','fev1','ratio','spiroDate','priorEx','priorHosp'}
+        if value in legacy:return value
+        m=re.fullmatch(r'R(0\d\d|10[0-7])',value)
+        if not m or not 1 <= int(m.group(1)) <= 106:
+            raise ValueError('Código de campo no reconocido; utilice R001–R106 o un campo básico')
+        return value
+    rev: int | None = None
+    correction_reason: str = ''
+
+    @field_validator('participant')
+    @classmethod
+    def check_synthetic(cls, v):
+        if not CODE.fullmatch(v): raise ValueError('Código sintético inválido')
+        return v
+
+
+class Phase14Record(Strict):
+    kind: Literal['centre','professional','screening','baseline','visit','implementation']
+    key: str = Field(min_length=3,max_length=64)
+    payload: dict[str, str | int | float | None]
+    rev: int = Field(0,ge=0)
+    reason: str = ''
+    centre: str = ''
+
+
+class Login(Strict):
+    username: str = Field(min_length=3, max_length=80)
+    password: str = Field(min_length=1, max_length=128)
+
+
+def score(data):
+    keys = ['rescue', 'exacerb', 'dyspnea', 'activity']
+    if data.get('status') == 'no_realizada':
+        return None
+    if not all(data.get(k) in ('si', 'no') for k in keys):
+        return None
+    return sum(w for k, w in zip(keys, [3, 2, 2, 1]) if data[k] == 'si')
+
+
+@contextmanager
+def conn():
+    DB_FILE.parent.mkdir(parents=True, exist_ok=True)
+    with LOCK:
+        c = sqlite3.connect(str(DB_FILE), timeout=10)
+        c.row_factory = sqlite3.Row
+        c.execute('PRAGMA foreign_keys=ON')
+        c.execute('PRAGMA journal_mode=WAL')
+        try:
+            yield c
+            c.commit()
+        except Exception:
+            c.rollback()
+            raise
+        finally:
+            c.close()
+
+
+def rowdict(r):
+    return dict(r) if r is not None else None
+
+
+def init_db():
+    with conn() as c:
+        c.executescript('''
+        CREATE TABLE IF NOT EXISTS users(id INTEGER PRIMARY KEY, username TEXT UNIQUE NOT NULL, pw_hash TEXT NOT NULL, role TEXT NOT NULL, centre TEXT);
+        CREATE TABLE IF NOT EXISTS study_observations(
+          participant TEXT NOT NULL REFERENCES patients(id), visit_type TEXT NOT NULL,
+          variable_code TEXT NOT NULL, value_json TEXT NOT NULL, rev INTEGER NOT NULL DEFAULT 1,
+          username TEXT NOT NULL, updated_at TEXT NOT NULL,
+          PRIMARY KEY (participant,visit_type,variable_code));
+        CREATE TABLE IF NOT EXISTS phase14_records(
+          kind TEXT NOT NULL, record_key TEXT NOT NULL, centre TEXT NOT NULL,
+          participant TEXT, payload TEXT NOT NULL, rev INTEGER NOT NULL DEFAULT 1,
+          username TEXT NOT NULL, updated_at TEXT NOT NULL,
+          PRIMARY KEY(kind,record_key));
+        CREATE INDEX IF NOT EXISTS idx_phase14_centre ON phase14_records(centre,kind);
+        CREATE TABLE IF NOT EXISTS missing_data(
+          participant TEXT NOT NULL REFERENCES patients(id), visit_type TEXT NOT NULL,
+          field_code TEXT NOT NULL, reason TEXT NOT NULL, rev INTEGER NOT NULL DEFAULT 1,
+          username TEXT NOT NULL, updated_at TEXT NOT NULL,
+          PRIMARY KEY (participant, visit_type, field_code));
+        CREATE INDEX IF NOT EXISTS idx_missing_data_participant ON missing_data(participant,visit_type);
+        CREATE INDEX IF NOT EXISTS idx_study_obs_participant ON study_observations(participant,visit_type);
+        CREATE TABLE IF NOT EXISTS sessions(token_hash TEXT PRIMARY KEY, user_id INTEGER NOT NULL REFERENCES users(id), csrf_hash TEXT NOT NULL, expires TEXT NOT NULL);
+        CREATE TABLE IF NOT EXISTS patients(id TEXT PRIMARY KEY, centre TEXT NOT NULL, payload TEXT NOT NULL, rev INTEGER NOT NULL, created_by TEXT NOT NULL, updated_at TEXT NOT NULL);
+        CREATE TABLE IF NOT EXISTS visits(id TEXT PRIMARY KEY, patient TEXT NOT NULL REFERENCES patients(id), vtype TEXT NOT NULL, payload TEXT NOT NULL, rev INTEGER NOT NULL, UNIQUE(patient,vtype));
+        CREATE TABLE IF NOT EXISTS episodes(id TEXT PRIMARY KEY, patient TEXT NOT NULL REFERENCES patients(id), payload TEXT NOT NULL);
+        CREATE TABLE IF NOT EXISTS contacts(id TEXT PRIMARY KEY, patient TEXT NOT NULL REFERENCES patients(id), episode_id TEXT, payload TEXT NOT NULL);
+        CREATE TABLE IF NOT EXISTS audit(id INTEGER PRIMARY KEY AUTOINCREMENT, happened_at TEXT NOT NULL, username TEXT NOT NULL, role TEXT NOT NULL, centre TEXT, verb TEXT NOT NULL, kind TEXT NOT NULL, object_id TEXT NOT NULL);
+        CREATE TABLE IF NOT EXISTS audit_field_changes(id INTEGER PRIMARY KEY AUTOINCREMENT, audit_id INTEGER NOT NULL REFERENCES audit(id), field_name TEXT NOT NULL, prior_value TEXT, new_value TEXT NOT NULL);
+        CREATE INDEX IF NOT EXISTS idx_audit_changes_audit ON audit_field_changes(audit_id);
+        CREATE INDEX IF NOT EXISTS idx_audit_entity ON audit(kind,object_id);
+        
+        ''')
+        # Non-destructive schema migration from v0.6; earlier entries have no field-level history.
+        columns={r['name'] for r in c.execute('PRAGMA table_info(audit)')}
+        for col,typ in [('reason','TEXT'),('revision_from','INTEGER'),('revision_to','INTEGER'),
+                        ('participant_id','TEXT'),('field_count','INTEGER'),('record_digest','TEXT')]:
+            if col not in columns:
+                c.execute(f'ALTER TABLE audit ADD COLUMN {col} {typ}')
+        if not c.execute('SELECT count(*) n FROM users').fetchone()['n']:
+            # Published demo credentials are appropriate ONLY for a synthetic, localhost demo.
+            demo_users = [
+                ('admin', 'radar-demo-admin', 'admin', None),
+                ('costa', 'radar-demo-costa', 'investigator', 'SIM-CS01'),
+                ('interior', 'radar-demo-interior', 'investigator', 'SIM-CS02'),
+                ('revisor', 'radar-demo-revisor', 'reviewer', None),
+            ]
+            c.executemany('INSERT INTO users(username,pw_hash,role,centre) VALUES (?,?,?,?)', [(u, PH.hash(p),r,x) for u,p,r,x in demo_users])
+        if os.environ.get('RADAR_SEED_DEMO')=='1' and not c.execute('SELECT count(*) n FROM patients').fetchone()['n']:
+            demo_patients = [
+                {'id':'SIM-001','center':'SIM-CS01','age':68,'sex':'hombre','copd':'si','regular':'si','weeks':12,'capacity':'si','exclusion':'no','consent':'si','status':'incluido','enrolDate':'2026-01-15','smoking':'ex','packs':35,'spiroDate':'2025-11-19','ratio':0.57,'fev1':63.2,'priorEx':2,'priorHosp':0,'created':'2026-01-15'},
+                {'id':'SIM-002','center':'SIM-CS02','age':61,'sex':'mujer','copd':'si','regular':'si','weeks':15,'capacity':'si','exclusion':'no','consent':'si','status':'incluido','enrolDate':'2026-02-02','smoking':'actual','packs':19,'spiroDate':'2026-01-21','ratio':0.61,'fev1':48,'priorEx':3,'priorHosp':1,'created':'2026-02-02'},
+                {'id':'SIM-003','center':'SIM-CS03','age':72,'sex':'mujer','copd':'si','regular':'si','weeks':6,'capacity':'si','exclusion':'no','consent':'si','status':'incluido','enrolDate':'2026-03-12','smoking':'nunca','packs':0,'spiroDate':'2025-10-18','ratio':0.68,'fev1':76,'priorEx':0,'priorHosp':0,'created':'2026-03-12'},
+            ]
+            for d in demo_patients:
+                d = Patient.model_validate(d).model_dump(exclude={'rev'})
+                c.execute('INSERT INTO patients VALUES (?,?,?,?,?,?)',(d['id'],d['center'],json.dumps(d),1,'system',now()))
+            demo_visits = [
+                {'id':'VIS-S001','patient':'SIM-001','type':'V0','date':'2026-01-15','cat':18,'mmrc':2,'rescue':'si','exacerb':'no','dyspnea':'si','activity':'no','action':'revision','status':'completa'},
+                {'id':'VIS-S002','patient':'SIM-001','type':'V1','date':'2026-07-16','cat':12,'mmrc':1,'rescue':'no','exacerb':'no','dyspnea':'no','activity':'no','action':'seguimiento','status':'completa'},
+                {'id':'VIS-S003','patient':'SIM-002','type':'V0','date':'2026-02-02','cat':25,'mmrc':3,'rescue':'si','exacerb':'si','dyspnea':'si','activity':'si','action':'revision','status':'completa'},
+                {'id':'VIS-S004','patient':'SIM-003','type':'V0','date':'2026-03-12','cat':9,'mmrc':1,'rescue':'no','exacerb':'no','dyspnea':'no','activity':'no','action':'seguimiento','status':'completa'},
+            ]
+            for v in demo_visits:
+                v=Visit.model_validate(v).model_dump(exclude={'rev'})
+                c.execute('INSERT INTO visits VALUES (?,?,?,?,?)',(v['id'],v['patient'],v['type'],json.dumps(v),1))
+            e=Episode(id='EPI-S001',patient='SIM-001',date='2026-04-02',severity='moderada',copd='si',steroids='si',antibiotics='no',source='hce').model_dump()
+            c.execute('INSERT INTO episodes VALUES (?,?,?)',(e['id'],e['patient'],json.dumps(e)))
+            a=Contact(id='CON-S001',patient='SIM-002',date='2026-05-18',type='urgencias',copd='si',source='hce').model_dump()
+            c.execute('INSERT INTO contacts VALUES (?,?,?,?)',(a['id'],a['patient'],a['event'],json.dumps(a)))
+        migrate_legacy_episode_numbers(c)
+        migrate_legacy_care_assessments(c)
+
+
+def migrate_legacy_episode_numbers(c):
+    """One-time, synthetic-only assignment of stable CRD R074 per participant.
+
+    Preserve existing internal episode IDs and contact references. Numbers are allocated
+    in historical SQLite insertion order, not used as diagnostic codes.
+    """
+    occupied={}
+    rows=c.execute('SELECT id,patient,payload FROM episodes ORDER BY rowid').fetchall()
+    for r in rows:
+        d=json.loads(r['payload'])
+        if isinstance(d.get('episodeNo'),int):
+            occupied.setdefault(r['patient'],set()).add(d['episodeNo'])
+    for r in rows:
+        d=json.loads(r['payload'])
+        if isinstance(d.get('episodeNo'),int):continue
+        used=occupied.setdefault(r['patient'],set())
+        num=next(i for i in range(1,10000) if i not in used)
+        before=dict(d);d['episodeNo']=num
+        # Old events did not distinguish event kinds: preserve their existing meaning.
+        d.setdefault('kind','agudizacion')
+        c.execute('UPDATE episodes SET payload=? WHERE id=?',(json.dumps(d),r['id']))
+        used.add(num)
+        p=c.execute('SELECT centre FROM patients WHERE id=?',(r['patient'],)).fetchone()
+        log_audit(c,{'username':'system','role':'admin'},'MIGRATE','episode',r['id'],p['centre'] if p else None,
+                  patient_id=r['patient'],old=before,new=d,reason='Asignación R074 desde versión anterior; sin alterar ID')
+
+
+
+def migrate_legacy_care_assessments(c):
+    """Non-destructive v0.21 migration: only verified linked contacts imply Sí.
+
+    A missing contact remains blank (unknown), NEVER No. Old contact and episode
+    identifiers stay unchanged. Audit the change; migration is idempotent.
+    """
+    rows=c.execute('SELECT id,patient,payload FROM episodes ORDER BY rowid').fetchall()
+    for row in rows:
+        before=json.loads(row['payload'])
+        updated=dict(before)
+        linked=c.execute('SELECT payload FROM contacts WHERE episode_id=? AND patient=?',
+                         (row['id'],row['patient'])).fetchall()
+        by_kind={'urgencias':[], 'ingreso':[]}
+        for item in linked:
+            ct=json.loads(item['payload'])
+            if before.get('copd')=='si' and ct.get('copd')=='si' and ct.get('type') in by_kind and ct.get('date'):
+                by_kind[ct['type']].append(ct['date'])
+        for kind,status_key,date_key in [('urgencias','emergencyStatus','emergencyDate'),
+                                         ('ingreso','admissionStatus','admissionDate')]:
+            if by_kind[kind] and not updated.get(status_key):
+                updated[status_key]='si'
+                updated[date_key]=min(by_kind[kind])
+        if updated!=before:
+            updated['careAssessmentRev']=int(before.get('careAssessmentRev') or 0)+1
+            c.execute('UPDATE episodes SET payload=? WHERE id=?',(json.dumps(updated),row['id']))
+            p=c.execute('SELECT centre FROM patients WHERE id=?',(row['patient'],)).fetchone()
+            log_audit(c,{'username':'system','role':'admin'},'MIGRATE','episode',row['id'],
+                      p['centre'] if p else None,patient_id=row['patient'],old=before,new=updated,
+                      revision_from=before.get('careAssessmentRev',0),revision_to=updated['careAssessmentRev'],
+                      reason='R081/R082 inferidos solo de contactos previos vinculados; otras respuestas sin registrar')
+
+
+def reconcile_contact_care(c,user,episode_id,contact_type,contact_date,centre,patient_id,contact_copd):
+    """A documented contact is affirmative evidence, but never infer negatives."""
+    if not episode_id or contact_type not in ('urgencias','ingreso'): return
+    row=c.execute('SELECT payload FROM episodes WHERE id=? AND patient=?',(episode_id,patient_id)).fetchone()
+    if not row: return
+    before=json.loads(row['payload'])
+    if contact_copd!='si' or before.get('copd')!='si': return  # No inferir relación con EPOC
+    after=dict(before)
+    status_key,date_key = (('emergencyStatus','emergencyDate') if contact_type=='urgencias'
+                           else ('admissionStatus','admissionDate'))
+    after[status_key]='si'
+    if not after.get(date_key) or contact_date < after[date_key]:
+        after[date_key]=contact_date
+    if before==after:return
+    after['careAssessmentRev']=int(before.get('careAssessmentRev') or 0)+1
+    c.execute('UPDATE episodes SET payload=? WHERE id=?',(json.dumps(after),episode_id))
+    log_audit(c,user,'UPDATE','episode',episode_id,centre,patient_id=patient_id,
+              old=before,new=after,revision_from=before.get('careAssessmentRev',0),
+              revision_to=after['careAssessmentRev'],
+              reason=f'R081/R082 actualizado por contacto {contact_type} documentado')
+
+
+def failure(code, msg):
+    raise HTTPException(status_code=code, detail=msg)
+
+
+def user_for(request: Request):
+    token=request.cookies.get('radar_session','')
+    if not token:
+        failure(401,'Inicie sesión')
+    with conn() as c:
+        row=c.execute('SELECT u.*,s.csrf_hash FROM sessions s JOIN users u ON u.id=s.user_id WHERE s.token_hash=? AND s.expires>?',(hashlib.sha256(token.encode()).hexdigest(),now())).fetchone()
+    if not row:
+        failure(401,'Sesión no válida o caducada')
+    user=rowdict(row)
+    if request.method not in ('GET','HEAD','OPTIONS'):
+        csrf=request.headers.get('X-RADAR-CSRF','')
+        if not csrf or not secrets.compare_digest(hashlib.sha256(csrf.encode()).hexdigest(),user['csrf_hash']):
+            failure(403,'Falta protección CSRF')
+        origin=request.headers.get('origin')
+        if origin and origin.rstrip('/')!=str(request.base_url).rstrip('/'):
+            failure(403,'Origen no permitido')
+    return user
+
+
+def public_user(user):
+    return {'username':user['username'],'role':user['role'],'centre':user['centre']}
+
+
+def accessible(user, centre):
+    if user['centre'] is not None and user['centre'] != centre:
+        failure(403,'No tiene acceso a este centro')
+
+
+def writable(user):
+    if user['role'] not in ('admin','investigator'):
+        failure(403,'El usuario es de sólo lectura')
+
+
+def patient_for(c, user, code):
+    r=c.execute('SELECT * FROM patients WHERE id=?',(code,)).fetchone()
+    if not r:
+        failure(404,'Participante no encontrado')
+    accessible(user,r['centre'])
+    return r
+
+
+def meaningful(value):
+    return value is not None and value != ''
+
+
+def log_audit(c, user, verb, kind, oid, centre, *, patient_id='', old=None, new=None, revision_from=None, revision_to=None, reason=''):
+    """Transactionally log an event and its exact field differences.
+
+    Older v0.6 events remain event-only. Empty values are retained on updates.
+    Hash is a diagnostic fingerprint of the new record, NOT a tamper-proof signature.
+    """
+    if old is None and new is not None:
+        # Initial captures are recorded in TRAZABILIDAD and represented by current
+        # data tables; CAMBIOS_CAMPO is reserved for actual subsequent corrections.
+        changed={}
+    elif old is not None and new is not None:
+        changed={k:(old.get(k),v) for k,v in new.items() if old.get(k)!=v}
+    else:
+        changed={}
+    stamp=now()
+    digest=hashlib.sha256(json.dumps(new,sort_keys=True,ensure_ascii=False,separators=(',',':')).encode()).hexdigest() if new is not None else None
+    cur=c.execute("""INSERT INTO audit(happened_at,username,role,centre,verb,kind,object_id,reason,revision_from,revision_to,participant_id,field_count,record_digest)
+                  VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+                  (stamp,user['username'],user['role'],centre,verb,kind,oid,reason or None,revision_from,revision_to,patient_id or None,len(changed),digest))
+    aid=cur.lastrowid
+    if changed:
+        c.executemany('INSERT INTO audit_field_changes(audit_id,field_name,prior_value,new_value) VALUES (?,?,?,?)',
+          [(aid,k,json.dumps(before,ensure_ascii=False) if before is not None else None,
+            json.dumps(after,ensure_ascii=False)) for k,(before,after) in changed.items()])
+    return aid
+
+
+def correction_reason(request: Request):
+    reason=unquote(request.headers.get('X-RADAR-CHANGE-REASON','')).strip()
+    if len(reason)<8 or len(reason)>240:
+        failure(422,'Indique un motivo de corrección (8–240 caracteres), sin datos personales')
+    return reason
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    init_db()
+    yield
+
+app=FastAPI(title='RADAR-CORUÑA synthetic pilot',version='0.31.0',docs_url=None,redoc_url=None,lifespan=lifespan)
+
+@app.middleware('http')
+async def security_headers(request,call_next):
+    # Deliberately localhost only. Disallow remote clients even with spoofed Host.
+    hostname=(request.url.hostname or '').lower()
+    peer=(request.client.host if request.client else '')
+    if hostname not in ('localhost','127.0.0.1','::1','testserver') or peer not in ('127.0.0.1','::1','testclient','::ffff:127.0.0.1'):
+        return Response('Solo simulación local. Acceso externo bloqueado.',status_code=403,media_type='text/plain')
+    response=await call_next(request)
+    response.headers['Cache-Control']='no-store'
+    response.headers['X-Content-Type-Options']='nosniff'
+    response.headers['X-Frame-Options']='DENY'
+    response.headers['Referrer-Policy']='no-referrer'
+    response.headers['X-Robots-Tag']='noindex, nofollow'
+    response.headers['Cross-Origin-Resource-Policy']='same-origin'
+    response.headers['Permissions-Policy']='camera=(), microphone=(), geolocation=()'
+    response.headers['Content-Security-Policy']="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'"
+    return response
+
+@app.get('/')
+def index():
+    return HTMLResponse((ROOT/'static'/'index.html').read_text(encoding='utf-8'))
+
+@app.post('/api/session')
+def login(creds: Login, response: Response):
+    with conn() as c:
+        row=c.execute('SELECT * FROM users WHERE username=?',(creds.username,)).fetchone()
+        try:
+            if not row or not PH.verify(row['pw_hash'],creds.password):
+                failure(401,'Credenciales incorrectas')
+        except (VerifyMismatchError,VerificationError):
+            failure(401,'Credenciales incorrectas')
+        token=secrets.token_urlsafe(32)
+        csrf=secrets.token_urlsafe(32)
+        c.execute('DELETE FROM sessions WHERE expires<?',(now(),))
+        c.execute('INSERT INTO sessions VALUES (?,?,?,?)',(hashlib.sha256(token.encode()).hexdigest(),row['id'],hashlib.sha256(csrf.encode()).hexdigest(),(datetime.now(timezone.utc)+timedelta(hours=SESSION_HOURS)).isoformat()))
+        response.set_cookie('radar_session',token,httponly=True,samesite='strict',secure=False,max_age=SESSION_HOURS*3600,path='/')
+        return {'user':public_user(row),'csrf':csrf,'synthetic_only':True}
+
+@app.get('/api/session')
+def session(request: Request,user=Depends(user_for)):
+    # CSRF is kept client-side in memory; reloading page signs in via session cookie.
+    with conn() as c:
+        c.execute('UPDATE sessions SET expires=? WHERE token_hash=?',((datetime.now(timezone.utc)+timedelta(hours=SESSION_HOURS)).isoformat(),hashlib.sha256(request.cookies['radar_session'].encode()).hexdigest()))
+    # New CSRF on refresh requires a specific renewal endpoint with cookie; session check returns it after rotation.
+    csrf=secrets.token_urlsafe(32)
+    with conn() as c:
+        c.execute('UPDATE sessions SET csrf_hash=? WHERE token_hash=?',(hashlib.sha256(csrf.encode()).hexdigest(),hashlib.sha256(request.cookies['radar_session'].encode()).hexdigest()))
+    return {'user':public_user(user),'csrf':csrf,'synthetic_only':True}
+
+@app.post('/api/logout')
+def logout(request: Request,response: Response,user=Depends(user_for)):
+    with conn() as c:
+        c.execute('DELETE FROM sessions WHERE token_hash=?',(hashlib.sha256(request.cookies['radar_session'].encode()).hexdigest(),))
+    response.delete_cookie('radar_session',path='/')
+    return {'ok':True}
+
+
+def hydrate(c,table, where='', params=()):
+    rows=c.execute('SELECT * FROM '+table+' '+where,params).fetchall()
+    return [{**json.loads(r['payload']), **({'rev':r['rev']} if 'rev' in r.keys() else {})} for r in rows]
+
+@app.get('/api/state')
+def state(user=Depends(user_for)):
+    with conn() as c:
+        allowed=[x for x in CENTRES if not user['centre'] or user['centre']==x['code']]
+        scope=' WHERE centre=?' if user['centre'] else ''
+        ids=[r['id'] for r in c.execute('SELECT id FROM patients'+scope,((user['centre'],) if user['centre'] else ())).fetchall()]
+        # Scope by participant membership; never return other-centre records to browsers.
+        where=' WHERE patient IN ('+','.join('?' for _ in ids)+')' if ids else ' WHERE 0'
+        patients=hydrate(c,'patients',scope,((user['centre'],) if user['centre'] else ()))
+        visits=hydrate(c,'visits',where,ids)
+        events=hydrate(c,'episodes',where,ids)
+        contacts=hydrate(c,'contacts',where,ids)
+        awhere=' WHERE centre=?' if user['centre'] else ''
+        audit_rows=[{'at':r['happened_at'],'action':r['verb'],'object':r['kind'],'detail':r['object_id']} for r in c.execute('SELECT * FROM audit'+awhere+' ORDER BY id DESC LIMIT 200',((user['centre'],) if user['centre'] else ())).fetchall()]
+    return {'version':'0.31','centres':allowed,'patients':patients,'visits':visits,'events':events,'contacts':contacts,'audit':audit_rows,'user':public_user(user)}
+
+@app.post('/api/patients',status_code=201)
+def new_patient(d: Patient,user=Depends(user_for)):
+    writable(user); accessible(user,d.center)
+    data=d.model_dump(exclude={'rev'})
+    with conn() as c:
+        if c.execute('SELECT 1 FROM patients WHERE id=?',(d.id,)).fetchone(): failure(409,'El código ya existe')
+        c.execute('INSERT INTO patients VALUES (?,?,?,?,?,?)',(d.id,d.center,json.dumps(data),1,user['username'],now()))
+        log_audit(c,user,'CREATE','patient',d.id,d.center,patient_id=d.id,new=data,revision_to=1,reason='Alta inicial')
+    return {'ok':True,'id':d.id,'rev':1}
+
+@app.put('/api/patients/{code}')
+def update_patient(code: str,d: Patient,request: Request,user=Depends(user_for)):
+    writable(user)
+    if d.id!=code:failure(400,'No se puede cambiar el código')
+    reason=correction_reason(request)
+    with conn() as c:
+        old=patient_for(c,user,code)
+        if old['centre']!=d.center:failure(403,'No se permite cambiar el centro en este prototipo')
+        if d.rev!=old['rev']:failure(409,'Ficha modificada por otra sesión; recargue antes de guardar')
+        prior=json.loads(old['payload'])
+        updated=d.model_dump(exclude={'rev'})
+        if updated==prior: return {'ok':True,'id':code,'rev':old['rev'],'unchanged':True}
+        # A corrected baseline date must not silently invalidate an existing V0.
+        # There is no atomic participant+V0 correction workflow in this local pilot;
+        # reject the edit rather than leave a contradictory longitudinal record.
+        baseline=c.execute('SELECT payload FROM visits WHERE patient=? AND vtype=?',(code,'V0')).fetchone()
+        if baseline and json.loads(baseline['payload'])['date']!=d.enrolDate:
+            failure(409,'La fecha de inclusión debe coincidir con V0; requiere corrección coordinada')
+        if prior.get('status')=='incluido' and updated['status']=='cribado':
+            # Once any visit, episode or contact exists, moving back to screening
+            # would strand clinical follow-up against a non-included participant.
+            if any(c.execute(f'SELECT 1 FROM {table} WHERE patient=? LIMIT 1',(code,)).fetchone()
+                   for table in ('visits','episodes','contacts')):
+                failure(409,'Existen visitas o eventos; no se puede volver a cribado sin conciliación')
+        c.execute('UPDATE patients SET payload=?,rev=rev+1,updated_at=? WHERE id=?',(json.dumps(updated),now(),code))
+        log_audit(c,user,'UPDATE','patient',code,d.center,patient_id=code,old=prior,new=updated,
+                  revision_from=old['rev'],revision_to=old['rev']+1,reason=reason)
+    return {'ok':True,'id':code,'rev':old['rev']+1}
+
+@app.post('/api/visits',status_code=201)
+def new_visit(d: Visit,user=Depends(user_for)):
+    writable(user)
+    with conn() as c:
+        p=patient_for(c,user,d.patient)
+        pdata=json.loads(p['payload'])
+        check_visit(c,d,pdata)
+        if c.execute('SELECT 1 FROM visits WHERE id=? OR (patient=? AND vtype=?)',(d.id,d.patient,d.type)).fetchone():failure(409,'Visita ya registrada')
+        data=d.model_dump(exclude={'rev'})
+        c.execute('INSERT INTO visits VALUES (?,?,?,?,?)',(d.id,d.patient,d.type,json.dumps(data),1))
+        log_audit(c,user,'CREATE','visit',d.id,p['centre'],patient_id=d.patient,new=data,
+                  revision_to=1,reason='Visita inicial')
+    return {'ok':True,'rev':1}
+
+@app.put('/api/visits/{vid}')
+def update_visit(vid: str,d: Visit,request: Request,user=Depends(user_for)):
+    writable(user)
+    if d.id!=vid:failure(400,'Identificador no modificable')
+    reason=correction_reason(request)
+    with conn() as c:
+        old=c.execute('SELECT * FROM visits WHERE id=?',(vid,)).fetchone()
+        if not old: failure(404,'Visita no encontrada')
+        p=patient_for(c,user,old['patient'])
+        if d.patient!=old['patient'] or d.type!=old['vtype']: failure(400,'No se permite cambiar el participante ni el tipo de visita')
+        if d.rev!=old['rev']:failure(409,'Esta visita fue modificada por otro usuario')
+        check_visit(c,d,json.loads(p['payload']))
+        prior=json.loads(old['payload'])
+        updated=d.model_dump(exclude={'rev'})
+        if updated==prior: return {'ok':True,'rev':old['rev'],'unchanged':True}
+        c.execute('UPDATE visits SET payload=?,rev=rev+1 WHERE id=?',(json.dumps(updated),vid))
+        log_audit(c,user,'UPDATE','visit',d.id,p['centre'],patient_id=d.patient,old=prior,new=updated,
+                  revision_from=old['rev'],revision_to=old['rev']+1,reason=reason)
+    return {'ok':True,'rev':old['rev']+1}
+
+
+def check_visit(c,d,p):
+    if p['status']!='incluido':failure(422,'Participante aún en cribado')
+    if d.type=='V0' and d.date!=p['enrolDate']: failure(422,'V0 debe coincidir con inclusión')
+    if d.type!='V0' and not c.execute('SELECT 1 FROM visits WHERE patient=? AND vtype=?',(d.patient,'V0')).fetchone():failure(422,'Debe existir V0 antes de seguimiento')
+    # Longitudinal dates: V1/V2 cannot precede the baseline date.
+    if d.type!='V0' and d.date<p['enrolDate']:failure(422,'Seguimiento anterior a línea basal')
+    # Chronological impossibilities are enforced; optional visit-window tolerances
+    # remain warnings pending scientific protocol approval.
+    other='V2' if d.type=='V1' else 'V1' if d.type=='V2' else None
+    if other:
+        prior=c.execute('SELECT payload FROM visits WHERE patient=? AND vtype=?',(d.patient,other)).fetchone()
+        if prior:
+            otherdate=json.loads(prior['payload'])['date']
+            if (d.type=='V1' and d.date>=otherdate) or (d.type=='V2' and d.date<=otherdate):
+                failure(422,'Orden cronológico V1/V2 incorrecto')
+
+@app.post('/api/episodes',status_code=201)
+def new_episode(d: Episode,user=Depends(user_for)):
+    writable(user)
+    with conn() as c:
+        p=patient_for(c,user,d.patient)
+        if json.loads(p['payload'])['status']!='incluido': failure(422,'No incluido')
+        if c.execute('SELECT 1 FROM episodes WHERE id=?',(d.id,)).fetchone():failure(409,'Episodio duplicado')
+        if d.episodeNo is not None:failure(422,'El número R074 se asigna automáticamente; no enviarlo manualmente')
+        prior=[json.loads(x['payload']) for x in c.execute('SELECT payload FROM episodes WHERE patient=?',(d.patient,))]
+        # Retain an anti-double-submit guard, but allow another event type on the same day.
+        if any(x['date']==d.date and x.get('kind','agudizacion')==d.kind and x.get('severity')==d.severity and
+               x.get('copd','')==d.copd and x.get('steroids','')==d.steroids and x.get('antibiotics','')==d.antibiotics for x in prior):
+            failure(409,'Posible duplicado exacto: revise el episodio antes de guardarlo')
+        d.episodeNo=max((x.get('episodeNo') or 0 for x in prior),default=0)+1
+        if d.episodeNo>9999:failure(422,'Límite de numeración R074 superado')
+        saved=d.model_dump()
+        c.execute('INSERT INTO episodes VALUES (?,?,?)',(d.id,d.patient,json.dumps(saved)))
+        log_audit(c,user,'CREATE','episode',d.id,p['centre'],patient_id=d.patient,new=saved,revision_to=1,reason=f'Episodio {d.episodeNo:02d} (R074)')
+    return {'ok':True}
+
+@app.put('/api/episodes/{episode_id}/care')
+def update_episode_care(episode_id: str, d: EpisodeCareAssessment, user=Depends(user_for)):
+    """Record R081/R082 Sí/No/NC per episode with revision and change history."""
+    writable(user)
+    with conn() as c:
+        row=c.execute('SELECT id,patient,payload FROM episodes WHERE id=?',(episode_id,)).fetchone()
+        if not row:failure(404,'Episodio no encontrado')
+        p=patient_for(c,user,row['patient'])  # blocks cross-centre access
+        before=json.loads(row['payload'])
+        rev=int(before.get('careAssessmentRev') or 0)
+        if d.rev!=rev:failure(409,'Otra sesión modificó R081/R082; recargue la ficha')
+        linked=[json.loads(x['payload']) for x in c.execute(
+            'SELECT payload FROM contacts WHERE episode_id=? AND patient=?',
+            (episode_id,row['patient'])).fetchall()]
+        if (d.emergencyStatus=='si' or d.admissionStatus=='si') and before.get('copd')!='si':
+            failure(422,'R081/R082 por EPOC requieren episodio relacionado con EPOC confirmado')
+        for kind,status in [('urgencias',d.emergencyStatus),('ingreso',d.admissionStatus)]:
+            if status in ('no','nc','') and any(x.get('type')==kind and x.get('copd')=='si' and before.get('copd')=='si' for x in linked):
+                failure(422,f'{kind}: ya existe un contacto documentado; no puede registrar No/NC o dejarlo vacío')
+        after=dict(before)
+        for key in ('emergencyStatus','admissionStatus','emergencyDate','admissionDate'):
+            after[key]=getattr(d,key)
+        if all(before.get(k,'')==after[k] for k in
+               ('emergencyStatus','admissionStatus','emergencyDate','admissionDate')):
+            return {'ok':True,'rev':rev,'unchanged':True}
+        if rev and not 8<=len(d.reason.strip())<=240:
+            failure(422,'La corrección de una respuesta previa exige motivo (8–240 caracteres)')
+        after['careAssessmentRev']=rev+1
+        # Serialize normalized Episode model; preserve legacy metadata in the source record.
+        Episode.model_validate(after)
+        c.execute('UPDATE episodes SET payload=? WHERE id=?',(json.dumps(after),episode_id))
+        log_audit(c,user,'UPDATE','episode',episode_id,p['centre'],patient_id=row['patient'],
+                  old=before,new=after,revision_from=rev,revision_to=rev+1,
+                  reason=d.reason.strip() or 'Primera valoración R081/R082')
+    return {'ok':True,'rev':rev+1}
+
+
+@app.post('/api/contacts',status_code=201)
+def new_contact(d: Contact,user=Depends(user_for)):
+    writable(user)
+    with conn() as c:
+        p=patient_for(c,user,d.patient)
+        if json.loads(p['payload'])['status']!='incluido':failure(422,'No incluido')
+        if d.event:
+            er=c.execute('SELECT patient FROM episodes WHERE id=?',(d.event,)).fetchone()
+            if not er or er['patient']!=d.patient: failure(422,'Episodio vinculado de otro paciente')
+        if c.execute('SELECT 1 FROM contacts WHERE id=?',(d.id,)).fetchone():failure(409,'Contacto duplicado')
+        # Two legitimate urgent-care encounters may share a date/type. Keep each unique
+        # internal contact ID and flag possible duplications for manual QC instead of deleting events.
+        c.execute('INSERT INTO contacts VALUES (?,?,?,?)',(d.id,d.patient,d.event,json.dumps(d.model_dump())))
+        log_audit(c,user,'CREATE','contact',d.id,p['centre'],patient_id=d.patient,new=d.model_dump(),revision_to=1,reason='Contacto inicial')
+        reconcile_contact_care(c,user,d.event,d.type,d.date,p['centre'],d.patient,d.copd)
+    return {'ok':True}
+
+@app.get('/api/audit')
+def audits(user=Depends(user_for)):
+    if user['role']!='admin':failure(403,'Sólo administrador')
+    with conn() as c:
+        return [dict(r) for r in c.execute('SELECT * FROM audit ORDER BY id DESC LIMIT 1000')]
+
+@app.get('/api/audit/changes')
+def audit_changes(user=Depends(user_for)):
+    if user['role']!='admin':failure(403,'Sólo administrador')
+    with conn() as c:
+        return [rowdict(r) for r in c.execute('''SELECT f.id,f.audit_id,a.happened_at,a.username,a.centre,
+          a.kind,a.object_id,a.participant_id,a.verb,a.reason,a.revision_from,a.revision_to,
+          f.field_name,f.prior_value,f.new_value
+          FROM audit_field_changes f JOIN audit a ON a.id=f.audit_id ORDER BY f.id DESC LIMIT 2000''')]
+
+def get_phase14_scope(c,user):
+    clause=' WHERE centre=?' if user['centre'] else ''
+    args=(user['centre'],) if user['centre'] else ()
+    return [{**dict(r),'key':r['record_key'],'payload':json.loads(r['payload'])} for r in c.execute(
+      'SELECT * FROM phase14_records'+clause+' ORDER BY kind,record_key',args)]
+
+
+@app.get('/api/study/phase14')
+def phase14_state(user=Depends(user_for)):
+    with conn() as c:
+        rows=get_phase14_scope(c,user)
+        cent=[x for x in CENTRES if not user['centre'] or x['code']==user['centre']]
+        scope=' WHERE centre=?' if user['centre'] else ''
+        params=(user['centre'],) if user['centre'] else ()
+        people=hydrate(c,'patients',scope,params)
+        ids=[p['id'] for p in people]
+        where=' WHERE patient IN ('+','.join('?' for _ in ids)+')' if ids else ' WHERE 0'
+        visits=hydrate(c,'visits',where,ids)
+        episodes=hydrate(c,'episodes',where,ids)
+        contacts=hydrate(c,'contacts',where,ids)
+    return {'version':'0.14','definitions':phase14_fields(),'records':rows,
+      'metrics':make_indicators(rows,people,visits,cent),
+      'events':normalized_events(people,episodes,contacts),
+      'coverage':catalogue_coverage()}
+
+
+@app.put('/api/study/phase14')
+def save_phase14(d: Phase14Record,user=Depends(user_for)):
+    writable(user)
+    if not phase14_key(d.kind,d.key):failure(422,'Identificador de registro incorrecto')
+    try:clean=validate_phase14(d.kind,d.payload)
+    except ValueError as err:failure(422,str(err))
+    pid=None
+    with conn() as c:
+        if d.kind in ('centre','implementation'):
+            center=d.key.split(':')[0]
+        elif d.kind=='professional':
+            center=d.centre or user['centre']
+            if center not in [c['code'] for c in CENTRES]:failure(422,'Centro de profesional obligatorio')
+        else:
+            pid=d.key.split(':')[0]
+            patient=patient_for(c,user,pid)
+            center=patient['centre']
+            if d.kind=='baseline' and json.loads(patient['payload']).get('status')!='incluido':
+                failure(422,'La ficha basal requiere paciente incluido')
+            if d.kind=='visit':
+                stage=d.key.split(':')[1]
+                if not c.execute('SELECT 1 FROM visits WHERE patient=? AND vtype=?',(pid,stage)).fetchone():
+                    failure(422,'La evaluación aún no está registrada')
+                assessor=clean.get('assessor_code')
+                if assessor:
+                    other=c.execute('SELECT centre FROM phase14_records WHERE kind=? AND record_key=?',('professional',assessor)).fetchone()
+                    if not other or other['centre']!=center:failure(422,'Evaluador no pertenece a un profesional registrado del centro')
+        accessible(user,center)
+        if d.kind=='screening' and clean.get('screen_code'):
+            for r in c.execute("SELECT record_key,payload FROM phase14_records WHERE kind='screening' AND record_key<>?",(d.key,)):
+                if json.loads(r['payload']).get('screen_code')==clean['screen_code']:
+                    failure(409,'Código de cribado utilizado por otro registro')
+        if d.kind=='screening' and clean.get('consent_date'):
+            patient=c.execute('SELECT payload FROM patients WHERE id=?',(d.key,)).fetchone()
+            patientdata=json.loads(patient['payload'])
+            if patientdata.get('enrolDate') and clean['consent_date']>patientdata['enrolDate']:
+                failure(422,'El consentimiento no puede ser posterior a la inclusión')
+        old=c.execute('SELECT * FROM phase14_records WHERE kind=? AND record_key=?',(d.kind,d.key)).fetchone()
+        if old and old['centre']!=center:failure(403,'Registro perteneciente a otro centro')
+        prev=json.loads(old['payload']) if old else None
+        rev=old['rev'] if old else 0
+        if rev!=d.rev:failure(409,'Otra sesión modificó el registro; recargue')
+        if prev==clean:return {'ok':True,'rev':rev,'unchanged':True}
+        if old and not 8<=len(d.reason.strip())<=240:failure(422,'Indique motivo de corrección (8–240 caracteres)')
+        stamp=now()
+        if old:
+            c.execute('UPDATE phase14_records SET payload=?,rev=rev+1,username=?,updated_at=? WHERE kind=? AND record_key=?',
+              (json.dumps(clean,ensure_ascii=False),user['username'],stamp,d.kind,d.key))
+        else:
+            c.execute('INSERT INTO phase14_records VALUES (?,?,?,?,?,?,?,?)',
+              (d.kind,d.key,center,pid,json.dumps(clean,ensure_ascii=False),1,user['username'],stamp))
+        log_audit(c,user,'UPDATE' if old else 'CREATE','phase14_'+d.kind,d.key,center,
+         patient_id=pid or '',old=prev,new=clean,revision_from=rev if old else None,
+         revision_to=rev+1,reason=d.reason.strip() if old else 'Primera captura de variable')
+    return {'ok':True,'rev':rev+1}
+
+
+@app.get('/api/study/specification')
+def study_specification(user=Depends(user_for)):
+    # The scientific dictionary can be reviewed by any signed-in pilot user.
+    return public_catalogue()
+
+
+@app.get('/api/study/observations')
+def study_observations(user=Depends(user_for)):
+    with conn() as c:
+        if user['centre']:
+            rows=c.execute('''SELECT o.* FROM study_observations o JOIN patients p ON p.id=o.participant
+              WHERE p.centre=? ORDER BY o.participant,o.visit_type,o.variable_code''',(user['centre'],)).fetchall()
+        else:
+            rows=c.execute('SELECT * FROM study_observations ORDER BY participant,visit_type,variable_code').fetchall()
+    return [{**dict(r),'value':json.loads(r['value_json'])} for r in rows]
+
+
+@app.put('/api/study/observations/{pid}/{visit}')
+def save_study_observations(pid: str,visit: str,body: ObservationBatch,user=Depends(user_for)):
+    writable(user)
+    if visit not in ('V0','V1','V2'): failure(422,'Visita inválida')
+    if not body.observations or len(body.observations)>60: failure(422,'Se requiere al menos un campo (máximo 60)')
+    if set(body.revisions)-set(body.observations): failure(422,'Revisiones de variables desconocidas')
+    # Validate all values before beginning a transaction; never silently accept unknown fields.
+    checked={}
+    for code,value in body.observations.items():
+        try: checked[code]=validate_study(code,visit,value)
+        except ValueError as ex: failure(422,f'{code}: {ex}')
+    with conn() as c:
+        p=patient_for(c,user,pid)
+        if json.loads(p['payload'])['status']!='incluido': failure(422,'Requiere inclusión previa')
+        v=c.execute('SELECT 1 FROM visits WHERE patient=? AND vtype=?',(pid,visit)).fetchone()
+        if not v: failure(422,f'Registre primero la visita {visit}')
+        for code,value in checked.items():
+            row=c.execute('''SELECT * FROM study_observations WHERE participant=? AND visit_type=? AND variable_code=?''',(pid,visit,code)).fetchone()
+            expected=body.revisions.get(code,0)
+            actual=row['rev'] if row else 0
+            if expected!=actual: failure(409,f'{code}: registro modificado; recargue antes de guardar')
+            if row:
+                old=json.loads(row['value_json'])
+                if value!=old and not 8<=len(body.reason.strip())<=240:
+                    failure(422,'La modificación requiere un motivo (8–240 caracteres)')
+        changed=0
+        for code,value in checked.items():
+            row=c.execute('SELECT * FROM study_observations WHERE participant=? AND visit_type=? AND variable_code=?',(pid,visit,code)).fetchone()
+            old=json.loads(row['value_json']) if row else None
+            if old==value: continue
+            if row:
+                c.execute('''UPDATE study_observations SET value_json=?,rev=rev+1,username=?,updated_at=?
+                  WHERE participant=? AND visit_type=? AND variable_code=?''',
+                  (json.dumps(value,ensure_ascii=False),user['username'],now(),pid,visit,code))
+            elif value is not None:
+                c.execute('''INSERT INTO study_observations VALUES (?,?,?,?,?,?,?)''',
+                  (pid,visit,code,json.dumps(value,ensure_ascii=False),1,user['username'],now()))
+            else:
+                continue
+            log_audit(c,user,'UPDATE' if row else 'CREATE','crd_variable',f'{pid}:{visit}:{code}',p['centre'],
+              patient_id=pid,old={code:old} if row else None,new={code:value},
+              revision_from=row['rev'] if row else None,revision_to=(row['rev']+1 if row else 1),
+              reason=body.reason.strip() if row else 'Medición inicial de CRD v0.9')
+            changed+=1
+    return {'ok':True,'changed':changed,'participant':pid,'visit':visit}
+
+
+@app.get('/api/study/missing')
+def get_missing_data(user=Depends(user_for)):
+    with conn() as c:
+        if user['centre']:
+            rows=c.execute("SELECT m.* FROM missing_data m JOIN patients p ON p.id=m.participant WHERE p.centre=? ORDER BY m.participant,m.visit_type,m.field_code", (user['centre'],)).fetchall()
+        else:
+            rows=c.execute('SELECT * FROM missing_data ORDER BY participant,visit_type,field_code').fetchall()
+    return [dict(row) for row in rows]
+
+
+@app.put('/api/study/missing')
+def set_missing_data(d: MissingDatum, user=Depends(user_for)):
+    writable(user)
+    if d.visit_type != 'V0' and d.field_code in ('fev1','ratio','spiroDate','priorEx','priorHosp'):
+        failure(422,'Variable exclusivamente basal')
+    with conn() as c:
+        p=patient_for(c,user,d.participant)
+        if json.loads(p['payload'])['status']!='incluido':failure(422,'Requiere participante incluido')
+        if not c.execute('SELECT 1 FROM visits WHERE patient=? AND vtype=?',(d.participant,d.visit_type)).fetchone():
+            failure(422,'Registre primero la visita')
+        row=c.execute('SELECT * FROM missing_data WHERE participant=? AND visit_type=? AND field_code=?',
+                      (d.participant,d.visit_type,d.field_code)).fetchone()
+        old_rev=row['rev'] if row else 0
+        if (d.rev or 0)!=old_rev: failure(409,'Registro modificado; actualice la página')
+        if row and row['reason'] == d.reason: return {'ok':True,'rev':old_rev,'unchanged':True}
+        if row and not 8<=len(d.correction_reason.strip())<=240:
+            failure(422,'La corrección de motivo requiere justificación (8–240 caracteres)')
+        stamp=now()
+        if row:
+            c.execute('UPDATE missing_data SET reason=?, rev=rev+1, username=?, updated_at=? WHERE participant=? AND visit_type=? AND field_code=?',
+                     (d.reason,user['username'],stamp,d.participant,d.visit_type,d.field_code))
+        else:
+            c.execute('INSERT INTO missing_data VALUES (?,?,?,?,?,?,?)',
+                      (d.participant,d.visit_type,d.field_code,d.reason,1,user['username'],stamp))
+        log_audit(c,user,'UPDATE' if row else 'CREATE','missing_data',f'{d.participant}:{d.visit_type}:{d.field_code}',
+                  p['centre'],patient_id=d.participant,
+                  old={'reason':row['reason']} if row else None,new={'reason':d.reason},
+                  revision_from=old_rev if row else None,revision_to=old_rev+1,
+                  reason=d.correction_reason.strip() if row else 'Primer motivo de ausencia documentado')
+    return {'ok':True,'rev':old_rev+1}
+
+
+@app.get('/api/review/clinical')
+def scientific_review(user=Depends(user_for)):
+    """Authorised-centre technical scientific checks; never clinical clearance."""
+    with conn() as c:
+        scope=' WHERE centre=?' if user['centre'] else ''
+        params=(user['centre'],) if user['centre'] else ()
+        p=hydrate(c,'patients',scope,params)
+        ids=[x['id'] for x in p]
+        where=' WHERE patient IN ('+','.join('?' for _ in ids)+')' if ids else ' WHERE 0'
+        v=hydrate(c,'visits',where,ids)
+        e=hydrate(c,'episodes',where,ids)
+        contacts=hydrate(c,'contacts',where,ids)
+    return make_review(p,v,e,contacts,public_catalogue()['decisions'])
+
+
+@app.get('/api/study/crd-workflow')
+def crd_workflow(user=Depends(user_for)):
+    """Visit CRD worklist for the authorised synthetic cohort (no clinical approvals)."""
+    with conn() as c:
+        scope=' WHERE centre=?' if user['centre'] else ''
+        params=(user['centre'],) if user['centre'] else ()
+        patients=hydrate(c,'patients',scope,params)
+        ids=[p['id'] for p in patients]
+        where=' WHERE patient IN ('+','.join('?' for _ in ids)+')' if ids else ' WHERE 0'
+        visits=hydrate(c,'visits',where,ids)
+        episodes=hydrate(c,'episodes',where,ids)
+        contacts=hydrate(c,'contacts',where,ids)
+        obs_where=' WHERE participant IN ('+','.join('?' for _ in ids)+')' if ids else ' WHERE 0'
+        obs=[{**dict(r),'value':json.loads(r['value_json'])} for r in c.execute(
+            'SELECT * FROM study_observations'+obs_where,ids)]
+    return build_workflow(patients,visits,obs,episodes,contacts)
+
+
+@app.get('/api/study/scientific-summary')
+def scientific_summary(user=Depends(user_for)):
+    """Descriptive, centre-scoped analysis; no ethics or clinical clearance."""
+    with conn() as c:
+        scope=' WHERE centre=?' if user['centre'] else ''
+        params=(user['centre'],) if user['centre'] else ()
+        patients=hydrate(c,'patients',scope,params)
+        ids=[p['id'] for p in patients]
+        where=' WHERE patient IN ('+','.join('?' for _ in ids)+')' if ids else ' WHERE 0'
+        visits=hydrate(c,'visits',where,ids)
+        episodes=hydrate(c,'episodes',where,ids)
+        contacts=hydrate(c,'contacts',where,ids)
+        phase14rows=get_phase14_scope(c,user)
+    metrics=make_indicators(phase14rows,patients,visits,[x for x in CENTRES if not user['centre'] or x['code']==user['centre']])
+    return reconcile_legacy_analysis(make_analysis(patients,visits,episodes,contacts),metrics)
+
+
+@app.get('/api/study/reporting')
+def phase18_reporting(user=Depends(user_for)):
+    """Reporting from the same authorised study snapshot as other research pages."""
+    from phase18_reporting import make_report
+    snapshot=state(user=user)
+    with conn() as c:
+        phase14rows=get_phase14_scope(c,user)
+    centres=[c for c in CENTRES if not user['centre'] or c['code']==user['centre']]
+    return make_report(snapshot['patients'],snapshot['visits'],snapshot['events'],
+                       snapshot['contacts'],phase14rows,centres)
+
+
+@app.get('/api/study/phase13-outcomes')
+def study_phase13_outcomes(user=Depends(user_for)):
+    from phase13_outcomes import make_outcomes
+    with conn() as c:
+        scope=' WHERE centre=?' if user['centre'] else ''
+        params=(user['centre'],) if user['centre'] else ()
+        patients=hydrate(c,'patients',scope,params)
+        codes=[p['id'] for p in patients]
+        where=' WHERE patient IN ('+','.join('?' for _ in codes)+')' if codes else ' WHERE 0'
+        visits=hydrate(c,'visits',where,codes)
+        episodes=hydrate(c,'episodes',where,codes)
+        contacts=hydrate(c,'contacts',where,codes)
+        w=' WHERE participant IN ('+','.join('?' for _ in codes)+')' if codes else ' WHERE 0'
+        missing=[dict(r) for r in c.execute('SELECT * FROM missing_data'+w,codes)]
+    return make_outcomes(patients,visits,episodes,contacts,missing)
+
+
+@app.get('/api/study/worklist')
+def study_worklist(user=Depends(user_for)):
+    """Derived, centre-scoped next actions; no deadline/overdue assumptions."""
+    from phase16_usability import pending_work
+    snapshot=state(user=user)
+    return {'version':'0.28','rows':pending_work(snapshot['patients'],snapshot['visits'])}
+
+@app.get('/api/study/participant-journey/{pid}')
+def participant_journey(pid: str, user=Depends(user_for)):
+    """Derived read-only longitudinal review from a consistent, scoped snapshot."""
+    from journey_v28 import summarize
+    with conn() as c:
+        row = patient_for(c, user, pid)
+        person = json.loads(row['payload'])
+        visits = hydrate(c, 'visits', ' WHERE patient=?', (pid,))
+        episodes = hydrate(c, 'episodes', ' WHERE patient=?', (pid,))
+        contacts = hydrate(c, 'contacts', ' WHERE patient=?', (pid,))
+        observations = [dict(o) for o in c.execute(
+            'SELECT participant,visit_type,variable_code FROM study_observations WHERE participant=?', (pid,))]
+        missing = [dict(m) for m in c.execute(
+            'SELECT participant,visit_type,field_code,reason FROM missing_data WHERE participant=?', (pid,))]
+    return summarize(person, visits, episodes, contacts, observations, missing)
+
+
+@app.get('/api/study/concordance')
+def study_concordance(user=Depends(user_for)):
+    from crd_concordance_v27 import report
+    return report()
+
+
+@app.get('/api/health')
+def health():
+    return {'status':'ok','environment':'synthetic-local-only','version':app.version}
+
+
+@app.get('/api/export/xlsx')
+def excel_export(user=Depends(user_for)):
+    """Generate scoped, auditable XLSX from a consistent DB snapshot."""
+    from export_research import create_excel_snapshot
+    with conn() as c:
+        c.execute('BEGIN')
+        scope=' WHERE centre=?' if user['centre'] else ''
+        params=(user['centre'],) if user['centre'] else ()
+        source=c.execute('SELECT * FROM patients'+scope,params).fetchall()
+        codes=[r['id'] for r in source]
+        where=' WHERE patient IN ('+','.join('?' for _ in codes)+')' if codes else ' WHERE 0'
+        patients=[{**json.loads(r['payload']), 'rev':r['rev'], 'created_by':r['created_by'], 'updated_at':r['updated_at']} for r in source]
+        visits=hydrate(c,'visits',where,codes)
+        episodes=hydrate(c,'episodes',where,codes)
+        contacts=hydrate(c,'contacts',where,codes)
+        log_audit(c,user,'EXPORT','xlsx','SNAPSHOT',user['centre'],reason='Descarga autorizada XLSX')
+        auditrows=[rowdict(r) for r in c.execute('SELECT * FROM audit ORDER BY id ASC')] if user['role']=='admin' else []
+        change_rows=[rowdict(r) for r in c.execute('''SELECT f.id,f.audit_id,a.happened_at,a.username,a.centre,a.kind,a.object_id,a.participant_id,
+                    a.verb,a.reason,a.revision_from,a.revision_to,f.field_name,f.prior_value,f.new_value
+                    FROM audit_field_changes f JOIN audit a ON a.id=f.audit_id ORDER BY f.id ASC''')] if user['role']=='admin' else []
+        obsp_where=' WHERE participant IN ('+','.join('?' for _ in codes)+')' if codes else ' WHERE 0'
+        observations=[{**dict(r),'value':json.loads(r['value_json'])} for r in c.execute('SELECT * FROM study_observations'+obsp_where+' ORDER BY participant,visit_type,variable_code',codes)]
+        missed_where=' WHERE participant IN ('+','.join('?' for _ in codes)+')' if codes else ' WHERE 0'
+        missing=[dict(r) for r in c.execute('SELECT * FROM missing_data'+missed_where+' ORDER BY participant,visit_type,field_code',codes)]
+        phase14rows=get_phase14_scope(c,user)
+        snapshot_time=now()
+    binary=create_excel_snapshot(patients=patients,visits=visits,episodes=episodes,
+                                 contacts=contacts,audit=auditrows,changes=change_rows,centres=CENTRES,
+                                 user=public_user(user),exported_at=snapshot_time,observations=observations,missing=missing,study_spec=public_catalogue(),phase14records=phase14rows)
+    filename='RADAR_CORUNA_datos_'+datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')+'.xlsx'
+    return Response(content=binary,
+        media_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        headers={'Content-Disposition':f'attachment; filename="{filename}"',
+                 'Cache-Control':'no-store, private','X-Content-Type-Options':'nosniff'})

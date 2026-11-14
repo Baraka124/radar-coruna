@@ -1,0 +1,7 @@
+# Direct, tested dependencies of the synthetic staging backend (not a full hash-locked SBOM).
+fastapi==0.128.2
+uvicorn==0.48.0
+argon2-cffi==25.1.0
+pydantic==2.13.5
+# Experimental PostgreSQL v0.41 driver; server-side only.
+psycopg[binary]==3.2.12

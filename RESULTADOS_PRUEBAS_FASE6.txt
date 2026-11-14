@@ -1,0 +1,47 @@
+RADAR-CORUÑA v0.32 · VALIDACIÓN TÉCNICA · 12/11/2026
+
+Batería Python: 112/112 pruebas aprobadas en 22 lotes por fichero (aislados).
+No se afirma la aprobación en un único proceso monolítico: se usaron lotes por
+fichero debido al comportamiento histórico de bloqueo por estado compartido.
+
+Prueba v0.32: 14/14, incluidos casos de límite de 40 años, fecha bisiesta,
+valor falso de edad, FEV1/FVC=0,70, seguimiento AP, consentimiento, exclusiones,
+cribado incompleto, migración de registros previos, exportación aislada por centro,
+concurrencia optimista (409), reinicio y copia/restauración verificadas.
+
+Prueba browser v0.32: APROBADA en 320/390/768/1024/1440 px. El usuario puede
+introducir DOB, V0 y agudizaciones para ver edades y totales derivados de solo
+lectura, completar elegibilidad y guardar un participante sintético, sin overflow.
+
+Prueba browser responsive heredada v0.30: APROBADA (5 anchos; 6 rutas).
+
+CAMBIOS EN PRODUCTO: validación de inclusión en la API, derivaciones de edad y
+agudizaciones, estado de cribado sin V0 ficticia y exportación de consulta previa.
+El software conserva sus reglas de RADAR y el espacio clínico anterior.
+
+LÍMITE: piloto local y datos sintéticos; no prueba de carga bajo infraestructura
+multicentro real ni certificación de un despliegue productivo.
+
+DETALLE POR ARCHIVO:
+  test_audit_v07.py: 4 aprobadas
+  test_clinical_review_v10.py: 6 aprobadas
+  test_crd_workflow_v11.py: 5 aprobadas
+  test_export.py: 3 aprobadas
+  test_phase15_acceptance.py: 1 aprobadas
+  test_phase12_scientific_readiness.py: 5 aprobadas
+  test_phase16_usability.py: 4 aprobadas
+  test_phase14_completion.py: 8 aprobadas
+  test_phase18_reporting.py: 6 aprobadas
+  test_phase13_outcomes.py: 6 aprobadas
+  test_phase20_crd_alignment.py: 3 aprobadas
+  test_phase19_release.py: 2 aprobadas
+  test_phase21_episodes_actions.py: 3 aprobadas
+  test_phase28_journey.py: 2 aprobadas
+  test_phase27_concordance.py: 3 aprobadas
+  test_phase22_episode_care.py: 5 aprobadas
+  test_phase31_scientific_uat.py: 8 aprobadas
+  test_phase29_reliability.py: 5 aprobadas
+  test_pilot.py: 9 aprobadas
+  test_phase32_intelligent_capture.py: 14 aprobadas
+  test_portability_v08.py: 5 aprobadas
+  test_study_v09.py: 5 aprobadas

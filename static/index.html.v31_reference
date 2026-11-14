@@ -1,0 +1,948 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RADAR-CORUÑA | Aplicación de investigación · v0.31</title>
+<style>
+:root{--bg:#f4f6f5;--dark:#132d38;--dark2:#1c3c46;--ink:#233943;--muted:#687b82;--line:#dce5e5;--teal:#136e67;--teal-soft:#e4f3ef;--amber:#997229;--amber-bg:#fff5e1;--red:#aa5054;--red-bg:#ffeded;--white:#fff;--shadow:0 10px 34px #213b4610}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;color:var(--ink);background:var(--bg);font:14px/1.48 Inter,'Segoe UI',system-ui,sans-serif;-webkit-font-smoothing:antialiased}button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{opacity:.45;cursor:not-allowed}a{color:var(--teal)}.layout{display:grid;grid-template-columns:248px minmax(0,1fr);min-height:100vh}.sidebar{background:var(--dark);color:#dae8e9;padding:29px 18px;display:flex;flex-direction:column;gap:37px;position:sticky;top:0;height:100vh;max-height:100vh;overflow-y:auto;min-height:0}.brand{padding:0 12px}.brand strong{font-size:25px;letter-spacing:-1.2px;color:white;display:block;line-height:1.2}.brand strong span{color:#8ed4c8}.brand small{font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:#a2bbc1;display:block;margin-top:8px}.navlabel{color:#779ba4;letter-spacing:.14em;font-size:10px;font-weight:800;padding:0 13px;margin-bottom:9px}.nav{display:grid;gap:5px}.nav button{border:0;width:100%;background:transparent;border-radius:10px;padding:12px 14px;text-align:left;color:#bed2d6;font-weight:620;display:flex;gap:14px;align-items:center}.nav button:hover{background:#274b56}.nav button.active{background:#284e56;color:#fff}.nav .glyph{font-size:17px;width:19px;text-align:center;font-weight:500}.sidebar .foot{margin-top:auto;padding:17px 12px 0;border-top:1px solid #3a5962;color:#a2bdc4;font-size:11px;line-height:1.65}.sidebar .foot b{color:#e4f4ef}.main{min-width:0}.top{height:68px;background:#ffffffed;border-bottom:1px solid var(--line);padding:0 clamp(22px,4.2vw,67px);display:flex;align-items:center;justify-content:space-between;gap:12px}.top .eyebrow{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#687e86;font-weight:800}.top .status{font-size:11px;color:#825a15;background:#fff2d8;border:1px solid #f0d9a5;border-radius:99px;padding:6px 12px;font-weight:750;white-space:nowrap}.content{max-width:1500px;margin:auto;padding:37px clamp(22px,4.2vw,67px) 100px}.head{display:flex;justify-content:space-between;align-items:end;gap:20px;margin-bottom:22px}.head h1{font-size:clamp(28px,3.2vw,40px);line-height:1.13;letter-spacing:-.048em;margin:7px 0 9px;font-weight:720}.head p{margin:0;color:var(--muted);max-width:740px;line-height:1.65}.over{font-size:11px;text-transform:uppercase;letter-spacing:.14em;font-weight:800;color:#508479}.btn{border-radius:9px;border:1px solid #cbdadd;background:white;color:#284e54;font-weight:650;min-height:39px;padding:10px 15px;white-space:nowrap}.btn:hover{background:#f3faf8}.btn.primary{background:var(--teal);border-color:var(--teal);color:#fff}.btn.primary:hover{background:#105d57}.btn.danger{color:#a14952;border-color:#eac6c9}.btn.small{font-size:12px;padding:6px 10px;min-height:33px}.btn.textbtn{border:0;padding:4px 6px;min-height:0;color:var(--teal);background:transparent}.actions{display:flex;gap:8px;flex-wrap:wrap}.notice{background:var(--amber-bg);border-left:3px solid #d9a34a;border-radius:0 9px 9px 0;color:#745927;padding:12px 17px;margin:0 0 22px;font-size:12px;line-height:1.65}.panel{background:#fff;border:1px solid var(--line);box-shadow:var(--shadow);border-radius:14px;overflow:hidden}.panel + .panel{margin-top:18px}.panelhead{display:flex;align-items:center;justify-content:space-between;gap:15px;padding:20px 24px;border-bottom:1px solid #e9eeee}.panelhead h2{font-size:16px;letter-spacing:-.02em;margin:0}.panelhead p{font-size:12px;color:var(--muted);margin:5px 0 0}.panelbody{padding:24px}.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}.metric{border-radius:12px;border:1px solid var(--line);background:#fff;padding:18px 20px;box-shadow:var(--shadow)}.metric .lab{font-size:11px;letter-spacing:.015em;color:#6d8087}.metric .val{font-size:30px;letter-spacing:-.05em;font-weight:760;margin-top:5px}.metric .help{font-size:11px;color:#748991;margin-top:4px}.split{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(280px,.65fr);gap:18px}.tablewrap{overflow:auto}table{width:100%;border-collapse:collapse;text-align:left;min-width:640px}th{font-size:10px;color:#77909a;text-transform:uppercase;letter-spacing:.08em;font-weight:800;padding:12px 15px;background:#f8faf9;border-bottom:1px solid var(--line)}td{padding:14px 15px;border-bottom:1px solid #edf2f1;font-size:12px;vertical-align:middle}tr:last-child td{border-bottom:none}tbody tr:hover{background:#fbfdfc}.code{font:700 12px ui-monospace,'SFMono-Regular',Consolas,monospace;color:#2b5960}.tag{display:inline-flex;border:1px solid #d2e3de;background:#eff8f4;color:#23755f;border-radius:100px;font-size:10px;font-weight:750;padding:5px 9px}.tag.partial{background:#fff7e6;border-color:#f0dbae;color:#956e25}.tag.bad{background:#ffedef;border-color:#efd0d4;color:#a45157}.tag.neutral{background:#f0f3f4;border-color:#e0e7e9;color:#617780}.empty{border:1px dashed #cad9d8;padding:35px;text-align:center;border-radius:10px;color:#7a9299;background:#fbfcfc;font-size:13px}.stack{display:grid;gap:13px}.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}.fields.three{grid-template-columns:repeat(3,minmax(0,1fr))}.field{display:grid;gap:6px;min-width:0}.field.wide{grid-column:1/-1}.field label{font-size:12px;font-weight:700;color:#344e57}.field small{font-size:10px;line-height:1.5;color:#748992}.field input,.field select{height:43px;border:1px solid #cfdddf;border-radius:8px;padding:0 12px;background:#fff;width:100%;outline:0;color:var(--ink)}.field input:focus,.field select:focus{border-color:#19897f;box-shadow:0 0 0 3px #dff2ed}.sectiontitle{font-weight:750;color:#294a52;font-size:13px;margin:20px 0 13px;padding-top:20px;border-top:1px solid #ebf0f0}.sectiontitle:first-child{margin-top:0;padding-top:0;border-top:0}.fbar{display:flex;gap:10px;align-items:center;margin-bottom:18px;flex-wrap:wrap}.fbar input,.fbar select{min-width:190px;height:40px;border:1px solid #d7e2e2;border-radius:9px;padding:0 11px;background:#fff}.rscore{display:grid;grid-template-columns:100px minmax(0,1fr);gap:24px;align-items:center;background:#f2f8f6;border:1px solid #d9eae4;border-radius:12px;padding:20px}.rscore .number{font-size:48px;letter-spacing:-.07em;font-weight:770;line-height:1.1}.rscore small{color:#70858c}.question{display:grid;grid-template-columns:32px 1fr 170px;gap:13px;align-items:center;padding:13px 0;border-bottom:1px solid #edf2f2}.question:last-child{border-bottom:0}.qbadge{display:grid;place-items:center;border-radius:8px;background:#e9f2f1;color:#34716c;font-weight:800;width:30px;height:30px}.question b{font-size:12px}.question small{display:block;color:#748990;font-size:11px}.half{display:grid;grid-template-columns:1fr 1fr;gap:18px}.timeline{display:grid;gap:0}.timelinerow{display:grid;grid-template-columns:77px 1fr;gap:15px;padding:16px 0;border-bottom:1px solid #eaf0ef}.timelinerow:last-child{border:0}.timelinerow .date{font-size:11px;font-weight:750;color:#768e93}.timelinerow strong{font-size:12px}.timelinerow .sub{color:#819398;font-size:11px;margin-top:4px}.trend{display:flex;align-items:end;gap:14px;min-height:128px;margin:12px 0 0}.trend .barcol{flex:1;display:grid;gap:6px;justify-items:center;align-content:end}.trend .bar{width:42px;max-width:90%;background:linear-gradient(180deg,#48a899,#1b716b);border-radius:6px 6px 0 0;min-height:5px}.trend .tick{font-size:10px;color:#71858b}.call{padding:13px 15px;background:#f7faf9;border:1px solid #e0eae8;border-radius:9px;font-size:12px}.call.warn{background:#fff9ea;border-color:#f0ddb6;color:#785e26}.call.error{background:#fff0f1;border-color:#f0d0d4;color:#94464e}.list{margin:0;padding-left:19px;display:grid;gap:9px;font-size:12px;line-height:1.6}.call + .call{margin-top:9px}.footerbar{padding:18px 24px;border-top:1px solid #e9eeee;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}.inline{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.light{color:var(--muted)}.subtle{font-size:11px;color:#74878d}.tilepair{display:grid;grid-template-columns:1fr 1fr;gap:18px}.radar-event-panels{display:grid;grid-template-columns:minmax(0,1fr);gap:16px}.radar-event-panels .panel{min-width:0}.radar-event-panels .panel+.panel{margin-top:0}.radar-event-panels table{min-width:680px}.radar-event-panels th,.radar-event-panels td{padding:12px 14px}.formerror{color:#a44b55;padding:10px 14px;background:#ffeff0;border:1px solid #f0ccd0;border-radius:9px;display:none;font-size:12px}.formerror.show{display:block}.stepper{display:flex;gap:7px;align-items:center;margin-bottom:18px}.stepper span{height:5px;border-radius:4px;background:#e0ebe9;flex:1}.stepper span.on{background:#1c8077}.linklike{border:0;background:transparent;text-decoration:underline;text-underline-offset:2px;color:#20746b;font-size:12px;cursor:pointer}.chart-label{color:#82969c;font-size:11px}.quality{display:grid;gap:9px}.quality-item{display:grid;grid-template-columns:22px 1fr;gap:8px;align-items:start;padding:12px 13px;border-radius:9px;background:#f8faf9;border:1px solid #e8eded;font-size:12px}.quality-item .count{font-size:14px;font-weight:750;color:var(--amber)}.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:11px;color:#6e8588;margin:8px 0 0}.square{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:6px;background:#227969}.square.orange{background:#c3933a}.square.red{background:#bf6269}.vspace{height:16px}.introlist{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.introlist .call{min-height:105px}.topline{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:#7a949a;font-weight:750}.pillinfo{font-size:11px;border:1px solid #c7dfdc;background:#ecf7f3;color:#1e7769;border-radius:99px;padding:6px 11px;font-weight:700}.hide{display:none!important}
+@media(max-width:1200px){.split{grid-template-columns:minmax(0,1fr)}.metrics{grid-template-columns:1fr 1fr}.introlist{grid-template-columns:1fr 1fr}}
+@media(max-width:800px){.layout{grid-template-columns:minmax(0,1fr)}.sidebar,.main{min-width:0}.sidebar{height:auto;position:static;max-height:none;padding:15px;gap:14px}.brand{padding:0 7px}.brand strong{font-size:21px}.nav{display:flex;max-width:100%;min-width:0;overflow-x:auto}.nav button{white-space:nowrap;width:auto;padding:10px}.navlabel,.sidebar .foot{display:none}.top{height:57px;padding:0 17px}.top .eyebrow{font-size:9px}.content{padding:24px 16px 60px}.head{align-items:start;display:block}.head .actions{margin-top:18px}.metrics,.fields,.fields.three,.half,.tilepair,.introlist{grid-template-columns:minmax(0,1fr)}.question{grid-template-columns:28px 1fr}.question select{grid-column:2}.panelhead,.panelbody,.footerbar{padding:19px}.metric{padding:15px}.rscore{grid-template-columns:1fr}.head h1{font-size:29px}}@media print{.sidebar,.top,.actions,.btn,.fbar,.notice,.footerbar{display:none!important}.layout{display:block}.content{padding:5px}.panel,.metric{box-shadow:none}.head{margin-bottom:12px}}
+
+/* Local pilot access layer */
+body:not(.signed-in) .layout{display:none!important}
+.auth-gate{min-height:100vh;display:grid;place-items:center;background:linear-gradient(145deg,#102b34 0%,#23464b 58%,#e5efeb 58%);padding:24px}
+.auth-card{width:min(100%,460px);background:white;border-radius:18px;padding:38px 37px;box-shadow:0 28px 90px #082a3259}
+.auth-mark{font-size:25px;letter-spacing:-1px;font-weight:850;color:#173a43}.auth-mark span{color:#118479}
+.auth-eyebrow{margin:8px 0 25px!important;font-size:10px!important;letter-spacing:.14em!important;font-weight:750;color:#6d868b}
+.auth-card h1{font-size:27px;line-height:1.18;letter-spacing:-.9px;margin:0 0 13px;color:#142f39}
+.auth-card p{color:#637d83;font-size:13px;line-height:1.7;margin:0 0 23px}
+.auth-card label{display:block;margin:16px 0 6px;font-weight:750;font-size:12px}
+.auth-card input{height:43px;width:100%;border:1px solid #cddbdc;border-radius:8px;padding:0 13px}
+.auth-card button{width:100%;margin:23px 0 14px;height:44px}
+.auth-card small{color:#82969b;font-size:11px}.auth-card #authError{color:#aa5054;font-size:12px;margin:10px 0 0}
+body.signed-in .auth-gate{display:none}
+.top-right{display:flex;align-items:center;gap:10px}.user-label{font-size:11px;font-weight:700;color:#48656b}
+.logout{font-size:11px;font-weight:700;border:1px solid #cfdcdd;background:white;border-radius:7px;padding:7px 11px;color:#42636a}
+@media(max-width:800px){.user-label{display:none}.auth-card{padding:27px 22px}.top-right{gap:5px}.logout{padding:6px}}
+
+/* Phase 15: the current participant is the centre of the consultation workflow. */
+.patient-journey{border:1px solid #d8e6e5;background:#fff;border-radius:15px;padding:22px 24px;margin:0 0 22px;box-shadow:var(--shadow)}
+.journey-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:17px}
+.journey-heading h2{font-size:18px;letter-spacing:-.35px;margin:0 0 4px}
+.journey-heading p{font-size:12px;color:var(--muted);margin:0}
+.journey-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.journey-step{border:1px solid #e0e9e8;border-radius:10px;padding:13px 14px;background:#fafcfb;display:flex;flex-direction:column;gap:7px}
+.journey-step.done{background:#f0f8f5;border-color:#c8e6da}
+.journey-step .step-top{display:flex;justify-content:space-between;gap:6px;align-items:center}
+.journey-step .step-top b{font-size:13px;color:#1c4243}
+.journey-step .step-top span{font-size:10px;color:#5d767c;font-weight:650}
+.journey-step .step-desc{font-size:11px;color:#667b80;min-height:34px}
+.journey-step .btn{align-self:flex-start}
+.journey-actions{border-top:1px solid #e4edeb;padding-top:14px;margin-top:16px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.journey-actions .hint{color:#71858a;font-size:11px;margin-right:auto}
+.saved-feedback{border:1px solid #afdcca;background:#eff9f4;border-radius:10px;padding:13px 16px;margin:0 0 17px;font-size:12px;color:#285b4d;display:flex;justify-content:space-between;gap:15px;align-items:center}
+@media(max-width:1000px){.journey-grid{grid-template-columns:1fr}.journey-step .step-desc{min-height:0}}
+@media(max-width:600px){.journey-heading,.saved-feedback{display:block}.journey-heading .btn,.saved-feedback .btn{margin-top:10px}.patient-journey{padding:16px}}
+.action-worklist{margin:0 0 18px}.action-worklist strong{font-size:12px;color:#21474b}.action-worklist .btn.small{border-color:#b8d9d3;color:#1f6259;background:#f7fbf9}.action-worklist .btn.small:hover{background:#eaf6f1}
+
+/* Phase 17 · investigator-first visual language */
+:root{--bg:#f6f7f6;--dark:#172c34;--ink:#263a41;--teal:#176f68;--line:#e2e9e8;--shadow:0 5px 22px rgba(16,51,56,.035)}
+.sidebar{padding:26px 14px 18px;gap:30px;background:linear-gradient(180deg,#182f38 0%,#142a32 100%)}
+.brand{padding:0 12px}.brand strong{font-size:23px;letter-spacing:-1.1px}.brand small{letter-spacing:.075em;text-transform:none;font-size:11px;margin-top:5px}
+.nav{gap:3px}.nav button{padding:10px 13px;border-radius:8px;min-height:39px;font-size:12px;font-weight:580;transition:background .15s,color .15s}
+.nav button.active{background:#d4eee51c;color:white;box-shadow:inset 3px 0 #83cbbd}.nav button:focus-visible{outline:2px solid #91d6c7;outline-offset:2px}
+.nav .glyph{font-size:15px;width:17px;color:#a8c9c6}.nav button.active .glyph{color:#9de6d1}
+.navlabel{font-size:9px;color:#8eacb2;letter-spacing:.13em}.nav-subheading{padding:11px 13px 5px;margin:0}
+.nav-divider{height:1px;background:#335059;margin:14px 11px 5px}.sidebar .foot{padding:15px 12px 0;color:#a9bec0;font-size:10px}
+.top{height:61px;position:sticky;top:0;z-index:12;background:#fffffff3;backdrop-filter:blur(15px)}
+.content{padding-top:20px;max-width:1410px}.head{margin-top:20px;margin-bottom:23px}.head h1{font-size:clamp(27px,2.7vw,37px);font-weight:735}
+.head p{max-width:650px}.panel,.metric,.patient-journey{border-radius:13px;box-shadow:var(--shadow)}
+.panelhead{padding:18px 23px}.panelbody{padding:22px 23px}.btn{font-weight:650}.btn.primary{box-shadow:0 4px 12px rgba(15,104,94,.12)}
+.workspace-context{display:flex;justify-content:space-between;align-items:center;gap:14px;min-height:38px;border-bottom:1px solid var(--line);padding:0 0 12px}
+.context-path{display:flex;gap:9px;align-items:center;flex-wrap:wrap;font-size:11px;color:#728990}.context-path strong{color:#2c5054;font-weight:700}.context-chevron{color:#b4c6c6}.context-patient{font:700 10px ui-monospace,monospace;background:#eaf3f1;color:#336c66;border-radius:5px;padding:4px 7px}
+.context-actions{display:flex;gap:9px;align-items:center}.context-link,.context-export{border:0;background:none;color:#286f68;font-weight:700;font-size:11px;padding:6px 9px;border-radius:7px}.context-link:hover,.context-export:hover{background:#e7f2ed}.context-export{border:1px solid #d0e1db;background:#f8fcfa}
+.notice{border:1px solid #eadcb9;border-left:3px solid #c8a763;background:#fffbf1;font-size:11px;line-height:1.6;padding:9px 13px;margin-bottom:18px}
+.clinical-block{border:1px solid #dfe8e7;border-radius:11px;background:#fff;margin:13px 0;overflow:hidden}
+.clinical-block-title{display:flex;justify-content:space-between;align-items:center;gap:10px;list-style:none;padding:14px 17px;font-size:13px;font-weight:750;color:#304d53;cursor:pointer;background:#fbfcfc}
+.clinical-block-title::-webkit-details-marker{display:none}.clinical-block-title::before{content:'▸';font-size:12px;color:#69918c;margin-right:3px;transition:transform .12s}.clinical-block[open]>.clinical-block-title::before{transform:rotate(90deg)}
+.clinical-block-hint{font-size:10px;font-weight:600;color:#829397;margin-left:auto}.clinical-block-body{padding:17px 18px 20px;border-top:1px solid #eaf0ef}
+.clinical-block-body>.fields{margin-bottom:0}.clinical-block-body>.stack{margin-top:1px}.clinical-block-body>.call{margin-top:14px!important}
+.clinical-block:focus-within{border-color:#98c7bc}.clinical-nested{margin-top:18px;border-top:1px solid #e6efec;padding-top:14px}
+.clinical-nested>summary{cursor:pointer;font-size:12px;font-weight:700;color:#3c6d69;padding:7px 0;list-style:none}.clinical-nested>summary::before{content:'+';font-weight:900;margin-right:9px}.clinical-nested[open]>summary::before{content:'−'}.clinical-nested>summary span{font-size:10px;color:#819996;font-weight:500;margin-left:5px}
+.clinical-nested-body{margin-top:12px}
+.visit-completeness{border:1px solid #d5e7df;background:#f2f9f5;border-radius:11px;padding:16px 18px;margin:4px 0 18px}.completion-text{display:flex;justify-content:space-between;gap:12px;align-items:center}.completion-text>div{display:grid;gap:2px}.completion-text strong{font-size:12px;color:#2d6255}.completion-text span,.completion-hint{font-size:11px;color:#5f8078}.completion-text>b{font-size:20px;color:#2e7561}.completion-track{height:7px;background:#dceae4;border-radius:10px;overflow:hidden;margin:12px 0 8px}.completion-track span{display:block;background:#388875;height:100%;transition:width .18s}.completion-hint{line-height:1.5}
+#visitForm .footerbar,#patientForm .footerbar{position:sticky;bottom:0;z-index:6;background:#fffffff5;backdrop-filter:blur(8px);box-shadow:0 -8px 24px rgba(22,54,57,.055)}
+.question{grid-template-columns:36px 1fr 160px;gap:14px;padding:12px 0}.question select{min-height:40px;border:1px solid #d2e0e0;border-radius:8px;padding:0 9px;background:#fff}
+.field small{font-size:10px;color:#74888e}.field label{font-size:11px}.field input,.field select{height:41px}
+@media(max-width:800px){.sidebar{gap:12px;padding:15px 12px}.nav{flex-wrap:nowrap;overflow-x:auto;gap:4px;padding-bottom:3px}.nav-divider,.nav-subheading{display:none}.nav button{flex:0 0 auto}.top{position:relative}.content{padding:17px 15px 75px}.head{margin-top:14px}.workspace-context{gap:9px}.context-path{font-size:10px}.clinical-block-title{padding:13px}.clinical-block-body{padding:14px}.clinical-block-hint{font-size:9px}.question{grid-template-columns:30px 1fr}.question select{grid-column:2}.visit-completeness{padding:13px}.context-export{white-space:nowrap}}
+@media(max-width:600px){.top .eyebrow{display:none}.top{min-height:51px;height:51px}.top-right{margin-left:auto}.top .status{font-size:9px;padding:5px 9px}.context-actions{gap:3px}.head p{font-size:13px}.tablewrap{scrollbar-color:#b0cfca transparent;scrollbar-width:thin}.content .panel{min-width:0}.sidebar .brand strong{font-size:20px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important}}
+
+
+/* v0.23: restrained, light clinical navigation; sidebar-only visual refinements */
+:root{--sidebar-ink:#243b49;--sidebar-muted:#637684;--sidebar-line:#e9eef1}
+.layout{grid-template-columns:252px minmax(0,1fr);transition:grid-template-columns .23s ease}
+.sidebar{background:#fff!important;color:var(--sidebar-ink);border-right:1px solid var(--sidebar-line);padding:23px 13px 14px;gap:20px;box-shadow:none;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#d9e2e6 transparent;z-index:31}
+.brand-row{display:flex;align-items:flex-start;justify-content:space-between;gap:6px;padding:0 5px 8px}
+.brand{padding:2px 4px;min-width:0;overflow:hidden}
+.brand strong{font-size:21px;letter-spacing:-.9px;white-space:nowrap;color:#203b4b;line-height:1.23}
+.brand strong span{color:#708e9c}
+.brand small{color:#7a8f99;font-size:10px;letter-spacing:.01em;white-space:nowrap;margin-top:5px}
+.sidebar-collapse,.mobile-nav-toggle{display:grid;place-items:center;flex:0 0 auto;width:31px;height:31px;background:transparent;color:#718795;border:1px solid transparent;border-radius:8px;padding:6px}
+.sidebar-collapse:hover,.mobile-nav-toggle:hover{background:#f0f4f6;color:#203e4c;border-color:#e7edf0}
+.sidebar-collapse:focus-visible,.mobile-nav-toggle:focus-visible{outline:2px solid #6397aa;outline-offset:2px}
+.sidebar-collapse svg,.mobile-nav-toggle svg{width:17px;height:17px}
+.navgroup{flex:1;min-height:0}
+.nav{display:grid;gap:1px}
+.navlabel{font-size:10px;letter-spacing:.09em;color:#899aa5;font-weight:730;padding:4px 12px 9px;margin:0;white-space:nowrap}
+.nav-subheading{padding:8px 12px 7px}
+.nav-divider{height:1px;background:var(--sidebar-line);margin:12px 11px 10px}
+.nav button{position:relative;border:0;border-radius:7px;min-height:39px;padding:9px 11px;display:flex;align-items:center;gap:11px;background:transparent;color:#536b7a;font-size:12px;font-weight:580;text-align:left;white-space:nowrap;line-height:1.4;transition:background .14s ease,color .14s ease}
+.nav button:hover{background:#f5f7f9;color:#233f50}
+.nav button.active{color:#183d51;background:#f0f5f8!important;box-shadow:none;font-weight:735}
+.nav button.active:before{content:"";position:absolute;left:0;top:10px;bottom:10px;width:2px;background:#537f93;border-radius:8px}
+.nav .glyph{display:grid;place-items:center;flex:0 0 20px;width:20px;height:20px;color:#8499a5}
+.nav .glyph svg{height:18px;width:18px;display:block}
+.nav button.active .glyph{color:#2b5b71}
+.nav button:focus-visible{outline:2px solid #659aab;outline-offset:2px}
+.sidebar .foot{border-top:1px solid var(--sidebar-line);padding:13px 10px 6px;display:flex;flex-direction:column;gap:3px;line-height:1.4;margin-top:auto;color:#8497a1;font-size:10px}
+.foot-version{font-size:10px;color:#4d6878;font-weight:730;white-space:nowrap}.foot-caption{color:#96a6af;white-space:nowrap}
+.sidebar-scrim{display:none}
+.mobile-nav-toggle{display:none}
+.top-leading{display:flex;align-items:center;gap:9px;min-width:0}
+body.sidebar-collapsed .layout{grid-template-columns:74px minmax(0,1fr)}
+body.sidebar-collapsed .sidebar{padding-left:11px;padding-right:11px;overflow-x:hidden}
+body.sidebar-collapsed .brand-row{padding:0;justify-content:center;margin-bottom:12px}
+body.sidebar-collapsed .brand{display:none}
+body.sidebar-collapsed .sidebar-collapse{background:#f5f8fa;border:1px solid #e7edf0}
+body.sidebar-collapsed .navlabel,body.sidebar-collapsed .nav-divider,body.sidebar-collapsed .sidebar .foot{display:none}
+body.sidebar-collapsed .nav{gap:5px}
+body.sidebar-collapsed .nav button{font-size:0;gap:0;padding:10px;justify-content:center;min-height:42px;min-width:42px}
+body.sidebar-collapsed .nav .glyph{flex:0 0 20px;width:20px}
+body.sidebar-collapsed .nav button.active:before{left:0;top:8px;bottom:8px}
+@media(max-width:900px){
+ .layout,body.sidebar-collapsed .layout{display:block;min-height:100vh}
+ .main{min-width:0}
+ .sidebar,body.sidebar-collapsed .sidebar{position:fixed;left:0;top:0;bottom:0;width:min(298px,88vw);height:100dvh;max-height:100dvh;overflow-y:auto;transform:translateX(-105%);transition:transform .22s ease;z-index:102;padding:23px 13px 14px;box-shadow:20px 0 45px #18323d1a;gap:20px}
+ body.mobile-nav-open .sidebar{transform:translateX(0)}
+ .sidebar-scrim{display:block;position:fixed;inset:0;z-index:101;background:#18313e55;opacity:0;visibility:hidden;transition:opacity .2s,visibility .2s}
+ body.mobile-nav-open .sidebar-scrim{opacity:1;visibility:visible}
+ body.mobile-nav-open{overflow:hidden}
+ .mobile-nav-toggle{display:grid}
+ .top{position:sticky;top:0;z-index:15}
+ .sidebar-collapse{display:none}
+ .nav,.nav button{flex:none;overflow:visible}
+ .nav{display:grid;gap:1px;padding:0}
+ .nav button{font-size:12px;min-width:0;min-height:39px;justify-content:flex-start;padding:9px 11px}
+ .navlabel,.nav-divider{display:block}
+ .brand{display:block}
+ body.sidebar-collapsed .brand{display:block}
+ body.sidebar-collapsed .navlabel,body.sidebar-collapsed .nav-divider,body.sidebar-collapsed .sidebar .foot{display:flex}
+ body.sidebar-collapsed .nav button{font-size:12px;gap:11px;padding:9px 11px;justify-content:flex-start;min-width:0}
+ .sidebar .foot{display:flex}
+}
+@media(max-width:600px){.top .eyebrow{display:none}.top{padding-left:14px;padding-right:14px}.top-leading{flex:0 0 auto}}
+@media(prefers-reduced-motion:reduce){.sidebar,.sidebar-scrim,.layout{transition:none!important}}
+
+/* v0.24 · Main workspace UI: institutional white, compact hierarchy, no heavy action fills */
+:root{--bg:#f8fafb;--line:#e4eaed;--shadow:0 2px 14px rgba(35,63,76,.025);--workspace-ink:#233d4a;--workspace-muted:#718591}
+.main{background:var(--bg)}
+.top{height:59px;border-bottom-color:#e8edf0;background:rgba(255,255,255,.96)}
+.content{padding-top:13px;padding-bottom:85px;max-width:1500px}
+.workspace-context{border-bottom:0;min-height:33px;padding-bottom:4px}
+.context-path{color:#82929c;font-size:11px}.context-path strong{color:#405d6e}
+.head{margin-top:15px;margin-bottom:20px;align-items:flex-end}
+.head h1{font-size:clamp(25px,2.6vw,34px);font-weight:730;letter-spacing:-.038em;margin:6px 0 7px;color:#223c49}
+.head p{font-size:12px;line-height:1.55;color:var(--workspace-muted);max-width:720px}
+.over{color:#6f899a;letter-spacing:.085em;font-size:10px}
+.btn{border-color:#d4dfe4;border-radius:8px;color:#345366;background:#fff;font-size:12px;min-height:36px;padding:8px 13px;box-shadow:none;transition:background .14s,border-color .14s}
+.btn:hover{border-color:#b9ced7;background:#f4f8fa}
+.btn.primary{background:#325f73;border-color:#325f73;color:white;box-shadow:none}
+.btn.primary:hover{background:#274e60;border-color:#274e60}
+.btn.small{min-height:32px;padding:6px 10px;font-size:11px}
+.panel,.metric,.patient-journey{background:#fff;box-shadow:var(--shadow);border-color:#e4ebee;border-radius:11px}
+.panelhead{padding:17px 21px;align-items:flex-start;border-bottom-color:#edf1f3}
+.panelhead h2{font-size:15px;font-weight:720;color:#294653;letter-spacing:-.012em}
+.panelhead p{line-height:1.45;font-size:11px;margin-top:3px;color:#81919a}
+.panelbody{padding:20px 21px}
+.metrics{gap:12px;margin-bottom:16px}
+.metric{padding:16px 18px;min-width:0}
+.metric .lab{font-size:11px;color:#718692}
+.metric .val{font-size:clamp(26px,2.3vw,34px);font-weight:720;margin-top:3px;line-height:1.24;color:#203d4d}
+.metric .help{font-size:11px;line-height:1.45;color:#84949d;margin-top:5px}
+.tablewrap{overflow-x:auto;scrollbar-width:thin;scrollbar-color:#c5d4db transparent}
+table{min-width:640px}
+th{background:#fafcfd;color:#718793;font-size:10px;letter-spacing:.055em;font-weight:750;padding:11px 15px;border-bottom-color:#e8eef0}
+td{padding:13px 15px;color:#355160;font-size:12px;border-bottom-color:#edf1f3}
+tbody tr:hover{background:#fbfcfe}
+tbody tr:focus-within{background:#f6fafc}
+.code{color:#345a6e;font-weight:650}
+.linklike{color:#355d71;font-weight:730;text-decoration:none;border:1px solid transparent;border-radius:7px;padding:6px 8px;margin:-6px -8px}
+.linklike:hover,.linklike:focus-visible{background:#edf4f7;text-decoration:underline;text-underline-offset:3px}
+.tag{background:#f1f5f7;color:#446574;border-color:#e0e9ed;padding:4px 8px;font-weight:710}
+.tag.partial{background:#fff9ed;color:#947644;border-color:#f0e3c9}
+.tag.bad{background:#fff2f3;color:#a0555c;border-color:#f1dadd}
+.tag.neutral{background:#f4f6f8;color:#70818c;border-color:#e8edf0}
+.empty{background:#fbfcfd;color:#7b8e99;border-color:#d8e2e7}
+.compact-empty{margin:8px 0;padding:27px 18px;border-radius:9px;font-size:12px;line-height:1.6}
+.fbar.cohort-filters{display:flex;gap:9px;align-items:center;padding-bottom:4px;margin-bottom:13px}
+.cohort-filters input[type=search]{min-width:min(320px,100%);flex:1;max-width:390px}
+.cohort-filters select{max-width:310px;flex:0 1 280px}
+.cohort-filters input,.cohort-filters select{border-color:#d7e2e7;color:#365365;border-radius:8px;height:38px;font-size:12px}
+.filter-count{margin-left:auto;white-space:nowrap;color:#82939d;font-size:11px}
+.filter-reset{min-width:108px}
+.field input,.field select,.fbar input,.fbar select{transition:border-color .14s,box-shadow .14s}
+.field input:focus,.field select:focus,.fbar input:focus,.fbar select:focus{outline:none;border-color:#709db0;box-shadow:0 0 0 3px #eaf3f7}
+.environment-note{display:block;max-width:760px;margin:-3px 0 16px;border:0;color:#718897}
+.environment-note>summary{display:inline-flex;gap:7px;align-items:center;list-style:none;font-size:11px;cursor:pointer;padding:3px 0;color:#718897}
+.environment-note>summary::-webkit-details-marker{display:none}
+.environment-note>summary:focus-visible{outline:2px solid #5d8fa5;outline-offset:3px;border-radius:5px}
+.environment-info{display:grid;place-items:center;width:16px;height:16px;border:1px solid #b5c5ce;border-radius:50%;font-size:10px;font-family:Georgia,serif;font-weight:bold;color:#5d7989}
+.environment-note-content{background:#f5f8fa;border:1px solid #e4ebef;border-radius:8px;padding:10px 13px;margin-top:7px;font-size:11px;line-height:1.6;color:#647c89}
+.call,.quality-item{background:#fafcfd;border-color:#e7edf0}
+.action-worklist .btn.small{background:white;color:#3a6174;border-color:#d6e2e8}
+.action-worklist .btn.small:hover{background:#f1f6f8}
+.patient-journey{padding:18px 20px}
+.journey-step{background:#fbfcfd;border-color:#e6edf0}
+.journey-step.done{background:#f5f9f8;border-color:#d7e7e2}
+.visit-completeness{background:#f7fafb;border-color:#dce9eb}
+#root[data-view="analisis"] .panel .metrics{margin-bottom:14px}
+#root[data-view="analisis"] .panel .metric{background:#fbfcfd}
+#root[data-view="cohorte"] .panelbody{padding-top:16px}
+@media(max-width:1200px){.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.split{grid-template-columns:minmax(0,1fr)}.cohort-filters{flex-wrap:wrap}.filter-count{margin-left:0}}
+@media(max-width:900px){.content{padding:14px 19px 70px}.head{margin-top:10px}.head h1{font-size:29px}.panelhead,.panelbody{padding:16px 17px}}
+@media(max-width:650px){.content{padding-left:13px;padding-right:13px}.top{height:54px}.head{display:block}.head .actions{margin-top:14px}.head h1{font-size:27px}.metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.metric{padding:13px 12px}.metric .val{font-size:27px}.metric .lab{font-size:10px}.metric .help{font-size:10px}.cohort-filters input[type=search],.cohort-filters select{flex:1 1 100%;max-width:none;width:100%}.filter-count{margin-left:auto}.panelhead{padding:14px}.panelbody{padding:14px}.context-path{gap:5px}.workspace-context{min-height:27px}}
+@media(max-width:390px){.metrics{grid-template-columns:1fr 1fr}.metric .val{font-size:24px}.metric .help{font-size:9px}}
+
+
+/* v0.24 final optical checks */
+.top .status{padding:5px 10px;border:1px solid #e1e9ec;background:#f5f8fa;color:#627c8b;letter-spacing:.035em;font-weight:650;font-size:10px;box-shadow:none}
+#root[data-view="analisis"] .split{grid-template-columns:minmax(0,1fr)}
+#root[data-view="analisis"] .split .tablewrap{overflow-x:auto}
+
+
+/* v0.25 · Connected clinical workspace / form section navigation */
+#patientForm,#visitForm{overflow:visible}
+#patientForm .panelhead,#visitForm .panelhead{background:#fff;border-radius:11px 11px 0 0;align-items:center}
+#patientForm .panelhead p,#visitForm .panelhead p{max-width:560px}
+.clinical-stage-mark{display:inline-flex;align-items:center;gap:6px;background:#f5f8fa;border:1px solid #e5edf1;color:#486679;padding:6px 10px;border-radius:7px;font-weight:700;font-size:11px;white-space:nowrap}
+.clinical-toolbar{display:flex;align-items:center;gap:12px;padding:8px 18px 7px;border-bottom:1px solid #e8eef1;background:#fff;position:sticky;top:59px;z-index:8;min-height:52px}
+.clinical-section-nav{display:flex;align-items:stretch;gap:4px;overflow-x:auto;scrollbar-width:thin;scrollbar-color:#cbdce4 transparent;flex:1;min-width:0}
+.section-jump{flex:0 0 auto;border:0;border-bottom:2px solid transparent;padding:7px 11px 8px;border-radius:5px 5px 0 0;background:transparent;color:#778c99;font-size:11px;font-weight:630;min-height:33px;white-space:nowrap;transition:background .14s,color .14s}
+.section-jump:hover{background:#f4f8fa;color:#35566b}
+.section-jump.active{border-bottom-color:#5d859a;background:#f6f9fb;color:#2c5167;font-weight:770}
+.section-jump:focus-visible,.clinical-return:focus-visible{outline:2px solid #789eb0;outline-offset:-2px}
+.clinical-nav-position{flex:0 0 auto;font-size:10px;color:#8399a5;font-variant-numeric:tabular-nums}
+.clinical-return{flex:0 0 auto;min-height:31px;border:1px solid #dbe6eb;border-radius:7px;background:white;color:#506e7e;font-size:11px;font-weight:710;padding:5px 10px;white-space:nowrap}
+.clinical-return:hover{background:#f4f8fa;border-color:#bfced7}
+#visitForm>.panelbody,#patientForm>.panelbody{padding-top:15px}
+#patientForm .clinical-block,#visitForm .clinical-block{margin:10px 0;background:white;border:1px solid #e5edf0;border-radius:9px;box-shadow:none;scroll-margin-top:126px}
+#patientForm .clinical-block-title,#visitForm .clinical-block-title{padding:12px 16px;background:#fff;font-size:12px;color:#304b5a}
+#patientForm .clinical-block-title:hover,#visitForm .clinical-block-title:hover{background:#fbfcfd}
+#patientForm .clinical-block[open]>.clinical-block-title,#visitForm .clinical-block[open]>.clinical-block-title{background:#fafcfd}
+#patientForm .clinical-block-body,#visitForm .clinical-block-body{border-top-color:#eff3f5;padding:17px 16px 19px}
+#patientForm .clinical-block-hint,#visitForm .clinical-block-hint{font-weight:500;color:#93a3ac;font-size:10px}
+#visitForm .visit-completeness{background:#f8fafb;border-color:#e3ebef;margin:10px 0 15px;padding:12px 15px;border-radius:8px}
+#visitForm .completion-text strong{color:#375a6a}
+#visitForm .completion-text>b{color:#456e81;font-size:17px}
+#visitForm .completion-track{height:5px;background:#e5edf0;margin:8px 0 5px}
+#visitForm .completion-track span{background:#6d95a7}
+#visitForm .completion-hint{color:#7c909c}
+#patientForm .field input,#patientForm .field select,#visitForm .field input,#visitForm .field select{border-color:#d6e2e8;border-radius:7px}
+#visitForm .question{border-bottom-color:#eef3f5}
+#visitForm .qbadge{background:#f0f5f7;color:#57798b}
+#visitForm .rscore{background:#f8fafb;border-color:#e5ecef}
+#patientForm .footerbar,#visitForm .footerbar{background:#fff;box-shadow:0 -7px 20px rgba(34,66,81,.04);border-color:#e8eef1;border-radius:0 0 11px 11px}
+@media(max-width:900px){.clinical-toolbar{top:54px;padding:7px 10px;gap:5px;min-height:49px}.section-jump{font-size:10px;padding:7px 9px}.clinical-nav-position{display:none}.clinical-return{font-size:10px;padding:4px 7px;max-width:120px;white-space:normal;line-height:1.2;text-align:center}}
+@media(max-width:600px){.clinical-toolbar{top:54px}.clinical-return{display:none}#patientForm .panelhead,#visitForm .panelhead{display:flex;align-items:flex-start;gap:8px;flex-wrap:wrap}.clinical-stage-mark{padding:5px 8px;font-size:10px}#visitForm .clinical-block-body,#patientForm .clinical-block-body{padding:13px}.clinical-section-nav{scrollbar-width:none}.clinical-section-nav::-webkit-scrollbar{display:none}#visitForm .fields.three,#patientForm .fields.three{grid-template-columns:1fr}}
+
+
+/* v0.27 — CRD connected workspace: responsive, unobtrusive and form-first */
+.crd-context-bar{display:flex;align-items:end;justify-content:space-between;gap:16px;flex-wrap:wrap;background:#fff;border:1px solid #e3ebee;border-radius:12px;padding:15px 18px;margin:0 0 17px}
+.crd-context-main{display:flex;align-items:end;gap:16px;flex-wrap:wrap;flex:1;min-width:240px}.crd-person-select{min-width:240px;max-width:350px;flex:1}.crd-person-select select{height:37px;font-size:12px}.crd-stage-wrap{display:grid;gap:8px}.crd-stage-label{font-size:11px;font-weight:700;color:#637984}.crd-stage-switch{display:flex;gap:3px;padding:3px;border:1px solid #e3ebee;border-radius:9px;background:#f8fafb;width:max-content}.crd-stage{display:flex;gap:7px;align-items:center;border:0;background:transparent;color:#5b7480;padding:7px 17px;font-size:12px;font-weight:750;border-radius:7px}.crd-stage.active{background:#fff;color:#173f56;box-shadow:0 1px 4px #183a4c13}.crd-stage:hover:not(.active){background:#edf3f6}.crd-stage-dot{width:5px;height:5px;border-radius:50%;background:#75aab3}.crd-context-links{display:flex;align-items:center;gap:7px;flex-wrap:wrap}.crd-context-links .btn{color:#375a69;border-color:#dce6ea;background:#fff}
+.crd-workspace{box-shadow:none}.crd-workspace-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:17px 21px;border-bottom:1px solid #e8eef0}.crd-workspace-heading h2{font-size:15px;margin:0 0 4px}.crd-workspace-heading p{font-size:11px;color:#728996;margin:0}.crd-progress{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:11px}.crd-progress strong{font-weight:700;color:#33596a}.crd-progress span{color:#7b8d96}.crd-progress span.unsaved{color:#aa762f;font-weight:650}.crd-tab-layout{display:grid;grid-template-columns:205px minmax(0,1fr)}.crd-tab-navigation{padding:13px 10px;border-right:1px solid #e9eff1;display:flex;flex-direction:column;align-items:stretch;gap:4px;background:#fcfdfe}.crd-section-tab{border:0;display:flex;justify-content:space-between;align-items:center;text-align:left;gap:8px;width:100%;background:transparent;border-radius:8px;padding:11px 12px;color:#627d8b;font-size:12px;font-weight:650}.crd-section-tab:hover{background:#f0f5f7}.crd-section-tab.active{color:#173f54;background:#ecf3f7;box-shadow:inset 2px 0 #4d879b}.crd-section-tab small{font-weight:600;font-size:10px;color:#8496a0;white-space:nowrap}.crd-editor{min-width:0}.crd-editor-body{padding:18px 22px 8px}.crd-field-group[hidden]{display:none!important}.crd-field-group{scroll-margin-top:125px}.crd-group-heading{display:flex;justify-content:space-between;gap:16px;align-items:center;margin:0 0 20px}.crd-group-heading h3{font-size:15px;letter-spacing:-.02em;margin:0}.crd-group-heading p{font-size:11px;color:#8b9ba2;margin:3px 0 0}.crd-sequence{font-size:11px;color:#9baab0;letter-spacing:.08em}.crd-field-grid .field{padding-bottom:10px}.crd-field-grid .field select,.crd-field-grid .field input{height:40px}.crd-field-grid .field small{font-size:10px}.crd-field-grid .field.crd-unsaved label::after{content:' ·';color:#bc8d49}.crd-section-footer{display:flex;justify-content:space-between;gap:12px;margin:15px 0 10px;padding-top:15px;border-top:1px solid #eff3f5}.crd-correction{display:grid;gap:7px;margin-top:20px;padding-top:18px;border-top:1px solid #edf1f4}.crd-correction label{font-size:11px;font-weight:700;color:#526d7a}.crd-correction input{height:40px;border:1px solid #d4e0e5;border-radius:8px;padding:0 12px;max-width:100%}.crd-save-bar{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;padding:14px 22px;border-top:1px solid #e9eff1}.crd-save-bar .subtle{max-width:530px}.crd-legacy-info{font-size:12px;color:#5d7582;margin:0 0 14px;padding:10px 15px;border:1px solid #e8eff2;border-radius:9px;background:white}.crd-legacy-info summary{cursor:pointer;font-weight:650}.crd-legacy-info .subtle{margin-top:10px}.crd-success{font-size:12px;padding:12px 15px;border:1px solid #cfe3dd;border-radius:8px;margin:0 0 16px;color:#326755;background:#f7fbf9}
+@media(max-width:900px){.crd-tab-layout{grid-template-columns:minmax(0,1fr)}.crd-tab-navigation{flex-direction:row;overflow-x:auto;border-right:none;border-bottom:1px solid #e9eff1;padding:9px 12px}.crd-section-tab{flex:0 0 auto;width:auto;gap:7px;padding:8px 10px}.crd-section-tab.active{box-shadow:inset 0 -2px #4d879b}.crd-editor-body{padding:16px 15px 8px}.crd-workspace-heading,.crd-save-bar{padding:14px 15px}}
+@media(max-width:560px){.crd-context-bar{padding:12px}.crd-context-main{width:100%;gap:11px}.crd-person-select{min-width:100%}.crd-context-links{gap:5px}.crd-context-links .btn{font-size:10px}.crd-field-grid{grid-template-columns:minmax(0,1fr)!important}.crd-progress{font-size:10px}.crd-section-footer .btn{white-space:normal}}
+
+/* v0.28: compact, read-only longitudinal review; existing white visual system */
+.journey-review{margin:0 0 20px;border:1px solid #e3ebed;border-radius:11px;background:#fff;box-shadow:var(--shadow)}
+.journey-review-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:15px 19px;border-bottom:1px solid #e9eff1}
+.journey-review-head h2{font-size:16px;letter-spacing:-.25px;margin:0 0 3px}
+.journey-review-head p{font-size:12px;color:var(--muted);margin:0}
+.journey-review-body{padding:16px 19px}
+.journey-review-statgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:11px;margin-bottom:14px}
+.journey-review-stat{padding:12px 13px;border:1px solid #e6edf0;border-radius:9px;background:#fcfdfd}
+.journey-review-stat strong{display:block;font-size:19px;font-weight:700;letter-spacing:-.45px}
+.journey-review-stat span{font-size:11px;color:#657b84}
+.journey-review-timeline{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.journey-review-item{padding:12px;border:1px solid #e8eef0;border-radius:9px;min-width:0}
+.journey-review-item .line{display:flex;justify-content:space-between;gap:6px;align-items:center}
+.journey-review-item .line b{font-size:13px}
+.journey-review-item small{display:block;font-size:11px;color:#667b84;margin-top:6px;line-height:1.5}
+.journey-review-item .subvalue{font-size:12px;color:#233d48;margin-top:7px;font-weight:620}
+.journey-review-foot{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;align-items:center;margin-top:13px;font-size:12px;color:#687c84}
+.journey-review-alert{background:#fff9ec;border:1px solid #f0e2c4;border-radius:8px;padding:9px 11px;margin-top:10px;color:#805b23;font-size:12px}
+@media(max-width:800px){.journey-review-statgrid{grid-template-columns:repeat(2,minmax(0,1fr))}.journey-review-timeline{grid-template-columns:1fr}}
+@media(max-width:550px){.journey-review-head{display:block}.journey-review-body{padding:12px}.journey-review-statgrid{gap:7px}.journey-review-stat strong{font-size:17px}}
+
+
+/* v0.30 · Phase 4: restrained, proportionate controls and responsive rhythm.
+   Visual-only: clinical rules, actions, IDs and route structure remain unchanged. */
+:root{--p4-focus:#6a9bb0;--p4-quiet:#f1f6f9;--p4-stroke:#d5e2e8}
+#root .head{gap:16px}
+#root .head .actions{align-self:flex-end;align-items:center;justify-content:flex-end;flex:0 0 auto;gap:7px}
+#root .actions,#root .inline,.crd-context-links{align-items:center;gap:7px}
+.btn{display:inline-flex;align-items:center;justify-content:center;vertical-align:middle;gap:6px;
+  flex:0 0 auto;width:fit-content;max-width:100%;min-height:34px;padding:6px 11px;
+  font-size:12px;line-height:1.25;letter-spacing:.003em;font-weight:650;border-radius:7px;
+  border:1px solid var(--p4-stroke);background:#fff;color:#365568;box-shadow:none;white-space:normal;text-align:center}
+.btn:hover{border-color:#b9ccd6;background:#f6f9fb;color:#25495e}
+.btn.primary{background:var(--p4-quiet);border-color:#b9d0dc;color:#244e63;box-shadow:none}
+.btn.primary:hover{background:#e6f0f5;border-color:#91b4c3;color:#173f55}
+.btn.small{min-height:30px;padding:5px 9px;font-size:11px}
+.btn.textbtn{min-height:0;padding:4px 6px}
+.btn.danger{background:#fff;border-color:#e3cbd0}
+.btn:focus-visible,.linklike:focus-visible,.context-link:focus-visible,.context-export:focus-visible,
+  .crd-stage:focus-visible,.crd-section-tab:focus-visible,.section-jump:focus-visible{
+  outline:2px solid var(--p4-focus);outline-offset:2px;box-shadow:none}
+#root .panelhead{gap:12px}
+#root .panelhead .btn,#root .panelhead .actions{flex:0 0 auto}
+#root .footerbar{gap:9px;padding:12px 20px}
+#root .footerbar .actions{justify-content:flex-end;flex:0 0 auto}
+#root .footerbar .subtle{max-width:540px;line-height:1.5}
+/* Filters should be search-sized, never consume all remaining desktop width. */
+#root .fbar.cohort-filters{gap:8px;align-items:center}
+#root .cohort-filters input[type=search]{flex:0 1 294px;width:min(294px,100%);min-width:0;max-width:294px}
+#root .cohort-filters select{flex:0 1 236px;width:min(236px,100%);min-width:0;max-width:236px}
+#root .cohort-filters input,#root .cohort-filters select{height:36px;font-size:12px}
+#root .cohort-filters .filter-reset{min-width:0;flex:0 0 auto}
+#root .cohort-filters .filter-count{margin-left:auto;font-variant-numeric:tabular-nums}
+/* Clinical data controls: narrow dates and numbers, full measure for lengthy descriptions. */
+#root .field input[type=number]{max-width:188px}
+#root .field input[type=date]{max-width:205px}
+#root .field input[type=search]{max-width:310px}
+#root .field select{max-width:100%}
+#root .field input,#root .field select{min-width:0;min-height:38px;height:40px}
+#root .field label{line-height:1.35}
+#root .field input:focus-visible,#root .field select:focus-visible,
+#root .fbar input:focus-visible,#root .fbar select:focus-visible{outline:2px solid #9fc4d3;outline-offset:1px;box-shadow:none}
+/* Connected CRD: compact stage navigation, appropriately-sized secondary actions. */
+.crd-context-bar{gap:12px;padding:13px 16px}
+.crd-context-main{gap:12px}
+.crd-person-select{flex:0 1 320px;min-width:205px;max-width:320px}
+.crd-context-links{justify-content:flex-start}
+.crd-context-links .btn{min-height:32px;padding:5px 10px}
+.crd-stage{padding:6px 13px;min-height:33px}
+.crd-save-bar{gap:10px;padding:12px 18px}
+.crd-section-footer .btn{min-height:33px}
+.crd-field-grid .field{padding-bottom:7px}
+/* Entry should feel like the application: open, institutional, never a giant CTA. */
+.auth-gate{background:#f6f8fa}
+.auth-card{border:1px solid #e2eaee;box-shadow:0 16px 48px rgba(29,64,81,.075);border-radius:13px}
+.auth-mark span{color:#6a94a6}
+.auth-card button.btn{display:inline-flex;width:auto;min-width:154px;max-width:100%;min-height:37px;height:auto;
+  padding:8px 16px;margin:16px 0 14px}
+.auth-card input:focus-visible{outline:2px solid #9fc4d3;outline-offset:1px;border-color:#88afc0}
+/* Mobile touch accessibility without artificially stretching buttons. */
+@media(max-width:900px){
+  #root .head .actions{justify-content:flex-start;align-self:auto}
+  #root .footerbar{padding:11px 15px}
+  #root .clinical-toolbar{min-width:0}
+  #root .clinical-section-nav{min-width:0}
+}
+@media(max-width:650px){
+  #root .head .actions{margin-top:11px;gap:6px;flex-wrap:wrap}
+  #root .btn{min-height:35px;padding:7px 10px;font-size:11px}
+  #root .btn.small{min-height:32px;padding:6px 9px}
+  #root .cohort-filters input[type=search]{flex:0 1 100%;width:100%;max-width:340px}
+  #root .cohort-filters select{flex:0 1 100%;width:100%;max-width:300px}
+  #root .cohort-filters .filter-count{margin-left:0}
+  #root .field input[type=date],#root .field input[type=number]{width:100%;max-width:100%}
+  #root .footerbar{align-items:flex-start;gap:9px}
+  #root .footerbar>.subtle{flex:1 1 100%}
+  #root .footerbar>.actions{flex:0 1 auto;justify-content:flex-start;margin-left:0}
+  .crd-context-main{flex:1 1 100%;min-width:0}
+  .crd-person-select{min-width:0;max-width:100%;flex:1 1 100%}
+  .crd-context-links{gap:6px}
+  .crd-stage{padding:6px 12px}
+  .crd-save-bar{padding:11px 13px}
+}
+@media(max-width:360px){
+  #root .cohort-filters input[type=search],#root .cohort-filters select{max-width:100%}
+  #root .head .actions{gap:5px}
+}
+@media(prefers-reduced-motion:reduce){.btn,.field input,.field select{transition:none!important}}
+</style>
+</head>
+<body>
+<section id="authGate" class="auth-gate"><div class="auth-card"><div class="auth-mark">RADAR<span>·</span>CORUÑA</div><p class="auth-eyebrow">NEUMOLOGÍA · INVESTIGACIÓN CLÍNICA</p><h1>Acceso al espacio de investigación</h1><p>Entorno local para validar flujos del estudio con <strong>datos sintéticos exclusivamente</strong>. No introduce datos de pacientes reales.</p><form id="authForm"><label for="username">Cuenta de demostración</label><input id="username" autocomplete="username" value="admin" required><label for="password">Contraseña</label><input id="password" type="password" autocomplete="current-password" placeholder="Contraseña de la cuenta" required><p id="authError" role="alert"></p><button class="btn primary" type="submit">Acceder al piloto</button></form><small>Accesos de prueba documentados en LEEME.md · Ejecución exclusivamente en este equipo</small></div></section>
+<div class="layout">
+<div class="sidebar-scrim" id="sidebarScrim" aria-hidden="true"></div>
+<aside class="sidebar" id="sidebar" aria-label="Navegación principal">
+  <div class="brand-row"><div class="brand"><strong>RADAR<span>·</span>CORUÑA</strong><small>neumACt · Investigación clínica</small></div><button class="sidebar-collapse" type="button" id="sidebarCollapse" aria-label="Contraer menú lateral" aria-expanded="true" title="Contraer menú"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16M15 9l-3 3 3 3"/></svg></button></div><div class="navgroup"><div class="navlabel">ÁREA CLÍNICA</div><nav class="nav" id="navigation">
+<button data-route="inicio" title="Resumen"><span class="glyph"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3.2" y="3.2" width="7" height="7" rx="1.2"/><rect x="13.8" y="3.2" width="7" height="7" rx="1.2"/><rect x="3.2" y="13.8" width="7" height="7" rx="1.2"/><rect x="13.8" y="13.8" width="7" height="7" rx="1.2"/></svg></span>Resumen</button>
+<button data-route="cohorte" title="Participantes"><span class="glyph"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="8" r="3.3"/><path d="M3.3 20v-2.1a6.7 6.7 0 0 1 13.4 0V20"/><path d="M18 6.1a3 3 0 0 1 0 5.8M18 14.5a5 5 0 0 1 2.7 4.6"/></svg></span>Participantes</button>
+<button data-route="visitas" title="Visitas V0–V2"><span class="glyph"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18M8 14h3M8 17h3M14 14h3"/></svg></span>Visitas V0–V2</button>
+<button data-route="flujo" title="Seguimiento CRD"><span class="glyph"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="6" r="2"/><circle cx="19" cy="12" r="2"/><circle cx="5" cy="18" r="2"/><path d="M7 6h6a6 6 0 0 1 6 6M7 18h6a6 6 0 0 0 6-6"/></svg></span>Seguimiento CRD</button>
+<button data-route="crd" title="CRD complementario"><span class="glyph"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3h9l4 4v14H8zM17 3v5h4M11 12h7M11 16h7M11 20h5"/><path d="M3 7v13"/></svg></span>CRD complementario</button>
+<div class="nav-divider" role="separator"></div><div class="navlabel nav-subheading">SEGUIMIENTO</div>
+<button data-route="eventos" title="Episodios y contactos"><span class="glyph"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M3 12h18"/><path d="M6 6l12 12M18 6L6 18"/></svg></span>Episodios y contactos</button>
+<button data-route="resultados" title="Resultados y ausencias"><span class="glyph"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18h18M5 15l4-5 4 3 6-8"/><circle cx="19" cy="5" r="1"/></svg></span>Resultados y ausencias</button>
+<button data-route="completitud" title="Implantación"><span class="glyph"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 11l3 3 5-5M7 18h10"/></svg></span>Implantación</button>
+<div class="nav-divider" role="separator"></div><div class="navlabel nav-subheading">ANÁLISIS Y RECURSOS</div>
+<button data-route="analisis" title="Análisis científico"><span class="glyph"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V5M4 20h16M8 16l4-6 4 3 4-8"/><circle cx="12" cy="10" r="1"/></svg></span>Análisis científico</button>
+<button data-route="calidad" title="Calidad de datos"><span class="glyph"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 3v6c0 5-3.5 8.6-8 11-4.5-2.4-8-6-8-11V5z"/><path d="M8.5 11.5l2.5 2.5 4.5-5"/></svg></span>Calidad de datos</button>
+<button data-route="estudio" title="Diccionario y decisiones"><span class="glyph"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h7a3 3 0 0 1 3 3v14a3 3 0 0 0-3-3H4zM20 4h-5a3 3 0 0 0-3 3v14a3 3 0 0 1 3-3h5z"/></svg></span>Diccionario y decisiones</button>
+<button data-route="exportacion" title="Excel del estudio"><span class="glyph"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7.5 10.5L12 15l4.5-4.5M4 18v3h16v-3"/></svg></span>Excel del estudio</button>
+</nav></div><div class="foot"><span class="foot-version">RADAR-CORUÑA · v0.31</span><span class="foot-caption">Investigación respiratoria</span></div></aside>
+<main class="main"><div class="top"><div class="top-leading"><button id="mobileNavToggle" type="button" class="mobile-nav-toggle" aria-controls="sidebar" aria-expanded="false" aria-label="Abrir menú" title="Abrir menú"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button><span class="eyebrow">SERVICIO DE NEUMOLOGÍA · CHUAC / INIBIC</span></div><div class="top-right"><span id="userLabel" class="user-label"></span><button id="signout" type="button" class="logout" title="Cerrar sesión">Salir</button><span class="status" title="Información del entorno disponible en el panel informativo">ENTORNO DE PRUEBA</span></div></div><div class="content"><div id="workspaceContext" class="workspace-context" aria-label="Navegación contextual"></div><div id="root" aria-live="off"></div></div></main>
+</div>
+<input id="fileLoader" class="hide" type="file" accept=".json,application/json">
+<script>
+'use strict';
+(()=>{
+const KEY='radar_coruna_v15_remote_state';
+const YESNO=[['','Sin registrar'],['si','Sí'],['no','No'],['nc','No consta']];
+const DEMO={version:'0.31',centres:[],patients:[],visits:[],events:[],contacts:[],audit:[]};
+function clone(o){return JSON.parse(JSON.stringify(o))}let db=clone(DEMO),currentUser=null,csrfToken='';
+async function requestApi(path, method='GET', body=null, extraHeaders={}){const init={method,credentials:'same-origin',headers:{'Accept':'application/json'}};Object.assign(init.headers,extraHeaders);if(method!=='GET'){init.headers['X-RADAR-CSRF']=csrfToken;init.headers['Content-Type']='application/json';if(body!==null)init.body=JSON.stringify(body)}let resp;try{resp=await fetch(path,init)}catch(e){throw Error('No se puede conectar con el servidor local. Comprueba que sigue en ejecución.')}const raw=await resp.json().catch(()=>({}));if(!resp.ok){const d=raw.detail;throw Error(typeof d==='string'?d:Array.isArray(d)?d.map(x=>x.msg).join('; '):'Error del servidor ('+resp.status+')')}return raw}
+let eventPatient='',eventLink='',careEpisode='',lastSavedVisit=null;
+let clinicalReview=null,scientific=null,crdWorkflow=null,scientificAnalysis=null, phase13Outcomes=null, phase14Data=null, missingRecords=[], studyObservations=[],selectedStudyPatient='',selectedStudyVisit='V0';
+let phase16Work=[],phase18Report=null;
+async function reloadState(){db=await requestApi('/api/state');if(!db||!Array.isArray(db.patients))throw Error('Respuesta de datos inválida');
+  scientific=await requestApi('/api/study/specification');studyObservations=await requestApi('/api/study/observations');clinicalReview=await requestApi('/api/review/clinical');crdWorkflow=await requestApi('/api/study/crd-workflow');scientificAnalysis=await requestApi('/api/study/scientific-summary');phase13Outcomes=await requestApi('/api/study/phase13-outcomes');missingRecords=await requestApi('/api/study/missing');phase14Data=await requestApi('/api/study/phase14');phase16Work=(await requestApi('/api/study/worklist')).rows||[];phase18Report=await requestApi('/api/study/reporting');}
+
+async function loadSession(){const r=await fetch('/api/session',{credentials:'same-origin'});if(!r.ok)return false;const a=await r.json();csrfToken=a.csrf;currentUser=a.user;await reloadState();document.body.classList.add('signed-in');document.getElementById('userLabel').textContent=currentUser.username+' · '+(currentUser.centre||'todos los centros');navigate('inicio');return true}
+async function boot(){try{await loadSession()}catch(e){console.warn('Sesión no disponible',e)}}
+function preventDuplicateSubmissions(form, busy){form.querySelectorAll('button[type="submit"]').forEach(el=>{el.disabled=busy;el.textContent=busy?'Guardando…':'Guardar'})}
+
+const esc=v=>String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+const get=id=>document.getElementById(id);
+const fmt=d=>{if(!d)return '—';const x=new Date(d+'T12:00:00');return Number.isNaN(+x)?esc(d):new Intl.DateTimeFormat('es-ES',{day:'2-digit',month:'short',year:'numeric'}).format(x)};
+const options=(arr,value)=>arr.map(([v,l])=>`<option value="${esc(v)}" ${String(value??'')===String(v)?'selected':''}>${esc(l)}</option>`).join('');
+const field=(id,label,type='text',value='',extra='',help='')=>`<div class="field"><label for="${id}">${label}</label>${type==='select'?`<select id="${id}">${options(extra,value)}</select>`:`<input id="${id}" type="${type}" value="${esc(value)}" ${extra}>`}${help?`<small>${help}</small>`:''}</div>`;
+const score=v=>v.status!=='no_realizada'&&['rescue','exacerb','dyspnea','activity'].every(k=>['si','no'].includes(v[k]))?(v.rescue==='si'?3:0)+(v.exacerb==='si'?2:0)+(v.dyspnea==='si'?2:0)+(v.activity==='si'?1:0):null;
+const cat=s=>s===null?'Incompleta':s<=1?'Buen control':s<=3?'Control parcial':'Mal control';
+const cls=s=>s===null?'neutral':s<=1?'':s<=3?'partial':'bad';
+const tag=(t,cl='neutral')=>`<span class="tag ${cl}">${esc(t)}</span>`;
+const patient=id=>db.patients.find(p=>p.id===id);
+const labelPatient=id=>esc(id);
+const visits=id=>db.visits.filter(v=>v.patient===id).sort((a,b)=>a.date.localeCompare(b.date));
+const latestVisit=id=>visits(id).slice(-1)[0];
+const count=(type)=>db.visits.filter(v=>v.type===type).length;
+function addAudit(action,obj,detail){db.audit.unshift({at:new Date().toISOString(),action,object:obj,detail});db.audit=db.audit.slice(0,600)}
+// No localStorage: all accepted changes are persisted through the server API.
+function newId(prefix){return prefix+'-'+(Date.now().toString(36).toUpperCase())+'-'+Math.random().toString(36).slice(2,6).toUpperCase()}
+let route='inicio', selectedPatient='', visitPatient='', visitTargetStage='',editVisit=null, eventTab='episodios';
+function heading(kicker,title,desc,action=''){return `<header class="head"><div><div class="over">${kicker}</div><h1>${title}</h1><p>${desc}</p></div>${action?`<div class="actions">${action}</div>`:''}</header>`}
+const notice='<details class="environment-note"><summary><span class="environment-info" aria-hidden="true">i</span> Información del entorno</summary><div class="environment-note-content">Sesión de evaluación del flujo de investigación. Los registros de prueba se introducen sin información identificativa real; utiliza códigos ficticios. La información se conserva mediante el servidor de esta instancia.</div></details>';
+function navigate(r){
+ if(route==='visita'&&r!=='visita'&&((get('visitForm')?.dataset.dirty==='1')||(primaryVisitSnapshot!==null&&snapshotPrimaryVisit()!==primaryVisitSnapshot))){error('visitError','Hay cambios sin guardar en esta visita. Guarda la evaluación antes de salir para conservarlos.');return;}
+ if(r!=='detalle')lastSavedVisit=null;
+ route=r;
+ const corresponding={detalle:'cohorte',participante:'cohorte',visita:'visitas',evento:'eventos',carestatus:'eventos'}[r]||r;
+ get('navigation').querySelectorAll('button[data-route]').forEach(x=>{
+   const active=x.dataset.route===corresponding;
+   x.classList.toggle('active',active);
+   if(active)x.setAttribute('aria-current','page');else x.removeAttribute('aria-current');
+ });
+ closeMobileNav();
+ render();window.scrollTo({top:0,behavior:'smooth'});
+}
+function overview(){const complete=db.visits.filter(x=>score(x)!==null);const c={good:complete.filter(v=>score(v)<=1).length,partial:complete.filter(v=>score(v)>=2&&score(v)<=3).length,bad:complete.filter(v=>score(v)>=4).length};const n=complete.length;return heading('Estado del estudio','Seguimiento de la cohorte','Actividad y calidad del seguimiento de la cohorte RADAR-CORUÑA.',`<button class="btn primary" data-action="newpatient">+ Nuevo participante</button>`)+notice+`<section class="metrics"><div class="metric"><div class="lab">Participantes incluidos</div><div class="val">${db.patients.filter(p=>p.status==='incluido').length}</div><div class="help">${db.patients.filter(p=>p.status==='cribado').length} en cribado · ${db.centres.length} centros</div></div><div class="metric"><div class="lab">Evaluaciones realizadas</div><div class="val">${db.visits.length}</div><div class="help">V0 ${count('V0')} · V1 ${count('V1')} · V2 ${count('V2')}</div></div><div class="metric"><div class="lab">RADAR completos</div><div class="val">${complete.length}</div><div class="help">${db.visits.length?Math.round(complete.length/db.visits.length*100):0}% de evaluaciones</div></div><div class="metric"><div class="lab">Episodios registrados</div><div class="val">${db.events.length}</div><div class="help">Contactos asistenciales: ${db.contacts.length}</div></div></section>${nextActionsPanel()}<div class="vspace"></div><div class="split"><section class="panel"><div class="panelhead"><div><h2>Cohorte y última situación RADAR</h2><p>Selecciona un participante para consultar su evolución.</p></div></div><div class="tablewrap"><table><thead><tr><th>Participante</th><th>Centro</th><th>Última visita</th><th>RADAR</th><th></th></tr></thead><tbody>${db.patients.length?db.patients.map(p=>{const v=latestVisit(p.id),s=v?score(v):null;return `<tr><td class="code">${esc(p.id)}</td><td>${esc(p.center)}</td><td>${v?esc(v.type)+' · '+fmt(v.date):'Sin visitas'}</td><td>${tag(s===null?'Sin clasificar':`${s}/8 · ${cat(s)}`,cls(s))}</td><td><button class="linklike" data-action="detail" data-id="${esc(p.id)}">Abrir ficha</button></td></tr>`}).join(''):'<tr><td colspan="5"><div class="empty compact-empty">Sin participantes registrados. Crea la primera ficha para iniciar el seguimiento.</div></td></tr>'}</tbody></table></div></section><section class="panel"><div class="panelhead"><h2>Distribución de evaluaciones</h2></div><div class="panelbody"><div class="stack">${[['Buen control',c.good,'#207e67'],['Control parcial',c.partial,'#c19339'],['Mal control',c.bad,'#b55760']].map(([label,num,color])=>`<div><div class="inline" style="justify-content:space-between"><b>${label}</b><span class="subtle">${num} de ${n}</span></div><div style="height:10px;background:#e8efee;border-radius:8px;margin-top:8px;overflow:hidden"><div style="width:${n?100*num/n:0}%;background:${color};height:100%"></div></div></div>`).join('')}</div><p class="subtle" style="margin-top:20px">Las categorías se basan en evaluaciones completas, no necesariamente en pacientes distintos.</p></div></section></div>`}
+function nextActionsPanel(){
+ const rows=phase16Work||[];
+ const pending=rows.filter(x=>x.priority!=='Sin pendientes de núcleo');
+ return `<section class="panel action-worklist"><div class="panelhead"><div><h2>Próximas acciones por participante</h2><p>Acceso directo a la tarea; las visitas futuras no se consideran vencidas automáticamente.</p></div>${tag(pending.length+' '+(pending.length===1?'pendiente':'pendientes'))}</div>
+ <div class="tablewrap"><table><thead><tr><th>Participante</th><th>Etapa</th><th>Qué falta</th><th>Acción</th></tr></thead><tbody>${pending.length?pending.slice(0,15).map(r=>`<tr><td class="code">${esc(r.participant)}</td><td>${esc(r.visit||'Cribado')}</td><td><strong>${esc(r.step)}</strong><div class="subtle">${esc(r.detail)}</div></td><td><button class="btn small" data-action="nextwork" data-id="${esc(r.participant)}" data-visit="${esc(r.visit)}" data-step="${esc(r.action)}">Continuar</button></td></tr>`).join(''):`<tr><td colspan="4"><div class="empty">${rows.length?'Sin acciones básicas pendientes.':'Aún no se han registrado participantes. El flujo está listo para comenzar.'}</div></td></tr>`}</tbody></table></div></section>`;
+}
+function cohort(){return heading('Población de estudio','Participantes','Registros por código de participante, con evaluaciones V0, V1 y V2.',`<button class="btn primary" data-action="newpatient">+ Añadir participante</button>`)+notice+`<section class="panel"><div class="panelhead"><div><h2>Listado de cohorte</h2><p>Busca por código o filtra por centro.</p></div>${tag(db.patients.length+' fichas')}</div><div class="panelbody"><div class="fbar cohort-filters"><input id="filterPatients" type="search" placeholder="Buscar por código de participante" aria-label="Buscar participante por código"><select id="filterCentre" aria-label="Filtrar por centro"><option value="">Todos los centros</option>${options(db.centres.map(c=>[c.code,c.name]),'')}</select><button class="btn small filter-reset" type="button" id="clearCohortFilters">Limpiar filtros</button><span class="filter-count" id="cohortCount" aria-live="polite"></span></div><div id="cohortTable"></div></div></section>`}
+function renderCohortTable(){const parent=get('cohortTable');if(!parent)return;const q=(get('filterPatients')?.value||'').trim().toLowerCase(),c=get('filterCentre')?.value||'';const rows=db.patients.filter(p=>p.id.toLowerCase().includes(q)&&(!c||p.center===c));const countLabel=get('cohortCount');if(countLabel)countLabel.textContent=`${rows.length} de ${db.patients.length} participantes`;parent.innerHTML=rows.length?`<div class="tablewrap"><table><thead><tr><th>Código</th><th>Centro</th><th>Edad</th><th>Consentimiento</th><th>Evaluaciones</th><th>Situación</th><th></th></tr></thead><tbody>${rows.map(p=>`<tr><td class="code">${esc(p.id)}</td><td>${esc(p.center)}</td><td>${p.age===null?'—':esc(p.age)}</td><td>${tag(p.consent==='si'?'Documentado':'Pendiente',p.consent==='si'?'':'bad')}</td><td>${visits(p.id).map(v=>v.type).join(' · ')||'—'}</td><td>${tag(p.status==='incluido'?'Incluido':'Cribado',p.status==='incluido'?'':'partial')}</td><td><button class="linklike" data-action="detail" data-id="${esc(p.id)}">Ver ficha</button></td></tr>`).join('')}</tbody></table></div>`:db.patients.length?'<div class="empty compact-empty">No hay participantes con estos filtros. Prueba otra búsqueda o limpia los filtros.</div>':'<div class="empty compact-empty">Todavía no hay participantes. Usa «Añadir participante» para iniciar el registro.</div>'}
+function journeyPanel(p,pv){
+ const stages=['V0','V1','V2'];
+ const canVisit=(stage)=>p.status==='incluido'&&(stage==='V0'||pv.some(v=>v.type===(stage==='V1'?'V0':'V1')));
+ const boxes=stages.map(stage=>{
+  const v=pv.find(x=>x.type===stage),enabled=canVisit(stage),s=v?score(v):null;
+  const label=v?('Registrada · '+fmt(v.date)):(enabled?'Pendiente':'Disponible tras visita anterior');
+  const action=v?'Revisar visita':'Registrar '+stage;
+  const detail=v?(s===null?'RADAR sin completar':('RADAR '+s+'/8 · '+cat(s))):(stage==='V0'?'Evaluación basal':stage==='V1'?'Seguimiento a 6 meses':'Seguimiento a 12 meses');
+  return `<div class="journey-step ${v?'done':''}"><div class="step-top"><b>${stage}</b><span>${esc(label)}</span></div><div class="step-desc">${esc(detail)}</div><button class="btn small" data-action="workflowvisit" data-id="${esc(p.id)}" data-visit="${stage}" ${enabled?'':'disabled'}>${action}</button>${v?`<button class="linklike" data-action="crdfor" data-id="${esc(p.id)}" data-visit="${stage}">Abrir CRD complementario</button>`:''}</div>`;
+ }).join('');
+ const next=stages.find(stage=>canVisit(stage)&&!pv.some(v=>v.type===stage));
+ return `<section class="patient-journey"><div class="journey-heading"><div><h2>Recorrido del participante</h2><p>Abre directamente la etapa que necesitas; los datos complementarios se registran dentro de cada visita.</p></div>${next?`<button class="btn primary" data-action="workflowvisit" data-id="${esc(p.id)}" data-visit="${next}">Continuar con ${next}</button>`:`<span class="pillinfo">${p.status==='incluido'?'Visitas V0–V2 registradas':'Cribado pendiente de inclusión'}</span>`}</div><div class="journey-grid">${boxes}</div><div class="journey-actions"><span class="hint">Los episodios y los contactos se registran por separado de RADAR.</span><button class="btn small" data-action="eventfor" data-id="${esc(p.id)}">+ Episodio</button><button class="btn small" data-action="contactfor" data-id="${esc(p.id)}">+ Contacto</button><button class="btn small" data-action="exportxlsx">Excel del estudio</button></div></section>`;
+}
+function detail(){const p=patient(selectedPatient);if(!p){navigate('cohorte');return '';}const pv=visits(p.id),events=db.events.filter(e=>e.patient===p.id),contacts=db.contacts.filter(e=>e.patient===p.id);return heading('Ficha del participante',esc(p.id),`Centro: ${esc(p.center)} · Fecha basal: ${fmt(p.enrolDate)} · Código de simulación sin identificación personal.`,`<button class="btn" data-action="cohorte">Volver a cohorte</button><button class="btn primary" data-action="visitfor" data-id="${esc(p.id)}">+ Registrar visita</button>`)+notice+(lastSavedVisit?.pid===p.id?`<div class="saved-feedback"><span><b>Visita ${esc(lastSavedVisit.stage)} guardada.</b> El registro ya aparece en la evolución y en el Excel de investigación.</span><button class="btn small" data-action="crdfor" data-id="${esc(p.id)}" data-visit="${esc(lastSavedVisit.stage)}">Abrir CRD de ${esc(lastSavedVisit.stage)}</button></div>`:'')+journeyPanel(p,pv)+journeyReviewShell(p.id)+`<div class="split"><section class="panel"><div class="panelhead"><h2>Evolución longitudinal</h2></div><div class="panelbody"><div class="trend">${['V0','V1','V2'].map(type=>{const v=pv.find(x=>x.type===type);const s=v?score(v):null;return `<div class="barcol"><b>${s===null?'—':s+' / 8'}</b><div class="bar" style="height:${s===null?6:(s+1)*12}px;opacity:${s===null?.16:1}"></div><span class="tick">${type}</span></div>`}).join('')}</div><div class="legend"><span><i class="square"></i>Evaluación completa</span><span><i class="square orange"></i>Seguimientos por confirmar</span></div><div class="vspace"></div><div class="timeline">${pv.map(v=>`<div class="timelinerow"><div class="date">${esc(v.type)}<br>${fmt(v.date)}</div><div><strong>${tag(score(v)===null?'Incompleta':cat(score(v)),cls(score(v)))} ${score(v)===null?'':score(v)+'/8'}</strong><div class="sub">CAT ${v.cat??'—'} · mMRC ${v.mmrc??'—'} · ${esc(v.action||'Plan no registrado')}</div><button class="linklike" data-action="editvisit" data-id="${esc(v.id)}">Revisar evaluación</button></div></div>`).join('')||'<div class="empty">Aún no hay evaluaciones.</div>'}</div></div></section><section class="panel"><div class="panelhead"><h2>Datos basales</h2></div><div class="panelbody"><div class="stack">${[['Edad',p.age===null?'—':p.age+' años'],['Fecha de espirometría',fmt(p.spiroDate)],['FEV1/FVC pos-BD',p.ratio??'—'],['FEV1 (% del predicho)',p.fev1??'—'],['Agudizaciones previas (12 meses)',p.priorEx??'—'],['Ingresos previos (12 meses)',p.priorHosp??'—'],['Episodios prospectivos',events.length],['Contactos asistenciales',contacts.length]].map(([a,b])=>`<div class="inline" style="justify-content:space-between;border-bottom:1px solid #edf2f1;padding:5px 0"><span class="subtle">${a}</span><b>${esc(b)}</b></div>`).join('')}</div><div class="vspace"></div><button class="btn small" data-action="editpatient" data-id="${esc(p.id)}">Revisar cribado y basal</button></div></section></div>`}
+function journeyReviewShell(pid){return `<section class="journey-review" id="journeyReview" data-pid="${esc(pid)}" aria-live="polite"><div class="journey-review-head"><div><h2>Revisión longitudinal</h2><p>Visitas, evolución RADAR, episodios y desenlace en un mismo lugar.</p></div></div><div class="journey-review-body"><p class="subtle">Consultando el registro longitudinal…</p></div></section>`}
+async function loadJourneyReview(pid){
+ const target=get('journeyReview');if(!target||target.dataset.pid!==pid)return;
+ try{
+  const j=await requestApi('/api/study/participant-journey/'+encodeURIComponent(pid));
+  if(route!=='detalle'||selectedPatient!==pid||get('journeyReview')!==target)return;
+  const delta=j.radar_delta_v0_v2===null?'—':(j.radar_delta_v0_v2>0?'+':'')+j.radar_delta_v0_v2+' puntos';
+  const stats=[['Visitas registradas',j.recorded_visits+' / 3'],['RADAR evaluables',j.complete_radar+' / 3'],['Agudizaciones EPOC',j.events.copd_exacerbations],['Contactos vinculados',j.events.linked_contact_count+' / '+j.events.contact_count]];
+  const items=j.stages.map(t=>`<div class="journey-review-item"><div class="line"><b>${esc(t.stage)}</b>${tag(!t.recorded?'Sin registrar':t.status==='no_realizada'?'No realizada':t.status==='completa'?'Completada':'Parcial',!t.recorded?'neutral':t.status==='completa'?'':'partial')}</div><div class="subvalue">${t.radar_total===null?'RADAR no evaluable':('RADAR '+t.radar_total+' / 8 · '+({'buen_control':'Buen control','control_parcial':'Control parcial','mal_control':'Mal control'}[t.radar_class]||''))}</div><small>${t.date?'Fecha: '+fmt(t.date):'Sin fecha de visita'} · CAT ${t.cat??'—'} · mMRC ${t.mmrc??'—'}<br>CRD: ${t.complementary_count} respuestas · R107: ${t.missing_count}</small></div>`).join('');
+  const reviews=(j.alerts||[]).map(a=>`<div class="journey-review-alert">${esc(a.message)}</div>`).join('');
+  target.querySelector('.journey-review-body').innerHTML=`<div class="journey-review-statgrid">${stats.map(([name,value])=>`<div class="journey-review-stat"><strong>${esc(value)}</strong><span>${esc(name)}</span></div>`).join('')}</div><div class="journey-review-timeline">${items}</div><div class="journey-review-foot"><span>Variación RADAR V2 − V0: <b>${esc(delta)}</b> · Otros eventos: ${j.events.other} · Contactos sin episodio: ${j.events.unlinked_contact_count}</span><span>Estado vital: <b>${esc(j.outcomes.vital_status||'Sin registrar')}</b>${j.outcomes.last_information_date?' · '+fmt(j.outcomes.last_information_date):''}</span></div>${reviews}`;
+ }catch(e){if(get('journeyReview')===target)target.querySelector('.journey-review-body').textContent='No se pudo cargar la revisión longitudinal: '+e.message}
+}
+function patientForm(p=null){const exists=!!p;return heading('Inclusión y basal',exists?'Revisar participante':'Nuevo participante','Registro de selección, datos basales y seguimiento del participante.','<button class="btn" data-action="cohorte">Volver a cohorte</button>')+notice+`<form id="patientForm" class="panel"><div class="panelhead"><div><h2>Registro del participante</h2><p>Identificación, valoración para inclusión y caracterización basal.</p></div></div><div class="panelbody"><div class="sectiontitle">Identificación y centro</div><div class="fields">${field('pcode','Código SIM-*','text',p?.id||'SIM-'+Date.now().toString(36).toUpperCase(),exists?'readonly maxlength="24" pattern="SIM-[A-Za-z0-9_-]+"':'required maxlength="24" pattern="SIM-[A-Za-z0-9_-]+"')}${field('pcenter','Centro participante','select',p?.center||db.centres[0]?.code||'',db.centres.map(c=>[c.code,c.name]))}${field('pstatus','Estado de selección','select',p?.status||'cribado',[['cribado','En cribado / aún no incluido'],['incluido','Incluido por el investigador']])}</div><div class="sectiontitle">Valoración para inclusión</div><div class="fields three">${field('pcopd','Diagnóstico EPOC confirmado','select',p?.copd,YESNO)}${field('pregular','Seguimiento habitual en AP','select',p?.regular,YESNO)}${field('pcapacity','Capacidad para responder (R016)','select',p?.capacity,[['','Sin registrar'],['si','Sí'],['ayuda','Con ayuda'],['no','No'],['nc','No consta']])}${field('pweeks','Semanas desde última agudización','number',p?.weeks??'','min="0" max="520" step="1"','Criterio confirmado: al menos 4 semanas sin agudización aguda.')}${field('pexclusion','Criterios de exclusión presentes','select',p?.exclusion,YESNO)}${field('pconsent','Consentimiento (R021)','select',p?.consent,[['','Sin registrar'],['si','Firmado'],['no','No firmado'],['retirado','Retirado'],['nc','No consta']])}
+${field('palternativedx','Diagnóstico alternativo excluyente (R017)','select',p?.alternativeDiagnosis||'',YESNO)}${field('pdecomp','Comorbilidad grave descompensada (R019)','select',p?.seriousDecompensation||'',YESNO)}${field('ptrial','Ensayo clínico interferente (R020)','select',p?.interferingTrial||'',YESNO)}${field('pconsentdate','Fecha de consentimiento (R022)','date',p?.consentDate||'')}${field('pactive','Agudización activa al cribado','select',p?.activeExacerb||'',YESNO)}
+${field('peligibility','Decisión de elegibilidad (investigador)','select',p?.eligibilityDecision||'pendiente',[['pendiente','Pendiente de revisión'],['elegible','Elegible (decisión del investigador)'],['no_elegible','No elegible']])}
+<input type="hidden" id="pfailure" value="${esc(p?.screenFailureReason||'')}"></div><div class="sectiontitle">Caracterización basal</div><div class="fields three">${field('pbirthdate','Fecha de nacimiento','date',p?.birthDate||'','','La edad se calcula en la fecha de inclusión.')}${field('page','Edad histórica / derivada','number',p?.age??'','min="0" max="110" step="1"','Se recalcula al guardar si se introduce nacimiento.')}${field('psex','Sexo registrado','select',p?.sex,[['','Sin registrar'],['hombre','Hombre'],['mujer','Mujer'],['otro','Otra categoría / por validar'],['nc','No consta']])}${field('psmoking','Situación tabáquica','select',p?.smoking,[['','Sin registrar'],['actual','Fumador/a actual'],['ex','Exfumador/a'],['nunca','Nunca fumó'],['nc','No consta']])}${field('ppacks','Paquetes-año','number',p?.packs??'','min="0" max="250" step="0.1"')}${field('pspirodate','Fecha última espirometría','date',p?.spiroDate||'')}${field('pratio','FEV1/FVC posbroncodilatador','number',p?.ratio??'','min="0" max="1" step="0.01"')}${field('pfev1','FEV1 pos-BD (% predicho)','number',p?.fev1??'','min="0" max="200" step="0.1"')}${field('ppriormod','Agudizaciones moderadas (12 meses)','number',p?.priorExModerate??'','min="0" max="50" step="1"')}${field('ppriorsev','Agudizaciones graves (12 meses)','number',p?.priorExSevere??'','min="0" max="50" step="1"')}${field('ppriorex','Total histórico de agudizaciones','number',p?.priorEx??'','min="0" max="50" step="1"','Calculado cuando se registran ambos recuentos; campo heredado del MVP.')}${field('ppriorhosp','Ingresos EPOC últimos 12 meses','number',p?.priorHosp??'','min="0" max="99" step="1"')}${field('pcharlson','Índice de Charlson · opcional (R044)','number',p?.charlson??'','min="0" max="37" step="1"')}${field('penrol','Fecha V0 / inclusión (propuesta)','date',p?.enrolDate||new Date().toISOString().slice(0,10))}</div><div class="sectiontitle">Estado vital (seguimiento / cierre)</div><div class="fields three">
+${field('plastknown','Fecha última información (sección 12)','date',p?.lastInformationDate||'')}${field('pvital','Estado vital','select',p?.vitalStatus||'',[['','Sin registrar'],['vivo','Vivo'],['fallecido','Fallecido'],['desconocido','Desconocido']])}
+${field('pdeathdate','Fecha de fallecimiento (si procede)','date',p?.deathDate||'')}
+${field('pdeathcause','Causa (si procede)','select',p?.deathCause||'',[['','Sin registrar'],['respiratoria','Respiratoria'],['otra','Otra'],['indeterminada','Indeterminada']])}</div><div class="sectiontitle">Comorbilidades relevantes (propuesta)</div><div class="fields three">${field('phtn','Hipertensión arterial','select',p?.comorbHtn||'',YESNO)}${field('phf','Insuficiencia cardiaca','select',p?.comorbHf||'',YESNO)}${field('pdm','Diabetes','select',p?.comorbDm||'',YESNO)}${field('posa','Apnea obstructiva del sueño','select',p?.comorbOsa||'',YESNO)}${field('pothercomorb','Otras comorbilidades (R043)','text',p?.otherComorbidities||'','maxlength="300"')}${field('pflu','Vacunación antigripal al día (R051)','select',p?.fluVaccination||'',YESNO)}${field('ppneumo','Vacunación neumocócica al día (R052)','select',p?.pneumococcalVaccination||'',YESNO)}</div><div class="call warn" style="margin-top:18px">El sistema muestra advertencias de elegibilidad según los borradores. <b>La elegibilidad definitiva debe confirmarla el investigador.</b> La inclusión requiere consentimiento documentado y confirmación del investigador; los cribados pueden guardarse antes de incluir.</div>${exists?`<div class="sectiontitle">Trazabilidad de corrección</div><div class="fields">${field('preason','Motivo del cambio','text','','required minlength="8" maxlength="240" placeholder="Ej. Corrección del dato tras revisión"','Obligatorio al modificar la ficha · No incluir datos identificativos.')}</div>`:''}<div class="formerror" id="patientError"></div></div><div class="footerbar"><span class="subtle">Identificación y basal · Guardar para actualizar la ficha</span><div class="actions"><button type="button" class="btn" data-action="cohorte">Cancelar</button><button type="submit" class="btn primary">Guardar ficha</button></div></div></form>`}
+function visitsPage(){return heading('Seguimiento clínico','Evaluaciones V0, V1 y V2','Registro por participante y visita. RADAR se calcula únicamente cuando las cuatro respuestas están completas.',`<button class="btn primary" data-action="newvisit">+ Nueva evaluación</button>`)+notice+`<section class="panel"><div class="panelhead"><div><h2>Visitas registradas</h2><p>${db.visits.length} evaluaciones en la cohorte</p></div></div><div class="tablewrap"><table><thead><tr><th>Participante</th><th>Visita</th><th>Fecha</th><th>RADAR</th><th>CAT</th><th>mMRC</th><th></th></tr></thead><tbody>${db.visits.length?[...db.visits].sort((a,b)=>b.date.localeCompare(a.date)).map(v=>`<tr><td class="code">${esc(v.patient)}</td><td>${esc(v.type)}</td><td>${fmt(v.date)}</td><td>${tag(score(v)===null?'Incompleta':score(v)+'/8 · '+cat(score(v)),cls(score(v)))}</td><td>${v.cat??'—'}</td><td>${v.mmrc??'—'}</td><td><button class="linklike" data-action="editvisit" data-id="${esc(v.id)}">Abrir</button></td></tr>`).join(''):'<tr><td colspan="7"><div class="empty compact-empty">No hay evaluaciones registradas. Usa «Nueva evaluación» para comenzar una visita V0, V1 o V2.</div></td></tr>'}</tbody></table></div></section>`}
+function visitForm(v=null){const exists=!!v, pid=v?.patient||visitPatient||db.patients[0]?.id||'',pv=visits(pid),suggested=v?.type||visitTargetStage||(['V0','V1','V2'].find(k=>!pv.some(x=>x.type===k))||'V2');let title=exists?`Revisar ${v.type}`:'Nueva evaluación';return heading('Consulta del estudio',title,'RADAR + CAT + mMRC, junto con la valoración del profesional y las actuaciones documentadas.','<button class="btn" data-action="visitas">Volver a visitas</button>')+notice+`<form class="panel" id="visitForm"><div class="panelhead"><div><h2>Evaluación clínica</h2><p>Datos de la visita, RADAR, tratamiento y seguimiento.</p></div><span class="clinical-stage-mark">${esc(suggested)} · ${esc(pid)}</span></div><div class="panelbody"><div class="sectiontitle">Datos de visita y síntomas</div><div class="fields three">${field('vpatient','Participante','select',pid,db.patients.map(p=>[p.id,p.id+' · '+p.center]))}${field('vtype','Visita de estudio','select',suggested,[['V0','V0 · Basal'],['V1','V1 · 6 meses'],['V2','V2 · 12 meses']])}${field('vdate','Fecha de visita (R062)','date',v?.date||(suggested==='V0'?(patient(pid)?.enrolDate||''):new Date().toISOString().slice(0,10)))}${field('vassessor','Código de evaluador (R065)','text',v?.assessorCode||'','maxlength="64"')}${field('vcat','CAT total (0–40)','number',v?.cat??'','min="0" max="40" step="1"')}${field('vmmrc','mMRC (0–4)','select',v?.mmrc??'',[['','Sin registrar'],['0','0'],['1','1'],['2','2'],['3','3'],['4','4']])}${field('vsmoking','Tabaquismo actual','select',v?.smoking||'',[['','Sin registrar'],['actual','Fumador/a'],['ex','Exfumador/a'],['nunca','Nunca'],['nc','No consta']])}</div><div class="sectiontitle">RADAR · Cuatro preguntas</div><div class="stack"><div class="question"><div class="qbadge">R</div><div><b>Medicamento de rescate más de 3 veces por semana</b><small>3 puntos si responde sí · Umbral estrictamente mayor que 3</small></div><select id="vrescue">${options(YESNO.filter(x=>x[0]!=='nc'),v?.rescue||'')}</select></div><div class="question"><div class="qbadge">A</div><div><b>Agudización moderada/grave en últimos 3 meses</b><small>2 puntos si responde sí</small></div><select id="vexacerb">${options(YESNO.filter(x=>x[0]!=='nc'),v?.exacerb||'')}</select></div><div class="question"><div class="qbadge">D</div><div><b>Disnea significativa (equivalente a mMRC ≥2)</b><small>2 puntos si responde sí · Se comprueba concordancia con mMRC</small></div><select id="vdyspnea">${options(YESNO.filter(x=>x[0]!=='nc'),v?.dyspnea||'')}</select></div><div class="question"><div class="qbadge">A</div><div><b>Actividad física inferior a 30 minutos diarios</b><small>1 punto si responde sí</small></div><select id="vactivity">${options(YESNO.filter(x=>x[0]!=='nc'),v?.activity||'')}</select></div></div><div id="radarPreview" class="rscore" style="margin-top:18px"></div><div class="sectiontitle">Tratamiento actual · categorías según CRD</div><div class="fields three">${field('vregimen','Pauta inhalada (opciones 1–5)','select',v?.inhaledRegimen||'',[['','Sin registrar'],['ninguno','1. Ninguno'],['mono','2. LAMA o LABA'],['dual','3. LAMA + LABA'],['triple','4. LAMA + LABA + ICS'],['laba_ics','5. LABA + ICS']])}${field('vmono','Si opción 2: identificar clase','select',v?.monotherapyClass||'',[['','No procede / pendiente'],['lama','LAMA'],['laba','LABA']])}${field('vroflumilast','6. Roflumilast','select',v?.roflumilast||'',YESNO)}${field('vazithromycin','7. Azitromicina','select',v?.azithromycin||'',YESNO)}${field('vrescueprescription','Rescate prescrito (R048)','select',v?.rescuePrescription||'',[['','Sin registrar'],['saba','SABA'],['sama','SAMA'],['ambos','Ambos'],['otro','Otro'],['ninguno','Ninguno'],['nc','No consta']])}${field('vmeddetails','Fármaco / dosis / pauta / cambios','text',v?.medicationDetails||'','maxlength="500"','En V0, solo tratamiento inicial; en V1/V2 también cambios.')}</div><div class="sectiontitle">Prescripciones inhaladas · IANUS</div><div class="fields three">${field('vianusverified','Consulta IANUS (R055)','select',v?.ianusVerified||'',[['','No registrada'],['si','Verificada'],['no','No verificable']])}${field('vianuscollected','Últimas prescripciones recogidas (R056)','select',v?.ianusCollected||'',[['','Sin respuesta'],['si','Sí'],['no','No'],['nv','No verificable']])}${field('vianusdate','Fecha de consulta IANUS','date',v?.ianusCheckedAt||'')}</div><div class="hint">La recogida en IANUS es un proxy de dispensación, no demuestra uso real. La ventana exacta sigue pendiente de validación; no se infiere automáticamente.</div><div class="sectiontitle">Actuación y seguimiento</div><div class="fields three"><input type="hidden" id="vadherence" value="${esc(v?.adherence||'pendiente')}">${field('vaction','Plan clínico documentado','select',v?.action||'',[['','Sin registrar'],['seguimiento','Seguimiento habitual'],['revision','Revisión terapéutica'],['educacion','Educación / autocuidado'],['derivacion','Derivación a Neumología'],['otro','Otra actuación']])}${field('vinhaler','Revisión de técnica inhalatoria','select',v?.inhaler||'',YESNO)}${field('veducation','Educación/medidas generales','select',v?.education||'',YESNO)}${field('vreferral','Derivación a Neumología','select',v?.referral||'',YESNO)}${field('vstatus','Estado de registro','select',v?.status||'parcial',[['parcial','Parcial'],['completa','Completada'],['no_realizada','No realizada / pérdida de seguimiento']])}<input type="hidden" id="vlama" value="${esc(v?.lama||'')}"><input type="hidden" id="vlaba" value="${esc(v?.laba||'')}"><input type="hidden" id="vics" value="${esc(v?.ics||'')}">${field('vreason','Motivo si no realizada','select',v?.reason||'',[['','No aplica'],['abandono','Desistimiento'],['fallecimiento','Fallecimiento'],['traslado','Cambio de residencia/centro'],['no_contacto','No localizable'],['otro','Otro']])}</div><div class="call warn" style="margin-top:18px">El RADAR orienta la descripción del control; <b>no sugiere automáticamente tratamientos</b>. La ventana IANUS y la codificación digital final requieren validación científica.</div>${exists?`<div class="sectiontitle">Trazabilidad de corrección</div><div class="fields">${field('vreasonchange','Motivo de modificación','text','','required minlength="8" maxlength="240" placeholder="Ej. Error de transcripción corregido"','Se guardará junto al historial de variables anteriores y nuevas.')}</div>`:''}<div id="visitError" class="formerror"></div></div><div class="footerbar"><span class="subtle">Cálculo reproducible · Reglas V0/V1/V2</span><div class="actions"><button type="button" class="btn" data-action="visitas">Cancelar</button><button type="submit" class="btn primary">Guardar evaluación</button></div></div></form>`}
+function careLabel(value){return value==='si'?'Sí':value==='no'?'No':value==='nc'?'NC':'Sin registrar'}
+function eventsPage(){return heading('Resultados clínicos','Episodios y contactos','R081 y R082 se registran por episodio. La ausencia de contacto no equivale a No.',`<button class="btn primary" data-action="newevent">+ Añadir episodio</button><button class="btn" data-action="newcontact">+ Contacto asistencial</button>`)+notice+`<div class="radar-event-panels"><section class="panel"><div class="panelhead"><h2>Episodios clínicos</h2><span class="tag">${db.events.length}</span></div><div class="tablewrap"><table><thead><tr><th>Participante</th><th>N.º episodio</th><th>Fecha</th><th>Tipo</th><th>Gravedad</th><th>R081 · Urgencias</th><th>R082 · Ingreso</th><th></th></tr></thead><tbody>${db.events.map(e=>`<tr><td class="code">${esc(e.patient)}</td><td><b>${esc(String(e.episodeNo??'—').padStart(2,'0'))}</b></td><td>${fmt(e.date)}</td><td>${esc(e.kind==='otro'?'Otro evento':'Agudización')}</td><td>${tag(e.severity,e.severity==='grave'?'bad':'partial')}</td><td>${tag(careLabel(e.emergencyStatus),e.emergencyStatus==='si'?'':e.emergencyStatus==='no'?'neutral':'partial')}</td><td>${tag(careLabel(e.admissionStatus),e.admissionStatus==='si'?'':e.admissionStatus==='no'?'neutral':'partial')}</td><td><button class="linklike" data-action="careforevent" data-id="${esc(e.id)}">Revisar R081/R082</button><button class="linklike" data-action="contactforevent" data-id="${esc(e.id)}">+ Contacto</button></td></tr>`).join('')}</tbody></table></div></section><section class="panel"><div class="panelhead"><h2>Contactos asistenciales</h2><span class="tag">${db.contacts.length}</span></div><div class="tablewrap"><table><thead><tr><th>Participante</th><th>Fecha</th><th>Tipo</th><th>Episodio</th></tr></thead><tbody>${db.contacts.map(c=>`<tr><td class="code">${esc(c.patient)}</td><td>${fmt(c.date)}</td><td>${esc(c.type)}</td><td>${esc(c.event?(db.events.find(e=>e.id===c.event&&e.patient===c.patient)?.episodeNo!=null?String(db.events.find(e=>e.id===c.event&&e.patient===c.patient).episodeNo).padStart(2,'0'):'Sin coincidencia'):'No vinculado')}</td></tr>`).join('')}</tbody></table></div></section></div>`}
+function careStatusForm(){const e=db.events.find(x=>x.id===careEpisode);if(!e)return heading('Resultados clínicos','Episodio no disponible','La ficha se ha actualizado. Vuelva al listado.','<button class="btn" data-action="eventos">Volver</button>');const linked=db.contacts.filter(c=>c.event===e.id&&c.patient===e.patient);return heading('Sección 11 del CRD','Urgencias e ingreso · Episodio '+esc(String(e.episodeNo||'?').padStart(2,'0')),'Registrar Sí, No o No consta para cada tipo. No hay una respuesta negativa implícita.','<button class="btn" data-action="eventos">Volver a episodios</button>')+notice+`<section class="panel"><div class="panelhead"><div><h2>R081 · R082</h2><p>Participante ${esc(e.patient)} · Episodio ${esc(String(e.episodeNo||'?').padStart(2,'0'))} · ${fmt(e.date)}</p></div><span class="tag">Revisión ${esc(e.careAssessmentRev||0)}</span></div><form id="careForm"><div class="panelbody"><div class="fields">${field('careUrgentStatus','R081 · Asistencia a Urgencias','select',e.emergencyStatus||'',YESNO)}${field('careUrgentDate','Fecha de Urgencias (si consta)','date',e.emergencyDate||'')}${field('careAdmissionStatus','R082 · Ingreso hospitalario','select',e.admissionStatus||'',YESNO)}${field('careAdmissionDate','Fecha de ingreso (si consta)','date',e.admissionDate||'')}</div><input type="hidden" id="careRevision" value="${esc(e.careAssessmentRev||0)}"><div class="hint">R081/R082 se refieren a contactos por EPOC. Solo un contacto vinculado y confirmado como relacionado con EPOC justifica el estado Sí. “Sin registrar” nunca equivale a No.</div><div class="call" style="margin-top:14px"><b>Contactos documentados:</b> ${linked.length?linked.map(x=>esc(x.type)+' · '+fmt(x.date)).join(' · '):'Ninguno. Puede registrar Sí aunque aún no haya añadido un contacto específico; la calidad de datos señalará la evidencia pendiente.'}</div>${(e.careAssessmentRev||0)>0?field('careReason','Motivo de corrección','text','','maxlength="240" placeholder="Describa el cambio (8–240 caracteres)"','Obligatorio si se modifica una respuesta ya registrada.'):''}<div class="formerror" id="careError" role="alert"></div></div><div class="footerbar"><span class="subtle">R081/R082 por episodio · Simulación · Registro auditado</span><button type="submit" class="btn primary" ${currentUser?.role==='reviewer'?'disabled':''}>Guardar valoración</button></div></form></section>`}
+async function processCareStatus(ev){ev.preventDefault();const e=db.events.find(x=>x.id===careEpisode);if(!e)return;try{const body={emergencyStatus:val('careUrgentStatus'),admissionStatus:val('careAdmissionStatus'),emergencyDate:val('careUrgentDate'),admissionDate:val('careAdmissionDate'),rev:Number(val('careRevision')),reason:val('careReason')};await requestApi('/api/episodes/'+encodeURIComponent(e.id)+'/care','PUT',body);await reloadState();navigate('eventos')}catch(x){error('careError',x.message)}}
+
+function eventForm(kind){const contact=kind==='contact';return heading('Registro longitudinal',contact?'Nuevo contacto asistencial':'Nuevo episodio clínico',contact?'Urgencias o ingreso hospitalario; si pertenece a un episodio registrado, vincularlo con su número R074.':'El número R074 se asigna automáticamente para cada participante (01, 02, 03…).','<button class="btn" data-action="eventos">Volver a eventos</button>')+notice+`<form id="eventForm" class="panel" data-kind="${kind}"><div class="panelhead"><h2>${contact?'Contacto asistencial':'Episodio clínico'}</h2></div><div class="panelbody"><div class="fields">${field('epatient','Participante','select',(db.patients.some(p=>p.id===eventPatient)?eventPatient:db.patients[0]?.id)||'',db.patients.map(p=>[p.id,p.id]))}${field('edate','Fecha','date',new Date().toISOString().slice(0,10))}${contact?`${field('etype','Tipo de contacto','select','urgencias',[['urgencias','Urgencias'],['ingreso','Hospitalización']])}${field('edischarged','Alta (fecha, si consta)','date','')}${field('ecarecentre','Centro asistencial (ficticio)','text','','maxlength=\"100\"')}${field('eevent','N.º de episodio relacionado (R074)','select',eventLink,[['','No vinculado'],...db.events.filter(e=>e.patient===((db.patients.some(p=>p.id===eventPatient)?eventPatient:db.patients[0]?.id)||'')).map(e=>[e.id,String(e.episodeNo??'?').padStart(2,'0')+' · '+fmt(e.date)])])}`:`${field('ekind','Tipo de episodio (R076)','select','agudizacion',[['agudizacion','E · Agudización'],['otro','O · Otro evento']])}${field('eseverity','Gravedad del episodio','select','moderada',[['moderada','Moderada'],['grave','Grave'],['indeterminada','Por confirmar'],['no_aplica','No aplica']])}${field('esteroid','Corticoide sistémico','select','',YESNO)}${field('eanti','Antibióticos','select','',YESNO)}`}${field('ecopd','Relacionado con EPOC','select','si',YESNO)}${field('esource','Fuente de constatación','select','hce',[['hce','Historia clínica'],['paciente','Paciente'],['informe','Informe'],['otro','Otro']])}</div><div id="eventError" class="formerror"></div></div><div class="footerbar"><span class="subtle">R074: 01, 02, 03… por participante; contacto y episodio son registros distintos. No es un código diagnóstico.</span><button type="submit" class="btn primary">Guardar ${contact?'contacto':'episodio'}</button></div></form>`}
+function qualityChecks(){return (clinicalReview?.issues||[]).map(x=>`${x.patient} · ${x.item}: ${x.issue}`)}
+function quality(){
+ const r=clinicalReview||{issues:[],visit_coverage:[],gates:[],open_decisions:20,metrics:{findings:0,prioritary:0,core_visits_complete:0}};
+ const is=r.issues,cv=r.visit_coverage,gates=r.gates;
+ return heading('Calidad científica y seguimiento','Validación técnica del CRD',
+ 'Controles coherentes con los borradores. Las alertas requieren revisión por los investigadores, no constituyen exclusiones automáticas.',
+ `<button class="btn" data-action="exportquality">Exportar incidencias CSV</button>`) + notice +
+ `<div class="call warn" style="margin-bottom:18px"><b>NO APTO PARA DATOS REALES.</b> La ausencia de alertas no equivale a aprobación científica ni institucional.</div>`+
+ `<section class="metrics"><div class="metric"><div class="lab">Incidencias de revisión</div><div class="val">${is.length}</div><div class="help">${r.metrics.prioritary||0} prioritarias</div></div>`+
+ `<div class="metric"><div class="lab">Visitas núcleo completo</div><div class="val">${r.metrics.core_visits_complete||0}</div><div class="help">de ${cv.filter(x=>x.fields_expected>0).length} visitas evaluables</div></div>`+
+ `<div class="metric"><div class="lab">Decisiones metodológicas</div><div class="val">${r.open_decisions??20}</div><div class="help">Pendientes de acuerdo</div></div>`+
+ `<div class="metric"><div class="lab">Autorización clínica</div><div class="val" style="font-size:20px;color:#a45a16">Pendiente</div><div class="help">No permite datos reales</div></div></section>`+
+ `<section class="panel"><div class="panelhead"><div><h2>Incidencias y comprobaciones</h2><p>Las observaciones son orientativas y están vinculadas a cada registro.</p></div></div>`+
+ `<div class="tablewrap"><table><thead><tr><th>Regla</th><th>Prioridad</th><th>Participante</th><th>Etapa</th><th>Observación y acción</th></tr></thead><tbody>`+
+ (is.length?is.map(x=>`<tr><td class="code">${esc(x.rule)}</td><td>${tag(x.severity,x.severity==='Prioritaria'?'bad':x.severity==='Revisar'?'partial':'neutral')}</td><td class="code">${esc(x.patient)}</td><td>${esc(x.item)}</td><td><b>${esc(x.issue)}</b><div class="subtle">${esc(x.suggestion)}</div></td></tr>`).join(''):`<tr><td colspan="5">No hay incidencias automáticas para los registros de este ámbito. Sigue pendiente la revisión clínica.</td></tr>`)+
+ `</tbody></table></div></section><div class="vspace"></div>`+
+ `<section class="panel"><div class="panelhead"><div><h2>Completitud de evaluaciones</h2><p>Siete campos de núcleo propuesto por visita: cuatro respuestas RADAR, CAT, mMRC y plan documentado. Ausente nunca equivale a «No».</p></div></div><div class="tablewrap"><table><thead><tr><th>Participante</th><th>Visita</th><th>Estado</th><th>Campos</th><th>Completitud</th><th>Pendientes</th></tr></thead><tbody>`+
+ (cv.length?cv.map(x=>`<tr><td class="code">${esc(x.patient)}</td><td>${esc(x.visit)}</td><td>${esc(x.visit_status)}</td><td>${x.fields_present} / ${x.fields_expected||'—'}</td><td>${x.completeness_pct===null?'No evaluable':esc(x.completeness_pct)+'%'}</td><td>${esc(x.missing_fields||'—')}</td></tr>`).join(''):`<tr><td colspan="6">Aún no hay visitas registradas.</td></tr>`)+`</tbody></table></div></section><div class="vspace"></div>`+
+ `<section class="panel"><div class="panelhead"><div><h2>Puertas de aceptación</h2><p>Condiciones necesarias antes de utilizar información clínica real. Ninguna puede ser aprobada automáticamente por el software.</p></div></div><div class="tablewrap"><table><thead><tr><th>Control</th><th>Estado</th><th>Validación necesaria</th></tr></thead><tbody>`+
+ gates.map(g=>`<tr><td><b>${esc(g.name)}</b><div class="subtle">${esc(g.id)}</div></td><td>${tag(g.status,'partial')}</td><td>${esc(g.requirement)}</td></tr>`).join('')+
+ `</tbody></table></div></section>`;
+}
+function exportsPage(){
+ const admin=currentUser?.role==='admin';
+ return heading('Extracción científica','Exportación de investigación',
+ 'Libro Excel generado desde los registros guardados: una fila por visita, resumen longitudinal por participante, CRD completo y trazabilidad según permisos.')+notice+
+ `<div class="split"><section class="panel"><div class="panelhead"><div><h2>Libro completo de investigación</h2><p>Instantánea descargable en cualquier momento.</p></div></div><div class="panelbody"><div class="call"><b>${admin?'Libro completo con auditoría':'Libro filtrado por permisos'}</b><div class="subtle" style="margin-top:6px">Sin copiar datos manualmente. Sin registros de prueba precargados.</div></div><div class="vspace"></div><button class="btn primary" data-action="exportxlsx">Descargar libro Excel completo (.xlsx)</button><p class="subtle" style="margin-top:18px">Se exportan las mediciones existentes y sus definiciones; los datos ausentes permanecen vacíos. El fichero no sustituye a la base de datos ni autoriza su utilización clínica.</p></div></section>`+
+ `<section class="panel"><div class="panelhead"><div><h2>Estructura de la exportación</h2><p>Organizada para documentación y análisis.</p></div></div><div class="panelbody"><div class="stack">`+
+ `<div><b>Registros</b><p class="subtle">Participantes · Visitas V0/V1/V2 · Episodios · Contactos · CRD mediciones</p></div>`+
+ `<div><b>Investigación</b><p class="subtle">INFORME_V18 · Distribución RADAR · Pares RADAR, CAT y mMRC independientes · Transiciones · Metodología · Catálogo de 107 variables</p></div>`+
+ `<div><b>Validación</b><p class="subtle">Calidad · Revisión científica · Cobertura por visita · FLUJO_CRD_V11 · GUIA_CRD_V11 · Puertas de uso</p></div>`+
+ `<div><b>Auditoría</b><p class="subtle">${admin?'TRAZABILIDAD y CAMBIOS_CAMPO (solo administrador)':'Datos restringidos a administradores'}</p></div>`+
+ `</div></div></section></div>`+
+ (admin?`<div class="vspace"></div><section class="panel"><div class="panelhead"><div><h2>Revisión de correcciones</h2><p>Usuario, campo, valores anterior/nuevo y motivo. El registro inicial no se confunde con una corrección.</p></div></div><div class="panelbody"><button class="btn" data-action="auditdetails">Consultar cambios de campos</button><div id="auditDetailPanel" aria-live="polite" style="margin-top:15px"></div></div></section>`:'');
+}
+async function auditDetailPanel(){
+  const target=get('auditDetailPanel');if(!target)return;
+  target.textContent='Consultando correcciones…';
+  try {
+    const rows=await requestApi('/api/audit/changes');
+    if(!Array.isArray(rows)||!rows.length){target.innerHTML='<p class="subtle">Todavía no hay correcciones detalladas de v0.11.</p>';return}
+    target.innerHTML='<div class="tablewrap"><table><thead><tr><th>Fecha UTC</th><th>Registro</th><th>Campo</th><th>Anterior</th><th>Nuevo</th><th>Motivo</th></tr></thead><tbody>'+
+      rows.slice(0,80).map(r=>`<tr><td>${esc((r.happened_at||'').slice(0,19).replace('T',' '))}</td><td>${esc(r.object_id)}</td><td>${esc(r.field_name)}</td><td>${esc(r.prior_value??'—')}</td><td>${esc(r.new_value)}</td><td>${esc(r.reason||'—')}</td></tr>`).join('')+'</tbody></table></div>';
+  }catch(err){target.textContent='No se pudo cargar la auditoría: '+err.message}
+}
+function numberValue(id,required=false){const v=get(id).value.trim();return v===''?null:Number(v)}
+function val(id){return get(id)?.value||''}
+function error(id,msg){const e=get(id);if(e){e.textContent=msg;e.classList.add('show');e.scrollIntoView({block:'center',behavior:'smooth'})}}
+async function processPatient(e){e.preventDefault();const raw=val('pcode').trim(),exists=db.patients.find(x=>x.id===raw);const editing=!!e.target.dataset.edit;if(!/^SIM-[A-Za-z0-9_-]{1,20}$/.test(raw))return error('patientError','El código debe comenzar por SIM- y no contener identificadores personales.');if(exists&&!editing)return error('patientError','Este código ficticio ya existe.');const age=numberValue('page'),weeks=numberValue('pweeks'),ratio=numberValue('pratio'),fev1=numberValue('pfev1');if(age!==null&&(!Number.isInteger(age)||age<0||age>110))return error('patientError','La edad debe ser un entero entre 0 y 110.');if(weeks!==null&&(!Number.isInteger(weeks)||weeks<0))return error('patientError','Introduce un número válido de semanas.');if(ratio!==null&&(ratio<0||ratio>1))return error('patientError','FEV1/FVC debe estar entre 0 y 1.');if(fev1!==null&&(fev1<0||fev1>200))return error('patientError','FEV1 % predicho debe estar entre 0 y 200.');if(val('pstatus')==='incluido'&&val('pconsent')!=='si')return error('patientError','No es posible confirmar inclusión sin consentimiento firmado. Guarda la ficha como cribado.');if(val('pstatus')==='incluido'&&val('pcopd')!=='si')return error('patientError','No se puede confirmar inclusión sin diagnóstico de EPOC. Guarda como cribado.');if(val('pstatus')==='incluido'&&val('peligibility')==='no_elegible')return error('patientError','No puede incluir un cribado declarado no elegible.');
+if(val('pstatus')==='incluido'&&val('pactive')==='si')return error('patientError','Agudización activa: posponer inclusión y revisar.');
+if(val('pvital')==='fallecido'&&!val('pdeathdate'))return error('patientError','La fecha de fallecimiento es obligatoria si se declara fallecido.');
+const data={id:raw,center:val('pcenter'),age,birthDate:val('pbirthdate'),sex:val('psex'),copd:val('pcopd'),regular:val('pregular'),weeks,capacity:val('pcapacity'),exclusion:val('pexclusion'),alternativeDiagnosis:val('palternativedx'),seriousDecompensation:val('pdecomp'),interferingTrial:val('ptrial'),consent:val('pconsent'),consentDate:val('pconsentdate'),status:val('pstatus'),activeExacerb:val('pactive'),eligibilityDecision:val('peligibility'),screenFailureReason:val('pfailure'),vitalStatus:val('pvital'),deathDate:val('pdeathdate'),deathCause:val('pdeathcause'),enrolDate:val('penrol'),smoking:val('psmoking'),packs:numberValue('ppacks'),spiroDate:val('pspirodate'),ratio,fev1,priorEx:numberValue('ppriorex'),priorExModerate:numberValue('ppriormod'),priorExSevere:numberValue('ppriorsev'),priorHosp:numberValue('ppriorhosp'),comorbHtn:val('phtn'),comorbHf:val('phf'),comorbDm:val('pdm'),comorbOsa:val('posa'),otherComorbidities:val('pothercomorb'),charlson:numberValue('pcharlson'),fluVaccination:val('pflu'),pneumococcalVaccination:val('ppneumo'),lastInformationDate:val('plastknown'),created:exists?.created||new Date().toISOString().slice(0,10)};
+if(data.status==='incluido'&&weeks!==null&&weeks<4)return error('patientError','La estabilidad para inclusión requiere al menos cuatro semanas sin agudización.');if(data.birthDate&&data.enrolDate&&data.birthDate>=data.enrolDate)return error('patientError','Nacimiento debe preceder a inclusión.');if(data.status==='incluido'&&(!data.enrolDate||!data.spiroDate))return error('patientError','Para confirmar inclusión, completa fechas de V0 y espirometría.');if(data.spiroDate&&data.enrolDate&&data.spiroDate>data.enrolDate)return error('patientError','La espirometría no puede ser posterior a la visita basal.');try{await requestApi(editing?'/api/patients/'+encodeURIComponent(raw):'/api/patients',editing?'PUT':'POST',{...data,rev:editing?exists.rev:null},editing?{'X-RADAR-CHANGE-REASON':encodeURIComponent(val('preason'))}:{});await reloadState();selectedPatient=raw;renderDetail()}catch(err){error('patientError',err.message)}}
+async function processVisit(e){e.preventDefault();const pid=val('vpatient'),type=val('vtype'),date=val('vdate'),catValue=numberValue('vcat'),mm=val('vmmrc')===''?null:Number(val('vmmrc'));
+if(!patient(pid))return error('visitError','Selecciona un participante existente.');if(patient(pid).status!=='incluido')return error('visitError','No puede registrarse una visita de estudio hasta que el investigador confirme la inclusión.');if(!date)return error('visitError','La fecha de visita es obligatoria.');if(catValue!==null&&(!Number.isInteger(catValue)||catValue<0||catValue>40))return error('visitError','CAT debe ser un entero entre 0 y 40.');if(mm!==null&&(!Number.isInteger(mm)||mm<0||mm>4))return error('visitError','mMRC debe estar entre 0 y 4.');if(type!=='V0'&&!db.visits.some(v=>v.patient===pid&&v.type==='V0'))return error('visitError','Registra V0 antes del seguimiento V1/V2.');if(db.visits.some(v=>v.patient===pid&&v.type===type&&v.id!==editVisit))return error('visitError',`Ya existe una visita ${type} de este participante.`);
+if(type==='V0'&&date!==patient(pid).enrolDate)return error('visitError','La fecha V0 debe coincidir con la fecha basal de la ficha.');
+const data={id:editVisit||newId('VIS-SIM'),patient:pid,type,date,assessorCode:val('vassessor'),cat:catValue,mmrc:mm,smoking:val('vsmoking'),adherence:val('vadherence'),ianusVerified:val('vianusverified'),ianusCollected:val('vianuscollected'),ianusCheckedAt:val('vianusdate'),inhaledRegimen:val('vregimen'),monotherapyClass:val('vmono'),roflumilast:val('vroflumilast'),azithromycin:val('vazithromycin'),rescuePrescription:val('vrescueprescription'),medicationDetails:val('vmeddetails'),rescue:val('vrescue'),exacerb:val('vexacerb'),dyspnea:val('vdyspnea'),activity:val('vactivity'),action:val('vaction'),inhaler:val('vinhaler'),education:val('veducation'),referral:val('vreferral'),status:val('vstatus'),lama:val('vlama'),laba:val('vlaba'),ics:val('vics'),reason:val('vreason')};
+if(data.inhaledRegimen==='mono'&&!data.monotherapyClass)return error('visitError','En LAMA o LABA, indique cuál corresponde.');if(data.inhaledRegimen!=='mono'&&data.monotherapyClass)return error('visitError','El subtipo LAMA/LABA solo procede con monoterapia.');if(data.ianusVerified==='no'&&['si','no'].includes(data.ianusCollected))return error('visitError','IANUS no verificable: no se puede marcar Sí o No.');if(data.ianusVerified==='si'&&data.ianusCollected==='nv')return error('visitError','IANUS verificado: NV no corresponde.');if(data.status==='completa'&&(score(data)===null||data.cat===null||data.mmrc===null||!data.action))return error('visitError','Visita completa exige RADAR (4 ítems), CAT, mMRC y plan documentado. Usa «Parcial» si faltan campos.');if(data.status==='no_realizada'&&!data.reason)return error('visitError','Para una visita no realizada, selecciona el motivo.');
+try{const old=editVisit?db.visits.find(v=>v.id===editVisit):null;await requestApi(old?'/api/visits/'+encodeURIComponent(old.id):'/api/visits',old?'PUT':'POST',{...data,rev:old?.rev??null},old?{'X-RADAR-CHANGE-REASON':encodeURIComponent(val('vreasonchange'))}:{});await reloadState();editVisit=null;selectedPatient=pid;lastSavedVisit={pid,stage:type};renderDetail()}catch(err){error('visitError',err.message)}}
+async function processEvent(e){e.preventDefault();try{const kind=e.target.dataset.kind,pid=val('epatient');if(!patient(pid))return error('eventError','Participante no encontrado.');if(!val('edate'))return error('eventError','Fecha obligatoria.');if(patient(pid).status!=='incluido')return error('eventError','Los episodios de seguimiento corresponden a pacientes incluidos.');if(kind==='contact'){if(val('eevent')){const episode=db.events.find(x=>x.id===val('eevent'));if(!episode||episode.patient!==pid)return error('eventError','El episodio seleccionado debe pertenecer al mismo participante.')}const c={id:newId('CON-SIM'),patient:pid,date:val('edate'),event:val('eevent'),type:val('etype'),copd:val('ecopd'),source:val('esource'),dischargeDate:val('edischarged'),careCentre:val('ecarecentre')};await requestApi('/api/contacts','POST',c)}else{const ev={id:newId('EPI-SIM'),patient:pid,date:val('edate'),kind:val('ekind'),severity:val('eseverity'),copd:val('ecopd'),steroids:val('esteroid'),antibiotics:val('eanti'),source:val('esource')};if(db.events.some(x=>x.patient===pid&&x.date===ev.date&&x.kind===ev.kind&&x.severity===ev.severity))return error('eventError','Posible episodio duplicado (misma fecha, tipo y gravedad): revisar antes de añadir.');await requestApi('/api/episodes','POST',ev)}await reloadState();eventLink='';navigate('eventos')}catch(err){error('eventError',err.message)}}
+function preview(){const ids={rescue:'vrescue',exacerb:'vexacerb',dyspnea:'vdyspnea',activity:'vactivity'};const x=Object.fromEntries(Object.entries(ids).map(([k,id])=>[k,val(id)]));const s=score(x),el=get('radarPreview');if(!el)return;const mm=val('vmmrc'),disagreement=mm!==''&&['si','no'].includes(x.dyspnea)&&((Number(mm)>=2)!==(x.dyspnea==='si'));el.innerHTML=`<div><div class="number">${s===null?'—':s}<span style="font-size:16px;letter-spacing:0"> /8</span></div><small>${Object.values(x).filter(z=>['si','no'].includes(z)).length} de 4 respuestas</small></div><div><div>${tag(cat(s),cls(s))}</div><div class="subtle" style="margin-top:9px">${s===null?'Sin clasificación hasta completar los cuatro ítems.':'3 rescate · 2 agudización · 2 disnea · 1 actividad.'}</div>${disagreement?'<div class="call warn" style="margin-top:9px">Revisar discrepancia entre mMRC y la pregunta de disnea RADAR.</div>':''}</div>`}
+function file(name,textContent,type){const blob=new Blob([textContent],{type}),u=URL.createObjectURL(blob),a=document.createElement('a');a.download=name;a.href=u;a.click();setTimeout(()=>URL.revokeObjectURL(u),1200)}
+const cleanCsv=v=>{const s=String(v??'');const x=/^[=+\-@\t\r]/.test(s)?"'"+s:s;return '"'+x.replace(/"/g,'""')+'"'};
+function csv(name,rows){if(!rows.length)return alert('No hay registros para exportar.');const heads=[...new Set(rows.flatMap(o=>Object.keys(o)))];file(name,'\ufeff'+[heads.map(cleanCsv).join(';'),...rows.map(o=>heads.map(h=>cleanCsv(o[h])).join(';'))].join('\r\n'),'text/csv;charset=utf-8')}
+function csvPatients(){csv('RADAR_sim_participantes.csv',db.patients)}
+function csvVisits(){csv('RADAR_sim_visitas.csv',db.visits.map(v=>({...v,radar_total:score(v),radar_categoria:cat(score(v))})))}
+function csvEvents(){csv('RADAR_sim_eventos_y_contactos.csv',[...db.events.map(e=>({registro:'episodio',...e})),...db.contacts.map(c=>({registro:'contacto',...c}))])}
+async function downloadExcel(){
+  try{
+    const btn=document.querySelector('[data-action="exportxlsx"]');
+    if(btn){btn.disabled=true;btn.textContent='Generando libro Excel…'}
+    const res=await fetch('/api/export/xlsx',{credentials:'same-origin',headers:{'Accept':'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}});
+    if(!res.ok){let message='No se pudo generar el archivo';try{const body=await res.json();message=body.detail||message}catch(_){}throw Error(message)}
+    const blob=await res.blob();
+    const url=URL.createObjectURL(blob), a=document.createElement('a');
+    a.href=url;a.download='RADAR_CORUNA_datos_'+new Date().toISOString().slice(0,10)+'.xlsx';
+    document.body.appendChild(a);a.click();a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),12000);
+  }catch(e){alert('Exportación Excel: '+e.message)}
+  finally{const btn=document.querySelector('[data-action="exportxlsx"]');if(btn){btn.disabled=false;btn.textContent='Descargar libro Excel completo (.xlsx)'}}
+}
+function downloadBackup(){file('RADAR_CORUNA_sim_respaldo_v09.json',JSON.stringify({...db,exported:new Date().toISOString(),safety:'SOLO SINTETICO; SIN DATOS REALES'},null,2),'application/json')}
+function existingCRD(patientCode,visitType,code){return studyObservations.find(o=>o.participant===patientCode&&o.visit_type===visitType&&o.variable_code===code)}
+function workflowPage(){
+const w=crdWorkflow||{rows:[],manifest:[],summary:{patients:0,visits:0,core_complete:0,pending_baseline:0}};
+const rows=w.rows||[];
+const all=rows.filter(x=>x.visit_status!=='No registrada');
+return heading('Cuaderno de recogida de datos','CRD por visitas · V0 / V1 / V2',
+ 'Ruta clínica para revisar el estado de las evaluaciones y sus mediciones. Un campo ausente no equivale a una respuesta negativa.')+notice+
+ `<div class="call warn" style="margin-bottom:18px"><b>Especificación provisional v0.11.</b> Estas comprobaciones ayudan a preparar el CRD; no autorizan la inclusión de pacientes ni sustituyen la revisión del IP.</div>`+
+ `<section class="metrics"><div class="metric"><div class="lab">Participantes</div><div class="val">${w.summary.patients||0}</div><div class="help">Cero registros al instalar</div></div><div class="metric"><div class="lab">Visitas registradas</div><div class="val">${w.summary.visits||0}</div><div class="help">V0 · V1 · V2</div></div><div class="metric"><div class="lab">Núcleo completo</div><div class="val">${w.summary.core_complete||0}</div><div class="help">Siete campos propuestos</div></div><div class="metric"><div class="lab">Basales por revisar</div><div class="val">${w.summary.pending_baseline||0}</div><div class="help">Revisión técnica, no exclusión</div></div></section>`+
+ `<section class="panel"><div class="panelhead"><div><h2>Estado del CRD por participante</h2><p>El porcentaje se refiere exclusivamente al núcleo propuesto de la visita, no a los 107 campos candidatos.</p></div></div><div class="tablewrap"><table><thead><tr><th>Participante</th><th>Visita</th><th>Situación</th><th>Núcleo</th><th>Caracterización basal</th><th>Observaciones</th><th></th></tr></thead><tbody>`+
+ (rows.length?rows.map(r=>`<tr><td class="code">${esc(r.patient)}</td><td>${esc(r.stage)}</td><td>${tag(r.visit_status,r.visit_status==='No registrada'?'neutral':r.visit_status==='No realizada'?'partial':'')}</td><td>${r.core_pct===null?'—':esc(r.core_present)+' / 7 · '+esc(r.core_pct)+'%'}</td><td>${r.stage!=='V0'?'—':esc(r.baseline_present)+' / '+esc(r.baseline_expected)}</td><td>${r.core_missing.length?'<span class="subtle">Faltan: '+esc(r.core_missing.join(', '))+'</span>':''}${r.alerts.length?'<div class="subtle" style="color:#9a671a">'+esc(r.alerts.join('; '))+'</div>':''}${!r.alerts.length&&!r.core_missing.length?'—':''}</td><td><button class="linklike" data-action="workflowvisit" data-id="${esc(r.patient)}" data-visit="${esc(r.stage)}">${r.visit_status==='No registrada'?'Registrar':'Abrir'} ${esc(r.stage)}</button></td></tr>`).join(''):'<tr><td colspan="7"><div class="empty">Todavía no hay participantes. La estructura está lista para revisar; no se precargan historias sintéticas.</div></td></tr>')+
+ `</tbody></table></div></section><div class="vspace"></div>`+
+ `<section class="panel"><div class="panelhead"><div><h2>Alcance de la recogida</h2><p>Tres bloques coherentes con los borradores del protocolo.</p></div></div><div class="panelbody"><div class="fields three"><div class="call"><b>V0 · Cribado y basal</b><p class="subtle">Elegibilidad documentada, caracterización clínica, espirometría y evaluación RADAR inicial.</p></div><div class="call"><b>V1 · 6 meses</b><p class="subtle">Nueva evaluación RADAR, CAT, mMRC y actualización del seguimiento clínico.</p></div><div class="call"><b>V2 · 12 meses</b><p class="subtle">Evaluación final, cambios de control y consolidación de resultados para análisis.</p></div></div><p class="subtle" style="margin-top:18px">Las agudizaciones y los contactos asistenciales se registran como eventos independientes. No se deducen automáticamente de la respuesta RADAR sobre los últimos tres meses.</p></div></section>`;
+}
+// v0.27: unsaved CRD drafts are held in memory per participant/visit.
+// Data are written to SQLite ONLY through submitCRD, never on a tab change.
+const crdDrafts=new Map(),crdSectionChoice=new Map();
+let crdFeedback='';
+let primaryVisitSnapshot=null;
+function snapshotPrimaryVisit(){const form=get('visitForm');return form?JSON.stringify(Array.from(form.querySelectorAll('input,select,textarea')).map(el=>[el.id,el.value,el.checked])):null;}
+const crdKey=(pid,visit)=>pid+'::'+visit;
+function captureCRDDraft(){
+ const form=get('studyForm');if(!form)return;
+ const changes={};
+ for(const control of form.querySelectorAll('[data-crd-code]')){
+  const prior=existingCRD(selectedStudyPatient,selectedStudyVisit,control.dataset.crdCode);
+  if(String(control.value)!==String(prior?.value??''))changes[control.dataset.crdCode]=control.value;
+ }
+ const key=crdKey(selectedStudyPatient,selectedStudyVisit);
+ if(Object.keys(changes).length)crdDrafts.set(key,{values:changes,reason:val('crdCorrectionReason')});else crdDrafts.delete(key);
+ crdFeedback='';updateCRDProgress();
+}
+function crdDisplayedValue(code){
+ const draft=crdDrafts.get(crdKey(selectedStudyPatient,selectedStudyVisit));
+ return draft&&Object.prototype.hasOwnProperty.call(draft.values,code)?draft.values[code]:(existingCRD(selectedStudyPatient,selectedStudyVisit,code)?.value??'');
+}
+function crdProgressFor(controls){
+ const elements=Array.from(controls);
+ const answered=elements.filter(el=>el.value!==''&&el.value!==null).length;
+ const changed=elements.filter(el=>String(el.value)!==String(existingCRD(selectedStudyPatient,selectedStudyVisit,el.dataset.crdCode)?.value??'')).length;
+ return {answered,changed,total:elements.length};
+}
+function updateCRDProgress(){
+ const form=get('studyForm');if(!form)return;
+ const all=Array.from(form.querySelectorAll('[data-crd-code]'));
+ const overall=crdProgressFor(all),counter=get('crdProgress'),state=get('crdDraftStatus');
+ if(counter)counter.textContent=overall.answered+' / '+overall.total+' campos con respuesta';
+ if(state){state.textContent=overall.changed?overall.changed+' cambio'+(overall.changed===1?'':'s')+' sin guardar':'Sin cambios pendientes';state.classList.toggle('unsaved',overall.changed>0)}
+ for(const [i,el] of Array.from(get('crdSectionNav')?.querySelectorAll('[data-crd-section]')||[]).entries()){
+  const panel=get('crd-group-'+i),c=panel?crdProgressFor(panel.querySelectorAll('[data-crd-code]')):{answered:0,total:0};
+  const count=el.querySelector('.crd-nav-count');if(count)count.textContent=c.answered+'/'+c.total;
+ }
+ for(const el of all)el.closest('.field')?.classList.toggle('crd-unsaved',String(el.value)!==String(existingCRD(selectedStudyPatient,selectedStudyVisit,el.dataset.crdCode)?.value??''));
+}
+function showCRDSection(index,{scroll=false}={}){
+ const blocks=Array.from(get('studyForm')?.querySelectorAll('.crd-field-group')||[]);
+ if(!blocks.length)return;
+ const active=Math.max(0,Math.min(index,blocks.length-1));
+ crdSectionChoice.set(crdKey(selectedStudyPatient,selectedStudyVisit),active);
+ blocks.forEach((el,i)=>{el.hidden=i!==active;el.setAttribute('aria-hidden',String(i!==active))});
+ get('crdSectionNav')?.querySelectorAll('[data-crd-section]').forEach(b=>{
+  const on=Number(b.dataset.crdSection)===active;b.classList.toggle('active',on);b.setAttribute('aria-selected',String(on));b.tabIndex=on?0:-1;
+ });
+ const status=get('crdSectionPosition');if(status)status.textContent=(active+1)+' / '+blocks.length;
+ if(scroll)blocks[active].scrollIntoView({behavior:'smooth',block:'start'});
+}
+function wireCRD(){
+ const form=get('studyForm');if(!form)return;
+ form.addEventListener('input',captureCRDDraft);
+ form.addEventListener('change',captureCRDDraft);
+ get('crdSectionNav')?.addEventListener('click',e=>{
+  const btn=e.target.closest('[data-crd-section]');if(btn)showCRDSection(Number(btn.dataset.crdSection));
+ });
+ get('crdSectionNav')?.addEventListener('keydown',e=>{
+  if(!['ArrowRight','ArrowLeft','Home','End','ArrowDown','ArrowUp'].includes(e.key))return;
+  const tabs=Array.from(get('crdSectionNav').querySelectorAll('[data-crd-section]'));
+  const current=crdSectionChoice.get(crdKey(selectedStudyPatient,selectedStudyVisit))||0;
+  const i=e.key==='Home'?0:e.key==='End'?tabs.length-1:(current+(e.key==='ArrowRight'||e.key==='ArrowDown'?1:-1)+tabs.length)%tabs.length;
+  e.preventDefault();showCRDSection(i);tabs[i]?.focus();
+ });
+ form.addEventListener('click',e=>{
+  const btn=e.target.closest('[data-crd-step]');if(!btn)return;
+  const i=crdSectionChoice.get(crdKey(selectedStudyPatient,selectedStudyVisit))||0;
+  showCRDSection(i+(btn.dataset.crdStep==='next'?1:-1),{scroll:true});
+ });
+ const i=crdSectionChoice.get(crdKey(selectedStudyPatient,selectedStudyVisit))||0;
+ showCRDSection(i);updateCRDProgress();
+}
+function crdPage(){
+ const participants=db.patients.filter(p=>p.status==='incluido');
+ if(!participants.length)return heading('Cuaderno electrónico','CRD complementario · V0/V1/V2','Campos vinculados a las evaluaciones principales.')+notice+`<div class="panel"><div class="panelbody"><div class="empty">No hay participantes incluidos. Comienza por el registro de participantes.</div></div></div>`;
+ if(!participants.some(p=>p.id===selectedStudyPatient))selectedStudyPatient=participants[0].id;
+ const visitTypes=['V0','V1','V2'];
+ const existingVisit=db.visits.find(v=>v.patient===selectedStudyPatient&&v.type===selectedStudyVisit);
+ const rows=(scientific?.variables||[]).filter(x=>x.visit_scope.includes(selectedStudyVisit));
+ const sections=[...new Set(rows.map(x=>x.entity))];
+ const canEdit=!!existingVisit&&currentUser?.role!=='reviewer';
+ const draft=crdDrafts.get(crdKey(selectedStudyPatient,selectedStudyVisit));
+ const state=crdFeedback?`<div class="crd-success" role="status">${esc(crdFeedback)}</div>`:'';
+ const nav=sections.map((sec,i)=>`<button type="button" role="tab" class="crd-section-tab" data-crd-section="${i}" aria-controls="crd-group-${i}" aria-selected="false"><span>${esc(sec)}</span><small class="crd-nav-count"></small></button>`).join('');
+ const groups=sections.map((sec,i)=>{
+  const groupRows=rows.filter(x=>x.entity===sec);
+  const fields=groupRows.map(v=>{
+   const prior=existingCRD(selectedStudyPatient,selectedStudyVisit,v.code),value=crdDisplayedValue(v.code),attrs=`id="crd-${esc(v.code)}" data-crd-code="${esc(v.code)}"`;
+   const inp=v.choices.length?`<select ${attrs} ${!canEdit?'disabled':''}><option value="">Sin registrar</option>${v.choices.map(x=>`<option value="${esc(x)}" ${String(value)===x?'selected':''}>${esc(x.replaceAll('_',' '))}</option>`).join('')}</select>`:`<input ${attrs} type="number" min="0" step="1" max="7200" value="${esc(value)}" ${!canEdit?'disabled':''}>`;
+   return `<div class="field"><label for="crd-${esc(v.code)}">${esc(v.label)}</label>${inp}<small>${esc(v.code)} · ${esc(v.values)}${prior?` · Revisión ${prior.rev}`:''}</small></div>`;
+  }).join('');
+  return `<section class="crd-field-group" id="crd-group-${i}" role="tabpanel" aria-label="${esc(sec)}"><div class="crd-group-heading"><div><h3>${esc(sec)}</h3><p>${groupRows.length} variables en ${selectedStudyVisit}</p></div><span class="crd-sequence">${String(i+1).padStart(2,'0')} / ${String(sections.length).padStart(2,'0')}</span></div><div class="fields crd-field-grid">${fields}</div><div class="crd-section-footer"><button class="btn small" type="button" data-crd-step="prev" ${i===0?'disabled':''}>Anterior</button><button class="btn small" type="button" data-crd-step="next" ${i===sections.length-1?'disabled':''}>Siguiente apartado</button></div></section>`;
+ }).join('');
+ const visitButtons=visitTypes.map(type=>`<button type="button" class="crd-stage ${type===selectedStudyVisit?'active':''}" data-crd-visit="${type}" ${type===selectedStudyVisit?'aria-current="step"':''}>${type}${db.visits.some(v=>v.patient===selectedStudyPatient&&v.type===type)?'<span class="crd-stage-dot" aria-label="registrada"></span>':''}</button>`).join('');
+ return heading('Instrumento clínico','CRD complementario · '+selectedStudyVisit,'Mediciones complementarias asociadas a la visita. Los datos del núcleo RADAR se encuentran en la evaluación principal.')+notice+state+
+ `<div class="crd-context-bar"><div class="crd-context-main"><div class="field crd-person-select"><label for="studyPatient">Participante</label><select id="studyPatient">${participants.map(p=>`<option value="${esc(p.id)}" ${p.id===selectedStudyPatient?'selected':''}>${esc(p.id)} · ${esc(p.center)}</option>`).join('')}</select></div><div class="crd-stage-wrap"><span class="crd-stage-label">Visita</span><div class="crd-stage-switch" role="group" aria-label="Seleccionar visita">${visitButtons}</div></div></div><div class="crd-context-links"><button class="btn small" type="button" data-action="detail" data-id="${esc(selectedStudyPatient)}">Ficha del participante</button><button class="btn small" type="button" data-action="workflowvisit" data-id="${esc(selectedStudyPatient)}" data-visit="${esc(selectedStudyVisit)}">${existingVisit?'Abrir evaluación principal':'Registrar evaluación'}</button><button class="btn small" type="button" data-action="eventfor" data-id="${esc(selectedStudyPatient)}">Añadir episodio</button></div></div>`+
+ `${existingVisit&&['action','inhaler','education','referral'].some(k=>existingVisit[k])?`<details class="crd-legacy-info"><summary>Ver actuaciones antiguas para conciliar</summary><div class="subtle">Plan: ${esc(existingVisit.action||'—')}; inhalador: ${esc(existingVisit.inhaler||'—')}; educación: ${esc(existingVisit.education||'—')}; derivación: ${esc(existingVisit.referral||'—')}. La correspondencia con R090–R099 requiere revisión explícita.</div></details>`:''}`+
+ `<section class="panel crd-workspace"><div class="crd-workspace-heading"><div><h2>Mediciones complementarias</h2><p>${existingVisit?'Visita '+esc(existingVisit.date)+' · '+esc(existingVisit.status):'Esta visita aún no está registrada; crea primero la evaluación principal.'}</p></div><div class="crd-progress"><strong id="crdProgress" aria-live="polite"></strong><span id="crdDraftStatus" aria-live="polite"></span></div></div><div class="crd-tab-layout"><div class="crd-tab-navigation" role="tablist" aria-label="Apartados del CRD" id="crdSectionNav">${nav}</div><form id="studyForm" class="crd-editor"><div class="crd-editor-body">${groups||'<div class="empty">No hay campos habilitados.</div>'}<div class="crd-correction"><label for="crdCorrectionReason">Motivo de corrección <span class="subtle">(si cambias un valor guardado)</span></label><input id="crdCorrectionReason" maxlength="240" value="${esc(draft?.reason||'')}" placeholder="Describe brevemente el cambio"></div><div class="formerror" id="crdError" role="alert"></div></div><div class="crd-save-bar"><span class="subtle">Los cambios se conservan al cambiar de apartado o visita. Guardar los confirma en el registro.</span><button class="btn primary" type="submit" ${!canEdit?'disabled':''}>Guardar mediciones</button></div></form></div></section>`;
+}
+async function submitCRD(e){e.preventDefault();const obs={},revs={};for(const f of get('studyForm').querySelectorAll('[data-crd-code]')){const code=f.dataset.crdCode;const prev=existingCRD(selectedStudyPatient,selectedStudyVisit,code);const value=f.value===''?null:(code==='assessment_seconds'?Number(f.value):f.value);if(String(prev?.value??'')===String(value??''))continue;obs[code]=value;revs[code]=prev?.rev||0}
+if(!Object.keys(obs).length)return error('crdError','No hay cambios pendientes de guardar.');
+try{const pid=selectedStudyPatient,visit=selectedStudyVisit;await requestApi(`/api/study/observations/${encodeURIComponent(pid)}/${encodeURIComponent(visit)}`,'PUT',{observations:obs,revisions:revs,reason:val('crdCorrectionReason')});crdDrafts.delete(crdKey(pid,visit));await reloadState();crdFeedback=Object.keys(obs).length+' medición(es) guardada(s) en '+visit+'.';navigate('crd')}catch(e){error('crdError',e.message)}
+}
+function studyPage(){const rows=scientific?.variables||[],decisions=scientific?.decisions||[];const counts={};for(const r of rows)counts[r.implementation]=(counts[r.implementation]||0)+1;
+return heading('Gobernanza científica','Diccionario y decisiones','Fuente única de definiciones propuestas. Distingue qué está implementado, qué puede capturarse y qué requiere validación metodológica.')+notice+
+`<section class="metrics"><div class="metric"><div class="lab">Variables candidatas</div><div class="val">${rows.length}</div><div class="help">Versión 0.9</div></div><div class="metric"><div class="lab">CRD ampliado</div><div class="val">${counts['CRD ampliado']||0}</div><div class="help">Campos adicionales habilitados</div></div><div class="metric"><div class="lab">Pendientes metodológicos</div><div class="val">${decisions.length}</div><div class="help">Revisión por IP/estadística</div></div><div class="metric"><div class="lab">Variables aprobadas</div><div class="val">0</div><div class="help">El catálogo sigue siendo borrador</div></div></section>
+<div class="call" style="margin:0 0 16px">Concordancia clínica v0.27: los campos de cribado, vacunación, Charlson y evaluador están integrados en los formularios principales. R055/R056 se consultan en IANUS, sin equipararlos a las antiguas escalas de adherencia. <span class="subtle">Correspondencia descargable en el paquete técnico.</span></div><section class="panel"><div class="panelhead"><div><h2>Diccionario científico</h2><p>Definición, procedencia, prioridad y estado de implementación.</p></div></div><div class="panelbody"><input id="specSearch" type="search" placeholder="Buscar variable, código o definición…" style="width:100%;height:42px;padding:9px;border:1px solid #cfdddf;border-radius:8px"><p class="subtle">No todos los 107 campos son entradas de consulta. Los derivados se calculan y los exploratorios permanecen pendientes.</p></div><div class="tablewrap"><table><thead><tr><th>ID</th><th>Variable</th><th>Tipo</th><th>Prioridad</th><th>Implementación</th><th>Revisión</th></tr></thead><tbody id="specTable">${renderSpecRows(rows)}</tbody></table></div></section>
+<section class="panel"><div class="panelhead"><div><h2>Decisiones pendientes del protocolo</h2><p>No deben considerarse aprobadas ni resolverse automáticamente en el software.</p></div></div><div class="tablewrap"><table><thead><tr><th>ID</th><th>Prioridad</th><th>Asunto</th><th>Revisión</th><th>Estado</th></tr></thead><tbody>${decisions.map(d=>`<tr><td class="code">${esc(d.id)}</td><td>${esc(d.priority)}</td><td><b>${esc(d.topic)}</b><div class="subtle">${esc(d.question)}</div></td><td>${esc(d.reviewer)}</td><td>${tag(d.status,'partial')}</td></tr>`).join('')}</tbody></table></div></section>`;
+}
+function renderSpecRows(rows){return rows.map(v=>`<tr><td class="code">${esc(v.id)}</td><td><b>${esc(v.label)}</b><div class="subtle">${esc(v.code)} · ${esc(v.moment)}</div></td><td>${esc(v.type)}</td><td>${esc(v.priority_proposed)}</td><td>${esc(v.implementation)}</td><td>${esc(v.validator)}</td></tr>`).join('')}
+function renderDetail(){route='detalle';render();window.scrollTo({top:0,behavior:'smooth'})}
+function analysisPage(){
+ const a=scientificAnalysis||{metrics:[],paired:[],coverage:[],coverage_counts:{},total_variables:107};
+ const n=a.coverage_counts||{},metrics=a.metrics||[],pairs=a.paired||[],mapping=a.coverage||[];
+ const brief=(name)=>{const m=metrics.find(x=>x.indicator===name);return m?(m.value===null||m.value===undefined?'No estimable':String(m.value)+(m.unit==='%'?' %':m.unit==='puntos'?' puntos':'')):'—'};
+ const r=phase18Report||{counts:{included:0,baseline_complete:0,radar_pairs:0,cat_pairs:0},indicators:[],distributions:[],transitions:[]};
+ const findReport=t=>r.indicators.find(x=>x.indicator===t);
+ const metricV=t=>{const x=findReport(t);return !x||x.value===null||x.value===undefined?'No estimable':esc(x.value)+(x.unit==='%'?' %':x.unit==='puntos'?' puntos':'')};
+ const groups=['Buen control','Control parcial','Mal control'];const colors=['#237b65','#bb8737','#af5760'];
+ const section= `<section class="panel"><div class="panelhead"><div><h2>Informe de cohorte</h2><p>Estimaciones descriptivas de la cohorte incluida. Los denominadores se calculan por variable y visita.</p></div></div><div class="panelbody"><div class="metrics"><div class="metric"><div class="lab">RADAR basal clasificado</div><div class="val">${r.counts.baseline_complete||0}</div><div class="help">De ${r.counts.included||0} incluidos</div></div><div class="metric"><div class="lab">Mal control en V0</div><div class="val">${metricV('Mal control basal RADAR ≥4')}</div><div class="help">Solo V0 con RADAR completo</div></div><div class="metric"><div class="lab">Pares RADAR V0–V2</div><div class="val">${r.counts.radar_pairs||0}</div><div class="help">Cambio medio: ${metricV('Cambio medio RADAR V2−V0')}</div></div><div class="metric"><div class="lab">Pares CAT V0–V2</div><div class="val">${r.counts.cat_pairs||0}</div><div class="help">Cambio medio: ${metricV('Cambio medio CAT V2−V0')}</div></div></div><div class="vspace"></div><div class="split"><div><h3 style="margin:0 0 14px">Distribución por visita</h3>${['V0','V1','V2'].map(stage=>{const d=r.distributions.filter(x=>x.visit===stage);const n=d.length?d[0].denominator:0;return `<div style="margin-bottom:17px"><b>${stage}</b> <span class="subtle">${n} clasificables</span><div style="height:13px;display:flex;background:#edf1f3;overflow:hidden;border-radius:5px;margin-top:7px">${d.map((x,i)=>`<span title="${esc(x.category)} · ${x.n}" style="display:block;width:${x.percent??0}%;background:${colors[i]}"></span>`).join('')}</div></div>`}).join('')}<div class="subtle">Verde: buen control · Ámbar: parcial · Rojo: mal control. Sin barra si no hay evaluaciones clasificables.</div></div><div><h3 style="margin:0 0 14px">Transiciones V0 → V2</h3><div class="tablewrap"><table><thead><tr><th>Control V0</th>${groups.map(c=>`<th>${esc(c)}</th>`).join('')}</tr></thead><tbody>${groups.map(from=>`<tr><td>${esc(from)}</td>${groups.map(to=>{const x=r.transitions.find(v=>v.control_v0===from&&v.control_v2===to);return `<td>${r.counts.radar_pairs?(x?.n??0):'—'}</td>`}).join('')}</tr>`).join('')}</tbody></table></div><p class="subtle">Solo pacientes con RADAR completo en ambas visitas.</p></div></div></div></section><div class="vspace"></div>`;
+ return heading('Resultados provisionales','Análisis y cobertura del protocolo','Denominadores explícitos, análisis pareado y mapeo de campos del CRD al almacenamiento real.')+notice+section+
+ `<div class="call warn" style="margin-bottom:18px"><b>Análisis descriptivo de simulación.</b> No representa resultados clínicos ni verifica hipótesis. Los indicadores de implantación sin denominador se declaran no calculables.</div>`+
+ `<section class="metrics"><div class="metric"><div class="lab">Variables candidatas</div><div class="val">${a.total_variables}</div><div class="help">Catálogo v0.9 sujeto a acuerdo</div></div><div class="metric"><div class="lab">Capturables en formulario</div><div class="val">${(n['Capturable']||0)+(n['CRD ampliado']||0)}</div><div class="help">No implica aprobación clínica</div></div><div class="metric"><div class="lab">Sin implementación</div><div class="val">${n['No implementada']||0}</div><div class="help">Revisar antes de congelar el CRD</div></div><div class="metric"><div class="lab">Parejas V0–V2</div><div class="val">${pairs.length}</div><div class="help">Solo RADAR completo en ambos momentos</div></div></section>`+
+ `<section class="panel"><div class="panelhead"><div><h2>Indicadores con denominador conocido</h2><p>Cuando faltan datos o el denominador no existe, no se inventan porcentajes.</p></div></div><div class="tablewrap"><table><thead><tr><th>Ámbito</th><th>Indicador</th><th>Numerador</th><th>Denominador</th><th>Valor</th><th>Alcance</th></tr></thead><tbody>`+
+ metrics.map(m=>`<tr><td>${esc(m.group)}</td><td><b>${esc(m.indicator)}</b></td><td>${m.numerator===null?'—':esc(m.numerator)}</td><td>${m.denominator===null?'—':esc(m.denominator)}</td><td><b>${m.value===null?'No estimable':esc(m.value)+(m.unit==='%'?' %':m.unit==='puntos'?' puntos':'')}</b></td><td class="subtle">${esc(m.interpretation)}</td></tr>`).join('')+
+ `</tbody></table></div></section><div class="vspace"></div>`+
+ `<section class="panel"><div class="panelhead"><div><h2>Correspondencia entre variables y aplicación</h2><p>Las variables capturadas, derivadas y pendientes aparecen de forma separada. Los campos pendientes no se consideran completos.</p></div></div><div class="tablewrap"><table><thead><tr><th>Variable</th><th>Prioridad</th><th>Estado</th><th>Origen técnico</th><th>Revisión pendiente</th></tr></thead><tbody>`+
+ mapping.map(m=>`<tr><td><b>${esc(m.label)}</b><div class="subtle">${esc(m.code)}</div></td><td>${esc(m.priority)}</td><td>${tag(m.status,m.status==='No implementada'?'partial':'neutral')}</td><td class="code">${esc(m.location)}</td><td class="subtle">${esc(m.pending)}</td></tr>`).join('')+
+ `</tbody></table></div></section><div class="vspace"></div><div class="call">El libro incluye <b>INFORME_V18</b>, <b>RADAR_ETAPAS_V18</b>, <b>PAREJAS_INDEP_V18</b>, <b>TRANSICIONES_V18</b> y <b>METODOLOGIA_V18</b>, además del diccionario completo. No hay pacientes precargados.</div>`;
+}
+function outcomesPage(){
+ const o=phase13Outcomes||{eligibility:[],intervals:[],missing:[],missing_conflicts:[]};
+ const people=db.patients.filter(p=>p.status==='incluido');
+ const choices=[['cat','CAT'],['mmrc','mMRC'],['rescue','RADAR · rescate'],['exacerb','RADAR · agudizaciones'],['dyspnea','RADAR · disnea'],['activity','RADAR · actividad'],['adherence','Adherencia'],['action','Plan clínico'],['fev1','FEV1 % predicho · V0'],['ratio','FEV1/FVC pos-BD · V0'],['spiroDate','Fecha espirometría · V0'],['priorEx','Agudizaciones previas · V0'],['priorHosp','Ingresos previos · V0']];
+ const opts=[['no_registrado','NR · No registrado'],['no_disponible','ND · No disponible'],['no_realizado','NP · No realizado'],['no_aplica','NA · No aplica'],['no_recogido','Histórico · No recogido'],['rechazo','Histórico · Paciente no responde'],['desconocido','Histórico · Desconocido']];
+ return heading('Revisión de resultados','Elegibilidad, resultados y ausencias','Clasificaciones derivadas y motivos de datos ausentes. Especificación científica provisional; no constituye elegibilidad ni validación médica.')+notice+
+ `<div class="call warn" style="margin-bottom:18px"><b>Fase 13, propuesta científica.</b> GOLD 1–4 se deriva de FEV1 y FEV1/FVC; no corresponde al agrupamiento A/B/E. Los recuentos entre visitas se calculan solo para intervalos observados. Las decisiones de elegibilidad pertenecen al investigador.</div>`+
+ `<section class="metrics"><div class="metric"><div class="lab">Registros de cribado</div><div class="val">${o.eligibility.length}</div></div><div class="metric"><div class="lab">Intervalos observados</div><div class="val">${o.intervals.length}</div></div><div class="metric"><div class="lab">Ausencias documentadas</div><div class="val">${o.missing.length}</div></div></section>`+
+ `<section class="panel"><div class="panelhead"><div><h2>Decisiones, GOLD y situación vital</h2><p>Clasificación de obstrucción calculada únicamente si existen mediciones compatibles.</p></div></div><div class="tablewrap"><table><thead><tr><th>Participante</th><th>Selección</th><th>Decisión IP</th><th>GOLD 1–4</th><th>Estado vital</th><th>Revisión</th></tr></thead><tbody>${o.eligibility.length?o.eligibility.map(r=>`<tr><td class="code">${esc(r.participant)}</td><td>${esc(r.status)}</td><td>${esc(r.eligibility_decision)}</td><td>${r.gold_airflow_grade??'—'}</td><td>${esc(r.vital_status||'—')}</td><td class="subtle">${esc(r.review||'—')}</td></tr>`).join(''):'<tr><td colspan="6" class="empty">Sin registros de participantes</td></tr>'}</tbody></table></div></section><div class="vspace"></div>`+
+ `<section class="panel"><div class="panelhead"><div><h2>Resultados por intervalo registrado</h2><p>Agudizaciones, urgencias e ingresos son resultados diferentes; no se suman.</p></div></div><div class="tablewrap"><table><thead><tr><th>Participante</th><th>Intervalo</th><th>EPOC</th><th>Moderadas / graves</th><th>Urgencias</th><th>Ingresos</th></tr></thead><tbody>${o.intervals.length?o.intervals.map(r=>`<tr><td class="code">${esc(r.participant)}</td><td>${esc(r.interval)}<small>${esc(r.date_from)} – ${esc(r.date_to)}</small></td><td>${r.exacerbations_copd}</td><td>${r.exacerbations_moderate} / ${r.exacerbations_severe}</td><td>${r.er_copd}</td><td>${r.admissions_copd}</td></tr>`).join(''):'<tr><td colspan="6" class="empty">No existen intervalos con ambas visitas registradas</td></tr>'}</tbody></table></div></section><div class="vspace"></div>`+
+ `<section class="panel"><div class="panelhead"><div><h2>Motivo de dato ausente</h2><p>Una ausencia no es un valor negativo ni equivale a cero. La corrección del motivo queda auditada.</p></div></div><form id="missingForm"><div class="panelbody"><div class="fields three">${field('mPatient','Participante','select',people[0]?.id||'',people.map(p=>[p.id,p.id]))}${field('mVisit','Visita','select','V0',[['V0','V0 · Basal'],['V1','V1 · Seguimiento'],['V2','V2 · Final']])}${field('mField','Campo habitual','select','cat',choices)}${field('mOtherCode','Código R específico (si procede)','text','','placeholder="Ej. R055 · prevalece sobre campo habitual" maxlength="4"','NR/ND/NP/NA corresponden a los motivos del CRD impreso.')}${field('mReason','Motivo','select','no_disponible',opts)}${field('mCorrection','Justificación si se modifica','text','','placeholder="Solo corrección (mín. 8 caracteres)" maxlength="240"','No incluyas información identificativa.')}</div><div class="formerror" id="missingError"></div></div><div class="footerbar"><span class="subtle">Solo campos con visita registrada · ${o.missing_conflicts.length} conflictos de valor/ausencia</span><button type="submit" class="btn primary" ${currentUser?.role==='reviewer'||!people.length?'disabled':''}>Guardar motivo</button></div></form><div class="tablewrap"><table><thead><tr><th>Participante</th><th>Visita</th><th>Campo</th><th>Motivo</th><th>Conflicto</th></tr></thead><tbody>${o.missing.length?o.missing.map(r=>`<tr><td class="code">${esc(r.participant)}</td><td>${esc(r.visit_type)}</td><td>${esc(r.field_code)}</td><td>${esc(r.reason)}</td><td>${r.conflict?tag('Revisar','partial'):'—'}</td></tr>`).join(''):'<tr><td colspan="5" class="empty">No se han registrado motivos de ausencia</td></tr>'}</tbody></table></div></section>`;
+}
+async function submitMissing(e){e.preventDefault();const pid=val('mPatient'),visit=val('mVisit'),code=val('mOtherCode').trim().toUpperCase()||val('mField');
+ if(val('mOtherCode').trim()&&!/^R(?:0\d\d|10[0-6])$/.test(code))return error('missingError','Indique un código R001–R106 válido.');
+ if(!db.visits.some(v=>v.patient===pid&&v.type===visit))return error('missingError','Debe registrar la visita antes de indicar una ausencia.');
+ const existing=missingRecords.find(x=>x.participant===pid&&x.visit_type===visit&&x.field_code===code);
+ try{await requestApi('/api/study/missing','PUT',{participant:pid,visit_type:visit,field_code:code,reason:val('mReason'),rev:existing?.rev??null,correction_reason:val('mCorrection')});await reloadState();navigate('resultados')}catch(e){error('missingError',e.message)}
+}
+// Phase 14 · Forms generated directly from the common versioned variable registry.
+let p14Kind='centre',p14Selected='',p14Centre='',p14Month='2026-10';
+const p14Kinds=[['centre','Centros'],['professional','Profesionales y formación'],['screening','Cribado complementario'],['baseline','Basal complementaria'],['visit','Evaluador y actuación'],['implementation','Consultas EPOC por centro y mes']];
+function p14AvailableKeys(kind){
+ if(kind==='centre')return db.centres.map(c=>[c.code,c.code+' · '+c.name]);
+ if(kind==='screening'||kind==='baseline')return db.patients.map(p=>[p.id,p.id+' · '+p.center]);
+ if(kind==='visit')return db.visits.map(v=>[v.patient+':'+v.type,v.patient+' · '+v.type+' · '+fmt(v.date)]);
+ return [];
+}
+function p14Record(kind,key){return (phase14Data?.records||[]).find(r=>r.kind===kind&&r.key===key)}
+function p14SelectControls(kind){
+ const opts=p14AvailableKeys(kind);
+ if(kind==='professional')return `<div class="fields">${field('p14Target','Código profesional','text',p14Selected||'','placeholder="SIM-PRO-001" pattern="SIM-PRO-[A-Za-z0-9_-]+"')}${field('p14Centre','Centro','select',p14Centre||currentUser?.centre||db.centres[0]?.code||'',db.centres.map(c=>[c.code,c.code+' · '+c.name]))}</div>`;
+ if(kind==='implementation')return `<div class="fields">${field('p14Centre','Centro','select',p14Centre||currentUser?.centre||db.centres[0]?.code||'',db.centres.map(c=>[c.code,c.code+' · '+c.name]))}${field('p14Month','Mes de observación','month',p14Month)}</div>`;
+ return `<div class="fields">${field('p14Target',kind==='centre'?'Centro':kind==='visit'?'Visita registrada':'Participante','select',p14Selected||opts[0]?.[0]||'',[['','Seleccione'],...opts])}</div>`;
+}
+function p14CurrentKey(){return p14Kind==='implementation'?(get('p14Centre')?.value||'')+':'+(get('p14Month')?.value||''):get('p14Target')?.value||''}
+function p14FieldControl(f,value){
+ const label=esc(f.label),id='p14_'+f.code;
+ const items=f.choices||[];
+ if(items.length)return `<div class="field"><label for="${id}">${label}</label><select data-p14-field="${esc(f.code)}" id="${id}"><option value="">Sin registrar</option>${items.map(v=>`<option value="${esc(v)}" ${v===value?'selected':''}>${esc(v.replaceAll('_',' '))}</option>`).join('')}</select></div>`;
+ let typ='text',extr='';
+ if(f.type==='date')typ='date';
+ if(f.type==='integer_0_10'||f.type==='integer_0_37'||f.type==='integer_1_5'||f.type==='count'||f.type==='decimal_0_6'){
+   typ='number';const min=f.type==='integer_1_5'?1:0;
+   const max=f.type==='integer_0_10'?10:f.type==='integer_0_37'?37:f.type==='integer_1_5'?5:f.type==='decimal_0_6'?6:10000000;
+   extr=`min="${min}" max="${max}" step="${f.type==='decimal_0_6'?'0.01':'1'}"`;
+ }
+ if(f.type==='professional_code')extr='placeholder="SIM-PRO-001"';
+ if(f.type==='screen_code')extr='placeholder="SIM-SCR-001"';
+ return `<div class="field"><label for="${id}">${label}</label><input data-p14-field="${esc(f.code)}" id="${id}" type="${typ}" ${extr} value="${esc(value??'')}"></div>`;
+}
+function p14RenderFields(){
+ const root=get('p14Fields');if(!root)return;
+ const key=p14CurrentKey(),rec=p14Record(p14Kind,key);
+ if(!key||key.endsWith(':')){root.innerHTML='<p class="subtle">Seleccione un registro para introducir las variables.</p>';return}
+ const defs=(phase14Data?.definitions||{})[p14Kind]||[];
+ root.innerHTML=`<div class="sectiontitle">${esc(p14Kinds.find(x=>x[0]===p14Kind)?.[1])} · ${esc(key)}</div><div class="fields three">${defs.map(f=>p14FieldControl(f,rec?.payload?.[f.code])).join('')}</div>${rec?`${field('p14Reason','Motivo de corrección','text','','required minlength="8" maxlength="240" placeholder="Ej. Verificación del dato con registro original"')}`:''}<div class="formerror" id="p14Error"></div><div class="footerbar" style="margin-top:16px"><span class="subtle">${rec?'Versión '+rec.rev+' · conservar historial':'Primer registro'} · Campos vacíos ≠ No</span><button class="btn primary" type="submit" ${currentUser?.role==='reviewer'?'disabled':''}>Guardar variables</button></div>`;
+}
+function p14Page(){
+ const rows=phase14Data?.records||[],metrics=phase14Data?.metrics?.indicators||[],counts={};
+ for(const x of phase14Data?.coverage||[])counts[x.status]=(counts[x.status]||0)+1;
+ const table=rows.map(x=>`<tr><td>${esc(p14Kinds.find(k=>k[0]===x.kind)?.[1]||x.kind)}</td><td class="code">${esc(x.key)}</td><td>${esc(x.centre)}</td><td>${Object.values(x.payload||{}).filter(v=>v!==null&&v!=='').length}</td><td><button type="button" class="linklike" data-action="p14edit" data-id="${esc(x.kind)}" data-key="${esc(x.key)}" data-centre="${esc(x.centre)}">Abrir</button></td></tr>`).join('');
+ return heading('RADAR-CORUÑA · Estudio','Implantación y variables','Centro, equipo investigador, cribado, mediciones complementarias e indicadores. Definiciones pendientes de consenso están identificadas como propuestas.')+notice+`<div class="metrics"><div class="metric"><div class="lab">Catálogo mapeado</div><div class="val">${(phase14Data?.coverage||[]).length}/107</div><div class="help">Capturable o derivable</div></div><div class="metric"><div class="lab">Variables sin implementación</div><div class="val">${counts['No implementada']||0}</div><div class="help">Ámbito técnico</div></div><div class="metric"><div class="lab">Registros adicionales</div><div class="val">${rows.length}</div><div class="help">Sin datos precargados</div></div></div>
+ <section class="panel"><div class="panelhead"><h2>Indicadores de implantación</h2><p>Solo se calculan tasas cuando consta un denominador documentado.</p></div><div class="tablewrap"><table><thead><tr><th>Indicador</th><th>Numerador</th><th>Denominador</th><th>Resultado</th><th>Criterio</th></tr></thead><tbody>${metrics.map(m=>`<tr><td><b>${esc(m.indicator)}</b></td><td>${m.numerator??'—'}</td><td>${m.denominator??'—'}</td><td>${m.value===null?'No estimable':esc(m.value)+' '+esc(m.unit)}</td><td class="subtle">${esc(m.note)}</td></tr>`).join('')}</tbody></table></div></section>
+ <section class="panel"><div class="panelhead"><h2>Completar variables</h2><p>Elija una sección y un registro. Los campos se construyen desde el diccionario de variables.</p></div><div class="panelbody"><form id="p14Form"><div class="fields">${field('p14Kind','Sección','select',p14Kind,p14Kinds)}</div><div id="p14Selectors">${p14SelectControls(p14Kind)}</div><div id="p14Fields"></div></form></div></section>
+ <section class="panel"><div class="panelhead"><h2>Registros complementarios</h2><p>${rows.length} registros · El libro Excel conserva las observaciones por entidad.</p></div><div class="tablewrap"><table><thead><tr><th>Sección</th><th>Clave</th><th>Centro</th><th>Campos registrados</th><th></th></tr></thead><tbody>${table||'<tr><td colspan="5" class="subtle">Sin registros complementarios</td></tr>'}</tbody></table></div></section>`;
+}
+async function p14Save(e){e.preventDefault();const key=p14CurrentKey();if(!key){const el=get('p14Error');if(el){el.textContent='Seleccione registro';el.classList.add('show')}return};
+ const rec=p14Record(p14Kind,key),payload={};
+ for(const f of get('p14Fields').querySelectorAll('[data-p14-field]')){
+  const code=f.dataset.p14Field;const meta=(phase14Data?.definitions?.[p14Kind]||[]).find(x=>x.code===code);
+  const raw=f.value.trim();payload[code]=raw===''?null:(['count','decimal_0_6','integer_1_5','integer_0_37','integer_0_10'].includes(meta?.type)?Number(raw):raw);
+ }
+ let reason=rec?get('p14Reason')?.value||'':'';
+ try{await requestApi('/api/study/phase14','PUT',{kind:p14Kind,key,centre:get('p14Centre')?.value||'',payload,rev:rec?.rev||0,reason});await reloadState();render();}
+ catch(err){const box=get('p14Error');if(box){box.textContent=err.message;box.classList.add('show')}}
+}
+function p14Attach(){
+ get('p14Kind')?.addEventListener('change',e=>{p14Kind=e.target.value;p14Selected='';get('p14Selectors').innerHTML=p14SelectControls(p14Kind);p14Wire();p14RenderFields()});
+ p14Wire();get('p14Form')?.addEventListener('submit',p14Save);
+}
+function p14Wire(){for(const id of ['p14Target','p14Centre','p14Month'])get(id)?.addEventListener('change',e=>{if(id==='p14Target')p14Selected=e.target.value;if(id==='p14Centre')p14Centre=e.target.value;if(id==='p14Month')p14Month=e.target.value;p14RenderFields()});p14RenderFields()}
+
+// Phase 17: clear orientation and progressive consultation without changing scientific data.
+const UI_ROUTES={
+ inicio:['Resumen','Consulta y seguimiento'],cohorte:['Participantes','Consulta y seguimiento'],detalle:['Ficha del participante','Consulta y seguimiento'],participante:['Inclusión y basal','Consulta y seguimiento'],visitas:['Visitas V0–V2','Consulta y seguimiento'],visita:['Evaluación clínica','Consulta y seguimiento'],flujo:['Seguimiento CRD','Consulta y seguimiento'],crd:['CRD complementario','Consulta y seguimiento'],
+ eventos:['Episodios y contactos','Datos del estudio'],evento:['Registro de episodio','Datos del estudio'],carestatus:['Valoración de contactos','Datos del estudio'],resultados:['Resultados y ausencias','Datos del estudio'],completitud:['Implantación','Datos del estudio'],
+ analisis:['Análisis científico','Revisión y resultados'],calidad:['Calidad de datos','Revisión y resultados'],estudio:['Diccionario de variables','Revisión y resultados'],exportacion:['Excel del estudio','Revisión y resultados']};
+function updateContext(){
+ const el=get('workspaceContext');if(!el)return;
+ const [name,group]=UI_ROUTES[route]||UI_ROUTES.inicio;
+ const pid=route==='visita'?(get('vpatient')?.value||visitPatient):route==='crd'?selectedStudyPatient:selectedPatient;
+ const isPatientRoute=['detalle','participante','visita','crd'].includes(route) && !!pid && !!patient(pid);
+ el.innerHTML=`<div class="context-path"><span>${esc(group)}</span><span class="context-chevron" aria-hidden="true">/</span><strong>${esc(name)}</strong>${isPatientRoute?`<span class="context-patient">${esc(pid)}</span>`:''}</div><div class="context-actions">${isPatientRoute&&route!=='detalle'?`<button type="button" class="context-link" data-action="detail" data-id="${esc(pid)}">Volver a ficha</button>`:''}<button type="button" class="context-export" data-action="exportxlsx" title="Descargar el libro de investigación">↓ Excel</button></div>`;
+}
+function makeClinicalSections(formId){
+ const form=get(formId);if(!form)return;
+ const body=form.querySelector('.panelbody');if(!body)return;
+ const headings=[...body.children].filter(n=>n.classList.contains('sectiontitle'));
+ for(const header of headings){
+   const title=header.textContent.trim();const block=document.createElement('details');block.className='clinical-block';
+   const optional=(formId==='patientForm'&&(/Estado vital|Comorbilidades/i).test(title))||(formId==='visitForm'&&/Trazabilidad/i.test(title)===false&&false);
+   block.open=!optional;
+   const summary=document.createElement('summary');summary.className='clinical-block-title';
+   const heading=document.createElement('span');heading.textContent=title;
+   const hint=document.createElement('span');hint.className='clinical-block-hint';hint.textContent=optional?'Complementario':'';
+   summary.append(heading);if(optional)summary.append(hint);
+   const inner=document.createElement('div');inner.className='clinical-block-body';
+   let cursor=header.nextSibling;
+   while(cursor&&!(cursor.nodeType===1&&cursor.classList.contains('sectiontitle'))){const next=cursor.nextSibling;inner.append(cursor);cursor=next}
+   block.append(summary,inner);body.replaceChild(block,header);
+ }
+ // Investigator-first sectional index: jumps within the form; does not alter data values.
+ const sections=[...form.querySelectorAll('.clinical-block')];
+ if(sections.length){
+   const names=(formId==='visitForm')?['Visita y síntomas','RADAR','Tratamiento','IANUS','Actuación','Corrección']:['Identificación','Inclusión','Datos basales','Estado vital','Comorbilidades','Corrección'];
+   const nav=document.createElement('div');nav.className='clinical-toolbar';nav.setAttribute('aria-label','Navegación entre apartados');
+   const strip=document.createElement('nav');strip.className='clinical-section-nav';strip.setAttribute('aria-label','Apartados de la ficha');
+   const status=document.createElement('span');status.className='clinical-nav-position';status.setAttribute('aria-live','polite');
+   const buttons=sections.map((block,i)=>{
+      block.id=formId+'-section-'+i;
+      const title=block.querySelector('summary span')?.textContent||('Sección '+(i+1));
+      const label=names[i]||title;
+      const jump=document.createElement('button');jump.type='button';jump.className='section-jump';jump.textContent=label;jump.dataset.section=i;
+      jump.setAttribute('aria-label','Ir a '+title);
+      jump.setAttribute('aria-controls',block.id);
+      strip.append(jump);
+      return jump;
+   });
+   const select=(i)=>{
+      buttons.forEach((b,j)=>{b.classList.toggle('active',i===j);if(i===j)b.setAttribute('aria-current','location');else b.removeAttribute('aria-current')});
+      status.textContent=(i+1)+' / '+sections.length;
+   };
+   strip.addEventListener('click',event=>{
+      const jump=event.target.closest('.section-jump');if(!jump)return;
+      const i=Number(jump.dataset.section),block=sections[i];block.open=true;select(i);
+      block.scrollIntoView({behavior:'smooth',block:'start'});
+   });
+   sections.forEach((block,i)=>block.addEventListener('toggle',()=>{if(block.open&&document.activeElement===block.querySelector('summary'))select(i)}));
+   select(0);nav.append(strip,status);form.querySelector('.panelhead').after(nav);
+ }
+ if(formId==='visitForm'){
+  const section=[...form.querySelectorAll('.clinical-block')].find(x=>x.querySelector('summary span')?.textContent.includes('Actuación y seguimiento'));
+  const grid=section?.querySelector('.clinical-block-body > .fields');
+  if(grid){
+   const rest=document.createElement('details');rest.className='clinical-nested';
+   rest.innerHTML='<summary>Otras actuaciones y tratamiento <span>Campos complementarios</span></summary><div class="clinical-nested-body fields three"></div>';
+   const body=rest.querySelector('.clinical-nested-body');
+   const core=['vadherence','vaction','vstatus'];
+   for(const item of [...grid.children])if(!core.some(x=>item.querySelector('#'+x)))body.append(item);
+   grid.after(rest);
+  }
+  const block=document.createElement('div');block.id='visitCompleteness';block.className='visit-completeness';block.setAttribute('role','status');block.setAttribute('aria-live','polite');
+  const radar=[...form.querySelectorAll('.clinical-block')].find(x=>x.querySelector('summary span')?.textContent.startsWith('RADAR'));
+  if(radar)radar.before(block);else form.querySelector('.panelbody').prepend(block);
+  const update=()=>{
+   const keys=['vcat','vmmrc','vrescue','vexacerb','vdyspnea','vactivity','vaction'];
+   const done=keys.filter(k=>{const v=get(k)?.value;return v!==''&&v!==undefined&&v!==null}).length;
+   const missing=keys.filter(k=>!(get(k)?.value!==''&&get(k)?.value!==undefined&&get(k)?.value!==null));
+   const names={vcat:'CAT',vmmrc:'mMRC',vrescue:'Rescate',vexacerb:'Agudizaciones',vdyspnea:'Disnea',vactivity:'Actividad',vaction:'Plan clínico'};
+   block.innerHTML=`<div class="completion-text"><div><strong>Núcleo de la evaluación</strong><span>${done} de 7 campos documentados</span></div><b>${Math.round(done/7*100)}%</b></div><div class="completion-track" role="progressbar" aria-valuenow="${done}" aria-valuemin="0" aria-valuemax="7" aria-label="Campos del núcleo documentados"><span style="width:${100*done/7}%"></span></div><div class="completion-hint">${missing.length?'Pendiente: '+missing.map(k=>names[k]).join(' · '):'Núcleo documentado. Comprueba las respuestas y guarda la evaluación.'}</div>`;
+  };
+  form.addEventListener('input',update);form.addEventListener('change',update);update();
+ }
+}
+function enhanceInterface(){
+ updateContext();
+ if(route==='visita'){
+   makeClinicalSections('visitForm');
+   const form=get('visitForm'),bar=form?.querySelector('.clinical-toolbar');
+   if(bar){
+      const pid=get('vpatient')?.value||visitPatient;
+      if(pid&&patient(pid)){
+        const link=document.createElement('button');link.type='button';link.className='clinical-return';link.textContent='Ficha del participante';link.dataset.action='detail';link.dataset.id=pid;
+        link.setAttribute('aria-label','Volver a la ficha de '+pid);bar.append(link);
+        get('vpatient')?.addEventListener('change',()=>{link.dataset.id=get('vpatient').value;link.setAttribute('aria-label','Volver a la ficha de '+get('vpatient').value)});
+        const stage=get('vtype')?.value;
+        if(db.visits.some(v=>v.patient===pid&&v.type===stage)){
+          const complementary=document.createElement('button');complementary.type='button';complementary.className='clinical-return';complementary.textContent='CRD complementario';complementary.dataset.action='crdfor';complementary.dataset.id=pid;complementary.dataset.visit=stage;bar.append(complementary);
+          const update=()=>{const pidNow=get('vpatient')?.value,stageNow=get('vtype')?.value;complementary.dataset.id=pidNow||'';complementary.dataset.visit=stageNow||'';complementary.disabled=!db.visits.some(v=>v.patient===pidNow&&v.type===stageNow)};
+          get('vpatient')?.addEventListener('change',update);get('vtype')?.addEventListener('change',update);update();
+        }
+      }
+   }
+ }
+ if(route==='participante')makeClinicalSections('patientForm');
+}
+
+function render(){const root=get('root');if(!root)return;root.dataset.view=route;const routes={inicio:overview,cohorte:cohort,detalle:detail,participante:()=>patientForm(patient(selectedPatient)||null),visitas:visitsPage,visita:()=>visitForm(editVisit?db.visits.find(v=>v.id===editVisit):null),eventos:eventsPage,evento:()=>eventForm(eventTab),carestatus:careStatusForm,calidad:quality,flujo:workflowPage,crd:crdPage,estudio:studyPage,analisis:analysisPage,resultados:outcomesPage,completitud:p14Page,exportacion:exportsPage};root.innerHTML=(routes[route]||overview)();if(route==='detalle')loadJourneyReview(selectedPatient);get('navigation').querySelectorAll('button').forEach(x=>x.classList.toggle('active',x.dataset.route===(route==='detalle'||route==='participante'?'cohorte':route==='visita'?'visitas':(route==='evento'||route==='carestatus')?'eventos':route)));if(route==='cohorte'){get('filterPatients').addEventListener('input',renderCohortTable);get('filterCentre').addEventListener('change',renderCohortTable);get('clearCohortFilters').addEventListener('click',()=>{get('filterPatients').value='';get('filterCentre').value='';renderCohortTable();get('filterPatients').focus()});renderCohortTable()}if(route==='participante'){const p=patient(selectedPatient);get('patientForm').dataset.edit=p?'1':'';get('patientForm').addEventListener('submit',processPatient)}if(route==='visita'){get('visitForm').addEventListener('submit',processVisit);['vrescue','vexacerb','vdyspnea','vactivity','vmmrc'].forEach(id=>get(id).addEventListener('change',preview));preview()}if(route==='carestatus')get('careForm')?.addEventListener('submit',processCareStatus);if(route==='evento'){get('eventForm').addEventListener('submit',processEvent);const kind=get('ekind'),sev=get('eseverity');if(kind&&sev)kind.addEventListener('change',()=>{if(kind.value==='otro')sev.value='no_aplica';else if(sev.value==='no_aplica')sev.value='moderada';});const ep=get('epatient'),related=get('eevent');if(ep&&related)ep.addEventListener('change',()=>{related.innerHTML='<option value="">No vinculado</option>'+db.events.filter(e=>e.patient===ep.value).map(e=>`<option value="${esc(e.id)}">${esc(String(e.episodeNo??'?').padStart(2,'0'))} · ${fmt(e.date)}</option>`).join('');});}
+if(route==='crd'){
+get('studyPatient')?.addEventListener('change',e=>{selectedStudyPatient=e.target.value;crdFeedback='';render()});
+get('root').querySelectorAll('[data-crd-visit]').forEach(btn=>btn.addEventListener('click',()=>{selectedStudyVisit=btn.dataset.crdVisit;crdFeedback='';render()}));
+get('studyForm')?.addEventListener('submit',submitCRD);wireCRD();
+}
+if(route==='resultados')get('missingForm')?.addEventListener('submit',submitMissing);
+if(route==='completitud')p14Attach();
+if(route==='estudio')get('specSearch')?.addEventListener('input',e=>{const q=e.target.value.toLowerCase();get('specTable').innerHTML=renderSpecRows((scientific?.variables||[]).filter(v=>[v.label,v.code,v.definition,v.entity,v.implementation].some(x=>String(x||'').toLowerCase().includes(q))))});if(currentUser?.role==='reviewer'){root.querySelectorAll('button[data-action]').forEach(b=>{if(['newpatient','editpatient','newvisit','editvisit','visitfor','newevent','newcontact','reset','importjson'].includes(b.dataset.action))b.remove()})}enhanceInterface();if(route==='visita'){primaryVisitSnapshot=snapshotPrimaryVisit();const f=get('visitForm');if(f){f.dataset.dirty='0';f.addEventListener('input',()=>{f.dataset.dirty='1'});f.addEventListener('change',()=>{f.dataset.dirty='1'})}}}
+function click(e){const el=e.target.closest('[data-action]');if(!el)return;const act=el.dataset.action,id=el.dataset.id;if(route==='visita'&&['crdfor','detail','cohorte'].includes(act)&&((get('visitForm')?.dataset.dirty==='1')||(primaryVisitSnapshot!==null&&snapshotPrimaryVisit()!==primaryVisitSnapshot))){error('visitError','Hay cambios sin guardar en esta visita. Guarda la evaluación antes de salir para conservarlos.');return;}switch(act){case'p14edit':{p14Kind=el.dataset.id;p14Selected=el.dataset.key;p14Centre=el.dataset.centre;if(p14Kind==='implementation')p14Month=p14Selected.split(':')[1]||p14Month;navigate('completitud');break;}case'nextwork':{selectedPatient=id;const step=el.dataset.step,stage=el.dataset.visit;if(step==='visit'&&stage){visitPatient=id;selectedStudyPatient=id;selectedStudyVisit=stage;visitTargetStage=stage;editVisit=db.visits.find(v=>v.patient===id&&v.type===stage)?.id||null;navigate('visita')}else if(step==='screen'){navigate('cohorte');selectedPatient=id;navigate('participante')}else{selectedPatient=id;renderDetail()}break;}case'newpatient':selectedPatient='';route='participante';render();break;case'editpatient':selectedPatient=id;route='participante';render();break;case'cohorte':navigate('cohorte');break;case'detail':lastSavedVisit=null;selectedPatient=id;renderDetail();break;case'workflowvisit':{selectedPatient=id;const stage=el.dataset.visit,existing=db.visits.find(v=>v.patient===id&&v.type===stage);visitPatient=id;selectedStudyPatient=id;selectedStudyVisit=stage;visitTargetStage=stage;editVisit=existing?.id||null;navigate('visita');break;}case'crdfor':selectedStudyPatient=id;selectedStudyVisit=el.dataset.visit||'V0';navigate('crd');break;case'eventfor':eventPatient=id;eventTab='episode';navigate('evento');break;case'contactfor':eventPatient=id;eventLink='';eventTab='contact';navigate('evento');break;case'careforevent':{careEpisode=id;navigate('carestatus');break;}case'contactforevent':{const episode=db.events.find(x=>x.id===id);if(!episode)break;eventPatient=episode.patient;eventLink=episode.id;eventTab='contact';navigate('evento');break;}case'visitfor':selectedPatient=id;visitPatient=id;visitTargetStage='';editVisit=null;navigate('visita');break;case'newvisit':visitPatient=db.patients[0]?.id||'';visitTargetStage='';editVisit=null;navigate('visita');break;case'editvisit':{const existing=db.visits.find(v=>v.id===id);if(existing){selectedPatient=existing.patient;visitPatient=existing.patient;selectedStudyPatient=existing.patient;selectedStudyVisit=existing.type;visitTargetStage=existing.type;}editVisit=id;navigate('visita');break;}case'visitas':navigate('visitas');break;case'newevent':eventTab='episode';navigate('evento');break;case'newcontact':eventLink='';eventTab='contact';navigate('evento');break;case'eventos':navigate('eventos');break;case'exportxlsx':downloadExcel();break;case'exportall':downloadBackup();break;case'exportpatients':csvPatients();break;case'exportvisits':csvVisits();break;case'exportevents':csvEvents();break;case'exportquality':csv('RADAR_sim_incidencias.csv',qualityChecks().map((detail,i)=>({numero:i+1,incidencia:detail})));break;}}
+
+// Sidebar presentation only; all routes, permissions and clinical logic remain unchanged.
+function closeMobileNav(){document.body.classList.remove('mobile-nav-open');get('mobileNavToggle').setAttribute('aria-expanded','false');get('mobileNavToggle').setAttribute('aria-label','Abrir menú');}
+function toggleMobileNav(){const open=!document.body.classList.contains('mobile-nav-open');document.body.classList.toggle('mobile-nav-open',open);get('mobileNavToggle').setAttribute('aria-expanded',String(open));get('mobileNavToggle').setAttribute('aria-label',open?'Cerrar menú':'Abrir menú');}
+get('mobileNavToggle').addEventListener('click',toggleMobileNav);
+get('sidebarScrim').addEventListener('click',closeMobileNav);
+get('sidebarCollapse').addEventListener('click',()=>{const collapsed=document.body.classList.toggle('sidebar-collapsed');get('sidebarCollapse').setAttribute('aria-expanded',String(!collapsed));get('sidebarCollapse').setAttribute('aria-label',collapsed?'Expandir menú lateral':'Contraer menú lateral');get('sidebarCollapse').setAttribute('title',collapsed?'Expandir menú':'Contraer menú');});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMobileNav();});
+window.matchMedia('(min-width: 901px)').addEventListener('change',e=>{if(e.matches)closeMobileNav();});
+
+window.addEventListener('beforeunload',e=>{if(crdDrafts.size){e.preventDefault();e.returnValue='';}});
+get('navigation').addEventListener('click',e=>{const b=e.target.closest('[data-route]');if(b)navigate(b.dataset.route)});get('root').addEventListener('click',click);get('workspaceContext').addEventListener('click',click);get('root').addEventListener('click',e=>{if(e.target.closest('[data-action="auditdetails"]'))auditDetailPanel()});
+get('authForm').addEventListener('submit',async e=>{e.preventDefault();get('authError').textContent='';try{const r=await fetch('/api/session',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:val('username'),password:val('password')})});const x=await r.json();if(!r.ok)throw Error(typeof x.detail==='string'?x.detail:'Credenciales inválidas');csrfToken=x.csrf;currentUser=x.user;await reloadState();document.body.classList.add('signed-in');get('password').value='';navigate('inicio')}catch(err){get('authError').textContent=err.message}});
+get('signout').addEventListener('click',async ()=>{try{await requestApi('/api/logout','POST',{})}catch(e){}crdDrafts.clear();crdSectionChoice.clear();crdFeedback='';primaryVisitSnapshot=null;currentUser=null;csrfToken='';db=clone(DEMO);studyObservations=[];scientific=null;clinicalReview=null;crdWorkflow=null;phase13Outcomes=null;missingRecords=[];phase16Work=[];phase18Report=null;document.body.classList.remove('signed-in');get('password').value='';get('authError').textContent=''});
+boot();
+// Expose pure function only for automated prototype tests; contains no clinical data.
+window.RADAR_TEST_API={score,cat,qualityChecks,seed:()=>clone(DEMO)};
+})();
+</script>
+</body></html>

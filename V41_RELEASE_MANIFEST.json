@@ -1,0 +1,870 @@
+{
+  "version": "0.41.0-postgres-staging-adapter-candidate",
+  "project_id": "vqdpkzlrzwchjumpbqta",
+  "files": [
+    {
+      "file": ".dockerignore",
+      "sha256": "754cc7c8e9198fee96685fb6b8364e9628ff158045a0f2c4ddf7b0273ecf36ca"
+    },
+    {
+      "file": ".env.postgres-staging.example",
+      "sha256": "43aa266b95269dee90920453c7f54b7e8d200ec3b15c91340b65c8858dac3dc7"
+    },
+    {
+      "file": ".env.synthetic-staging.example",
+      "sha256": "906fc9b0f493de7ad9008d65c76be09f2ade84fb76dea7d20201b5c5ce5df357"
+    },
+    {
+      "file": "ACEPTACION_FINAL_FASE19.md",
+      "sha256": "a414e675da1fea2a531c1a599f8d4bc1daf84430985b8d6dd8982e06ecfbd6ab"
+    },
+    {
+      "file": "ACEPTACION_NAVEGACION_V23.md",
+      "sha256": "27ef00d9e7b6c7a8bbbb667639468a2e6bb72c13bc3c6fa5b31e4b04479ba673"
+    },
+    {
+      "file": "ACEPTACION_PARCIAL_FASE20.md",
+      "sha256": "5797a882a4016337655b7ba1df9df00103b5e11f86aa4adba3b7da05af2cb8ae"
+    },
+    {
+      "file": "ACEPTACION_PARCIAL_FASE21.md",
+      "sha256": "f16e140fd489c4a2a5e5e1edf9e7b578523ae1039a41607c7edd45ba581f8ce1"
+    },
+    {
+      "file": "ACEPTACION_PARCIAL_FASE22.md",
+      "sha256": "c73cdf0ad154e526d27b351fa2947ddf752377e21bd59ff0121524ea1ee9d6f9"
+    },
+    {
+      "file": "ACEPTACION_V26.md",
+      "sha256": "059a208079aba8759fc86f6af01e1df492c5a1fce3b55c2cc6d189d01737be35"
+    },
+    {
+      "file": "ACEPTACION_V27.md",
+      "sha256": "5fa83e080227bfbf6963dc9a1f8bd896ca3f847550cf37f2c35dcaa37144d6fa"
+    },
+    {
+      "file": "ACEPTACION_V28.md",
+      "sha256": "63b072f8f76be4567405365016df8fdb84319c7a39b1a96364ee0df20b42b0cf"
+    },
+    {
+      "file": "ACTA_ACEPTACION_V31.md",
+      "sha256": "479924b1700fa0279d9692c120fd7c40ae5120277a2b7fa68e984a430f160bfa"
+    },
+    {
+      "file": "ACTUALIZACION_V24.md",
+      "sha256": "3b5accdf3b8a3f3a7a39c11dadd707c84a7d8ad63b6988ef178757708b2f6840"
+    },
+    {
+      "file": "ACTUALIZACION_V25.md",
+      "sha256": "aafc8140d9a236c0d55f035f1b4e8b3819d66fce9b84bcfe8dc3b1f8f862ef3c"
+    },
+    {
+      "file": "ACTUALIZACION_V26.md",
+      "sha256": "217139af33cd71812977d102755b70ef5172a91d3d62f0762f5d67e83fdc02b3"
+    },
+    {
+      "file": "ACTUALIZACION_V27.md",
+      "sha256": "3e3444be83ab217eb4b64588d87d618493330b656bbca1d80a3a9e295ff11592"
+    },
+    {
+      "file": "ACTUALIZACION_V28.md",
+      "sha256": "67c1c927e768a403ea607f1e95be43346ae938619323b4f2282b2c3e6ecb8f19"
+    },
+    {
+      "file": "AUDITORIA_INTELIGENCIA_R001_R107_V33.json",
+      "sha256": "3436cae2b783834e4b6b8ac104526bdf8e0a5d132f5eff3af31bc74638527d10"
+    },
+    {
+      "file": "AUDITORIA_INTELIGENCIA_R001_R107_V33.md",
+      "sha256": "3349581ab0f88beb5cbfc6ee556570052bec413760d36759c14c3a062b0a7eb1"
+    },
+    {
+      "file": "CAMBIOS_V21_EPISODIOS.md",
+      "sha256": "75e6c7c68f105b19f53e128b64dc569c4d66877543a2198077efe63b8fb41516"
+    },
+    {
+      "file": "CAMBIOS_V22_R081_R082.md",
+      "sha256": "b630232015e9e6ead262a1c36a1ff0c8f391ed5760d75f3296553fce922e4660"
+    },
+    {
+      "file": "CAMBIOS_V23_NAVEGACION.md",
+      "sha256": "86e7bfeea031cdbcbf27fa7bc98b39b3bac0939329c199522b0bdf2908158a8c"
+    },
+    {
+      "file": "CAMBIOS_V24_ESPACIO_CLINICO.md",
+      "sha256": "8c5384638b5abd46a27809abc10338958b04229fb188cefce740d3672a263296"
+    },
+    {
+      "file": "CAMBIOS_V25_TRAYECTORIA_CLINICA.md",
+      "sha256": "3854c94bb427db9fe84fd0160d04d4c58fd12e0945da2caf8e583c1532a8d4a0"
+    },
+    {
+      "file": "CAMBIOS_V26_CRD_CONECTADO.md",
+      "sha256": "d7684cec8e0c37baaa2e48b375b1bce914df8b6adb4e9a72eb25330dd2e1ccb2"
+    },
+    {
+      "file": "CAMBIOS_V27_CONCORDANCIA.md",
+      "sha256": "601d4defe1a86bc48913272651e355dbb13bc8bbdefce7d9c0194280e5b56b3c"
+    },
+    {
+      "file": "CAMBIOS_V28_RECORRIDO_INTEGRAL.md",
+      "sha256": "dca0ef9ceeac53423d15d0a3b89bbbb2d3de690cb8e4d234079cfe423ef5a0b3"
+    },
+    {
+      "file": "CIERRE_FASE2_V28.md",
+      "sha256": "05919af65fe9bd871ac47152ae14910b02bbe08a5d15dc4f84a936b29b2793a0"
+    },
+    {
+      "file": "CIERRE_FASE3_V29.md",
+      "sha256": "a8d860a3e98af8bf3c7290c69cfe7ebbde9db2deb792c48e02060c4bed186b37"
+    },
+    {
+      "file": "CIERRE_FASE4_V30.md",
+      "sha256": "8d079048b5b4c2dbec9f336de3c4719af310ac14c3c54244b742f6ba480f7e29"
+    },
+    {
+      "file": "CONCORDANCIA_CRD_V27.md",
+      "sha256": "e22e48928a1de18a99e14f2f4fcdd3d7e30665470e084c28918a342d82544d08"
+    },
+    {
+      "file": "CRD_CONCORDANCIA_V27.json",
+      "sha256": "0f67d2d91d55058b781957f047986601addd24a0fac2dcba45183212ba4f58d0"
+    },
+    {
+      "file": "Dockerfile",
+      "sha256": "f2c942e9e258297ff463bf88e4c5a9eea3a1afbef74c67ab783bcc95895b266d"
+    },
+    {
+      "file": "FASE3_REGRESION_FIABILIDAD_V29.md",
+      "sha256": "bada899a9902aa341ba917912a5e71991a6d646b7141b6da814dd2c003518b41"
+    },
+    {
+      "file": "FASE4_UI_PREMIUM_V30.md",
+      "sha256": "33e44a2ecae5ec85f9d3917882cc393f7bc89f9b746d66d3fe754216af7fa30c"
+    },
+    {
+      "file": "FASE5_ACEPTACION_CIENTIFICA_V31.md",
+      "sha256": "f5b9caf1985b652cce08e47871f4e512d110e6dcd568f02604176b4412516ffd"
+    },
+    {
+      "file": "FASE6_CAPTURA_INTELIGENTE_V32.md",
+      "sha256": "8123cf374d32b398b27f54eb0636ef9847d959741e80b8a7ff31131c4c90f69d"
+    },
+    {
+      "file": "GUIA_ANALISIS_V39.md",
+      "sha256": "679d0f4103f0d61e049a12abc4eff33b4e3c505b340ae1f87252c17edc59ae18"
+    },
+    {
+      "file": "GUIA_CENTROS_V38.md",
+      "sha256": "46da5d58b360fedd14cf622f66927e352bf0ec2bf8df57a5017b492bdb029158"
+    },
+    {
+      "file": "GUIA_DESPLIEGUE_V40.md",
+      "sha256": "f871c8a13d88718059df5d64b7953bb45babeb465e5738c4bd93cf1f5020f920"
+    },
+    {
+      "file": "GUIA_PRUEBA_INVESTIGADORES_V31.md",
+      "sha256": "23349f40aaa623033bcdaaa5e3919f1f39ad92f1115ef410dd9d66dd451ef9da"
+    },
+    {
+      "file": "INFORME_FLUJO_V37.md",
+      "sha256": "27bc515fd13336de3fb575df06688d8531c717fe51f066efaa6338c67313cab5"
+    },
+    {
+      "file": "INFORME_INTELIGENCIA_V39.md",
+      "sha256": "6656cb09e750793589ed78e13a2bf66c557d2dd379c6d822bae4265d5075fd63"
+    },
+    {
+      "file": "INFORME_MULTICENTRO_V38.md",
+      "sha256": "ce5656496c43a2d40cb85f0759ad52ff722f09f31b14e1ed437f1fe8c2471ae6"
+    },
+    {
+      "file": "INFORME_OPERACIONAL_V40.md",
+      "sha256": "6688292e9d0edc40f4c9bc5d7eb85ffc9db09d26feec76ea8d34410ebf873629"
+    },
+    {
+      "file": "INFORME_TECNICO_V33.md",
+      "sha256": "ead4d6c01f5b14eb662ba13773fd40c81eb8c3c917d0567526e5f8ec6525f749"
+    },
+    {
+      "file": "INFORME_UI_DESIGN_V35.md",
+      "sha256": "06adfcb3b97ced84132521cde7f853370c27922aa2861cf8e8ae4ac62389a3a4"
+    },
+    {
+      "file": "INFORME_UI_PROPORCION_V34.md",
+      "sha256": "10e310bad59c34bb2f510ecba00ee79b111e3b823b1f0be609c343f8f61d1c84"
+    },
+    {
+      "file": "INFORME_UI_SISTEMA_V36.md",
+      "sha256": "fe60f3aa6e4720ae08b02e042a5aea4f9a25ca86503e6f17a4f67c13694cca35"
+    },
+    {
+      "file": "LEEME.md",
+      "sha256": "e7e5e2beb454f2e651423ca77e594b67c820b7148b195dbdfd2e8d835c09fdcf"
+    },
+    {
+      "file": "MANIFEST_V40.json",
+      "sha256": "5dbb79ffc6ccb0682d0a8a07fd74291802b04bbc2dfa4657dc1aa32d784ed573"
+    },
+    {
+      "file": "OPERACION_V40.md",
+      "sha256": "4d9a282536a8669d3b0bfff1d2f532514b48a580448dd3f45c8ad4063cf0e6be"
+    },
+    {
+      "file": "RADAR_CORUNA_v31_Dossier_Aceptacion.pdf",
+      "sha256": "7db62397b4211bb4861cb852abff91dc4345cc080f1f43f491a926667e5a0060"
+    },
+    {
+      "file": "RECONCILIACION_CRD_V20.md",
+      "sha256": "b6d547a79a0402ae7eab16f6e99e4de1becf615d165bcc448c1c800394ea6e73"
+    },
+    {
+      "file": "REGISTRO_CONCORDANCIA_Y_DECISIONES_V31.md",
+      "sha256": "8732526a1428caf35b7973d55fa9dabff33fab4830f4121966e1f1cadc84f139"
+    },
+    {
+      "file": "RESULTADOS_PRUEBAS_FASE3.txt",
+      "sha256": "d830fc6a0ef3279082c192458133271ccf430dd249c40375060ea415ac47aad7"
+    },
+    {
+      "file": "RESULTADOS_PRUEBAS_FASE4.txt",
+      "sha256": "6dd026be71286ca52203b8d5a0000502b99d6b1330375a821b1a23facda56590"
+    },
+    {
+      "file": "RESULTADOS_PRUEBAS_FASE5.txt",
+      "sha256": "82107013b8fd1e77197c56dc6b928b60fc9dfa5dfb074ee7cc72d6cdee82bd59"
+    },
+    {
+      "file": "RESULTADOS_PRUEBAS_FASE6.txt",
+      "sha256": "244262c35c7970fd381661dcefb15ef6a91a7bbd64f0c010a6e5283d91ffb851"
+    },
+    {
+      "file": "RESULTADOS_PRUEBAS_V33.txt",
+      "sha256": "d9b70e3d8b35683630de47dea0e353a0552b7b57f90913d4c40ac91468681c6c"
+    },
+    {
+      "file": "RESULTADOS_PRUEBAS_V37.txt",
+      "sha256": "fcfd76d04024ac8355063779bb2d0c536dee0e07ae7343404eece7caf0340264"
+    },
+    {
+      "file": "RESULTADOS_PRUEBAS_V38.txt",
+      "sha256": "da583164e7b68b7f5c32b02bf453c24d25e67a5df47490c0e940edc1f9b7b964"
+    },
+    {
+      "file": "RESULTADOS_PRUEBAS_V39.txt",
+      "sha256": "dc35394023cd551ab76b2680c7ab64c5b49938f16bb98140a7fcf9684607e8fa"
+    },
+    {
+      "file": "RESULTADOS_PRUEBAS_V40.json",
+      "sha256": "3221d494541668785955ca94efe760c8ea28390eaf972aa8fa831278d25863d6"
+    },
+    {
+      "file": "V41_POSTGRESQL_STATUS.md",
+      "sha256": "f777be6f2f1fb7cd91527b3c4264444a9eef0efba9722b06b758970320520820"
+    },
+    {
+      "file": "backup_manager.py",
+      "sha256": "81606d8fdf95465ed0e657408d86d42a62c56a5cdaed8a3e2c599db34261bc31"
+    },
+    {
+      "file": "clinical_review.py",
+      "sha256": "35f3f3f77763ca6a12b83c2d0455923358aedde1247d302b36c91275b04e4da2"
+    },
+    {
+      "file": "crd_concordance_v27.py",
+      "sha256": "bb3f838bccfc004075d336f43c71750cf3f4a342bc5e514a642b6761d30a3c99"
+    },
+    {
+      "file": "crd_workflow.py",
+      "sha256": "a69d0e525031848e8f1162d093dc2018c7965303ae608d48578692b3334cb373"
+    },
+    {
+      "file": "docs/RADAR_CORUNA_v19_evaluacion.png",
+      "sha256": "0fe83500f8212043417f369531df136e8e5c30fabaf40aca8f23ecc1f171a5a8"
+    },
+    {
+      "file": "docs/RADAR_CORUNA_v19_movil.png",
+      "sha256": "a7c40e826bff6af01e60f1e23043909d8e6b25f3d2eb3a3ddbaa0bb79be4c172"
+    },
+    {
+      "file": "docs/RADAR_CORUNA_v20_visit_form.png",
+      "sha256": "6da4cb4637a7b32041ff08fa25e79e1b5244fbc9e24bb17a3ad0c3ee9aa1815b"
+    },
+    {
+      "file": "docs/RADAR_CORUNA_v21_episodios_contactos.png",
+      "sha256": "1428726732e858cfcaeb4f0fde1c10837d97a9c7d745a2c4075ecb5992b4ffb2"
+    },
+    {
+      "file": "docs/RADAR_CORUNA_v24_Revision_visual.png",
+      "sha256": "ea82ff6008cac49a32caf13a63b00b60260ca7ec3a425510b964087ddb68f996"
+    },
+    {
+      "file": "docs/RADAR_CORUNA_v26_CRD_desktop.png",
+      "sha256": "59531a5475e0c86d21317d4b312097ad59ea9f63248ac5c082b9f7cbe2f41e2f"
+    },
+    {
+      "file": "docs/RADAR_CORUNA_v26_CRD_movil.png",
+      "sha256": "daefc61a30d650883d3816fda04c3b232381c3ccbfdddfd509f23a3d7c06da2a"
+    },
+    {
+      "file": "docs/historico/ACEPTACION_FASE15.md",
+      "sha256": "04b6c719b62479c2120eb0602163c7f34a2969f11ca80e073bf6a135c536b507"
+    },
+    {
+      "file": "docs/historico/CIERRE_VARIABLES_FASE14.md",
+      "sha256": "fa0bb9ec48001ffc3254d29a7236783d1d742ce9264db165da90702967375b3e"
+    },
+    {
+      "file": "docs/historico/CRD_FASE11_DEFINICIONES.md",
+      "sha256": "957f437b1a5a05bab62c31fb87fd44a5a35d3881659af670817239b1d8a1544b"
+    },
+    {
+      "file": "docs/historico/FASE16_ACEPTACION_Y_EXCEL.md",
+      "sha256": "29089338a0461266b1ff3644c905e9db7da6df459e40139216882092fcaf2e37"
+    },
+    {
+      "file": "docs/historico/FASE17_ACEPTACION.md",
+      "sha256": "f5fc221e262231c04a7f5b5a9d45e0ea8bb6ce989d9b6325ee93c406a9312ca0"
+    },
+    {
+      "file": "docs/historico/FASE18_REPORTING.md",
+      "sha256": "5996f9218e8ffa0ef116a8f5606a6bcf3550c46b961f2a0f4a5abc268820c453"
+    },
+    {
+      "file": "docs/v28/v28_journey_desktop.png",
+      "sha256": "c15146294884d9c25fad9db1f71144c380ef31f9e33213b666c3401781b1e275"
+    },
+    {
+      "file": "docs/v28/v28_journey_mobile.png",
+      "sha256": "5092a801a1436ab142096c9f5d84f12e0a7a7ef70f8db31a585917f3509f7c93"
+    },
+    {
+      "file": "docs/v30/v30_acceso_piloto.png",
+      "sha256": "bbdbcf8543964f00c21758ebb0f48370ebfbeabf1702c95fe99996d249694566"
+    },
+    {
+      "file": "docs/v30/v30_cohorte_desktop.png",
+      "sha256": "4ed96c42b5cf9016f5d7c6c22da909d3598686041773cae8c12baaa1fc12c333"
+    },
+    {
+      "file": "docs/v30/v30_cohorte_mobile.png",
+      "sha256": "7581d6dd79fa832c06e479748834e6d1044d99b05ef578d216d89dbf6c76cb7a"
+    },
+    {
+      "file": "docs/v30/v30_participante_desktop.png",
+      "sha256": "da748c9cfb0b838555ffdbabfa03875377a308311bd3048b77d3de6ff3625695"
+    },
+    {
+      "file": "docs/v30/v30_participante_mobile.png",
+      "sha256": "ef0295ddb1b48e2172e28dafd1b5b9618f02548603bf0e0777ca15f23c010a05"
+    },
+    {
+      "file": "docs/v32/v32_derivaciones_escritorio.png",
+      "sha256": "1e7cd975d1b255c8bff010fc76d719b488bef4065867855914d092fc4951fe89"
+    },
+    {
+      "file": "docs/v32/v32_derivaciones_movil.png",
+      "sha256": "aee83760df2c834e853b52689b85056c44b300b54efae518603879deb1d8fcac"
+    },
+    {
+      "file": "docs/v33/v33_inteligencia_escritorio.png",
+      "sha256": "3c09b725f9e524c775988128f8baee07354f7c6d7bc8998722e97b2421d87708"
+    },
+    {
+      "file": "docs/v33/v33_inteligencia_movil.png",
+      "sha256": "2df83d61e94e8a04529d4249969e7ab72196df01976a13d30bb86bd02b1d62e7"
+    },
+    {
+      "file": "docs/v34/v34_escritorio_1057.png",
+      "sha256": "a60e1bb96416712fa4e42d2a12c0df32bb6e659914f021f0b43a575c50d1ff04"
+    },
+    {
+      "file": "docs/v34/v34_visita_1057.png",
+      "sha256": "95409524d56ab2d76fa25d2829a188d9d6bffd3d68316a68ece4fb3271d02d92"
+    },
+    {
+      "file": "docs/v34/v34_visita_1440.png",
+      "sha256": "20655de88ec702c7b66005ce79fd78e350b1e658b64ceabe7dab99a146086405"
+    },
+    {
+      "file": "docs/v34/v34_visita_390.png",
+      "sha256": "5189ca4cc425b0af4996aa524ea3b9f8be3bdcbb2be1ea8a54cf12f178467a2f"
+    },
+    {
+      "file": "docs/v35/v35_cohorte_escritorio.png",
+      "sha256": "cc705c8c236a5b7faca1ef21ac2ff29d7eb81917e2392e859e8d5ec58baab11b"
+    },
+    {
+      "file": "docs/v35/v35_crd_escritorio.png",
+      "sha256": "38a615f1a228f9e1a5d246b8e1fb0e8d33712cc617d93778f34a6dad3df98cd3"
+    },
+    {
+      "file": "docs/v35/v35_evaluacion_escritorio.png",
+      "sha256": "ef469161eb261cce0e500b44989d9a98f45554883a86cfb5e7d1fc8baa396bea"
+    },
+    {
+      "file": "docs/v35/v35_evaluacion_movil.png",
+      "sha256": "e7b7c2dc58b6d44a2ef0008f9f596c537a6f833c591f799743d273a2241d22f8"
+    },
+    {
+      "file": "docs/v35/v35_evaluacion_portatil.png",
+      "sha256": "c83f813a6aace0de521010e0d7ad6b43b44d8af85c4c84dd5e49641804077852"
+    },
+    {
+      "file": "docs/v36/v36_analisis_desktop.png",
+      "sha256": "5675d3c7f83046f7c2a13d9aca2c5908711fe4713f946ac0478a2dbcb1b181e9"
+    },
+    {
+      "file": "docs/v36/v36_calidad_desktop.png",
+      "sha256": "3a2ab2c90103b18945536fdd7fa175433853ddfc49a4a7a662ffe9a8f765f350"
+    },
+    {
+      "file": "docs/v36/v36_calidad_mobile.png",
+      "sha256": "fb07abaf843c39790a8ad7d3d3fda97e210ea7befcfe9c2c69b7c8b566842dd4"
+    },
+    {
+      "file": "docs/v36/v36_cohorte_desktop.png",
+      "sha256": "b15a6198ac04b602654126c715ee44ed2b954ac386cc3d1a8c8e00a202bd9c23"
+    },
+    {
+      "file": "docs/v36/v36_cohorte_mobile.png",
+      "sha256": "910200dda3ee0a238aac2200068136e4545b2fa89e771747e121f798c620d8ab"
+    },
+    {
+      "file": "docs/v36/v36_completitud_desktop.png",
+      "sha256": "ce898249e3c21f976c6a21c54da77a04b900208d5bd8cb407794ac1b0e9d73f5"
+    },
+    {
+      "file": "docs/v36/v36_crd_desktop.png",
+      "sha256": "c787196546177666939aeee84f23a6cba000bec0f27f32e320c0ed0884232e9a"
+    },
+    {
+      "file": "docs/v36/v36_crd_mobile.png",
+      "sha256": "708d3d84b8dd4a50680b4ad0cd049d1c163fce2991658daceeaf22322095576e"
+    },
+    {
+      "file": "docs/v36/v36_estudio_desktop.png",
+      "sha256": "68a5fcf4c84737d15a73f6e36bc27480d87b56c145dca3182cf4cecf201bbadb"
+    },
+    {
+      "file": "docs/v36/v36_evaluacion_1057.png",
+      "sha256": "1e871e32c1321228ad9be1c11678971f19c01be0208d27bba68ad01934cb78bc"
+    },
+    {
+      "file": "docs/v36/v36_evaluacion_1440.png",
+      "sha256": "e167a862d4a23bcb692215deb4952226dd20ed5f9608d509afac3ad5cc343692"
+    },
+    {
+      "file": "docs/v36/v36_evaluacion_390.png",
+      "sha256": "08730c0a6c638582c4ac649fca225f8ac17a24d2a003243441157969b686255b"
+    },
+    {
+      "file": "docs/v36/v36_event_form_1440.png",
+      "sha256": "6e281c563db3543598aa4651ae4a2c41105bb4806e151d946f69df4b16e74baa"
+    },
+    {
+      "file": "docs/v36/v36_event_form_390.png",
+      "sha256": "2c9e8f34c4ee3c9caaa07f5cea6e6232ffa8ad734def14c5371ec82332f43907"
+    },
+    {
+      "file": "docs/v36/v36_eventos_desktop.png",
+      "sha256": "bf73b1f574ce0d6acd6457cadaa9cc7b9602ced10cf744cab3ac6da215ea3897"
+    },
+    {
+      "file": "docs/v36/v36_eventos_mobile.png",
+      "sha256": "414d988fa47ba81a6cb58087b6ada9d55148cdc5e9d32a0df06d412a9d3ad298"
+    },
+    {
+      "file": "docs/v36/v36_exportacion_desktop.png",
+      "sha256": "75fee92328350bf6d1604cb14150dfdac0b8e759625d427b15954eb349a4e1d2"
+    },
+    {
+      "file": "docs/v36/v36_flujo_desktop.png",
+      "sha256": "a7036e8def39a3fb6b47f0da9e8f79d052bc084d4b7f54df1b2576e48fcabf12"
+    },
+    {
+      "file": "docs/v36/v36_inicio_desktop.png",
+      "sha256": "b6c454720d0eb34b18a5f266bc058182ef17db541f1abab12cccd4443ccac5e4"
+    },
+    {
+      "file": "docs/v36/v36_inicio_mobile.png",
+      "sha256": "7c5d4dcf70a153cff209294a42fd8d4f5c3be447ed45338742fab89b9f60a324"
+    },
+    {
+      "file": "docs/v36/v36_participant_form_1440.png",
+      "sha256": "8495c17bad46afc0c2b1ea8ce4d74ffc6df8aad41293528e47a94496cc21cac1"
+    },
+    {
+      "file": "docs/v36/v36_participant_form_390.png",
+      "sha256": "98ca4636957bb4b3fadcdfbd206a3fd6c5b047b2ed8bb1b2b6b63b3c10045979"
+    },
+    {
+      "file": "docs/v36/v36_resultados_desktop.png",
+      "sha256": "a422d2217f52241b6c38eeaf0685d13b069831015e9982603e29f1e6481045c5"
+    },
+    {
+      "file": "docs/v36/v36_visitas_desktop.png",
+      "sha256": "e034b5ab3856c13384ff3b516f74d2e8575288731bee84a5b056e6669b53e96b"
+    },
+    {
+      "file": "docs/v37/v37_workflow_1440.png",
+      "sha256": "4942c1376321c9b2b14a3d386965b2257953ef200a8e56e5d5f5d1a10b751bf0"
+    },
+    {
+      "file": "docs/v37/v37_workflow_390.png",
+      "sha256": "35036c1a25ef6c525c2085e5ef87f54b1dc32453a95f34c1cd89fd05d3a5408f"
+    },
+    {
+      "file": "docs/v38/v38_red_admin_1440.png",
+      "sha256": "68e28aa0dd764309c008952e326dd6f4ec5823305e78e673973c5ba2c161026b"
+    },
+    {
+      "file": "docs/v38/v38_red_admin_390.png",
+      "sha256": "d867172fdc2389e8af9983836ff381ad7b0b1087ef12667cfd4bfc1c3446f5ca"
+    },
+    {
+      "file": "docs/v38/v38_red_centro_1440.png",
+      "sha256": "c2929217f51984684962e80151f055718fdc6db4bbce44a0432be191c0b72753"
+    },
+    {
+      "file": "docs/v38/v38_red_centro_390.png",
+      "sha256": "0fcf54f76991714483d925ab2f3059abfcd03279f1d76d4f60ffa666b678bdad"
+    },
+    {
+      "file": "docs/v39/v39_inteligencia_1057.png",
+      "sha256": "0f23ae92b8abb0dd5470ae0f0614ed1ad1b665323ede1fe3df28e098ad08f75c"
+    },
+    {
+      "file": "docs/v39/v39_inteligencia_1440.png",
+      "sha256": "c69e4c11ddfda1443677c55dcfbd98cc81100c56921f447b07cb077e52250b62"
+    },
+    {
+      "file": "docs/v39/v39_inteligencia_390.png",
+      "sha256": "abe82b1ca986f4f511c29312e968c60b4979f79fe6634e3e9ae9cf8110531625"
+    },
+    {
+      "file": "export_research.py",
+      "sha256": "99ff032299f8f6991f3c0539774e8e55fe42d3e58923f603bc973e5c1a319ff7"
+    },
+    {
+      "file": "journey_v28.py",
+      "sha256": "971fcdb813b850ea87288a08534ae3d386d6980209a6616c9b43313568b19ba2"
+    },
+    {
+      "file": "operational_v40.py",
+      "sha256": "ac4b34b560fb3d374f2fc71cfe922bb2b31f0607514eab94251397836bbfd6de"
+    },
+    {
+      "file": "phase12_analysis.py",
+      "sha256": "75bb580958eedca2c537c3005b9c3fb0409d633e4ada5f2aa4f22d95b9c40455"
+    },
+    {
+      "file": "phase13_outcomes.py",
+      "sha256": "b301ca438adf57178576a7589a3a2e28e389f644ab78075699ac4eb8d431fb71"
+    },
+    {
+      "file": "phase14_completion.py",
+      "sha256": "865f0b511dd9b45bd6e6085a9b1ac89319422bffbdf48df50a71a683caa166a8"
+    },
+    {
+      "file": "phase16_usability.py",
+      "sha256": "bc561fcb92fd5ff317986af6ba475ddd1794e7f4b784a83c7ddfb36da3add316"
+    },
+    {
+      "file": "phase18_reporting.py",
+      "sha256": "268b8f285478fd445f71001b0984ea9d2aca2135c0114c326cf73baaee2c6430"
+    },
+    {
+      "file": "plantilla_final_v27.xlsx",
+      "sha256": "a5c7b6c8ac1feb75122d07a65dcd7c7032d38f51f472ca9639eb9c019f932abf"
+    },
+    {
+      "file": "postgres_adapter_v41.py",
+      "sha256": "163e5d1c5a57871b020e5d2970ecfcba7053e83753c0066c8932584e2b9b3f62"
+    },
+    {
+      "file": "requirements-staging.txt",
+      "sha256": "7011b877035b5188d7175cf020dff69abd3c42f644a6df03d57c28414f28ff1a"
+    },
+    {
+      "file": "requirements-tested.txt",
+      "sha256": "55375e6a08c62b80b200b88b5f9b591ed6eb23b24e4399b656b92a363b90b4bd"
+    },
+    {
+      "file": "requirements.txt",
+      "sha256": "3ce07668767331e4e760c36d0e54e7bd16211eeb72487a2386cb2bc219d89c4f"
+    },
+    {
+      "file": "research_intelligence_v39.py",
+      "sha256": "c5d464ad364dc6e9d6cc35fac05d15f6fcd90d613a08f851a67d71bb3b65b245"
+    },
+    {
+      "file": "scientific_preflight.py",
+      "sha256": "e981a3035af08a69357df4bbd4968e267d743edb0b3f23147efaa1b1896c42a4"
+    },
+    {
+      "file": "scripts/phase5_readonly_audit.py",
+      "sha256": "a58fbb0b8a9b0692ed2530bd27546c55c74d939fbb18aff971dc539fb161b41f"
+    },
+    {
+      "file": "scripts/render_acceptance_dossier.py",
+      "sha256": "82422ec4a22af73eb26ea2f4410aff7355d2172cdcf95c04b10a8a426193701a"
+    },
+    {
+      "file": "scripts/v40_regression.py",
+      "sha256": "cc9624779e9a133f1f23a6784b32c6603a340b9cd213ee800b29c00dcf3db2dd"
+    },
+    {
+      "file": "server.py",
+      "sha256": "f2a550bf9cd191cc1b098b7d318b1221f204742be66ad3d3c74e684a4f5398be"
+    },
+    {
+      "file": "server.py.v31_reference",
+      "sha256": "87fcf8d82cc720f4516d73db0ab96ae59394339ba7652fa0d43523d5f95f5806"
+    },
+    {
+      "file": "start_local.py",
+      "sha256": "52245f96b13ae027f0917fbf5de54d3c5590b5e70590f53da0ceb9c27bf119ea"
+    },
+    {
+      "file": "static/DESIGN_SYSTEM_V35.css",
+      "sha256": "92a8d9b01a8996a2ea55d0f54f2ca3d39bcf12d05ec49d9ccccc404c803d9f72"
+    },
+    {
+      "file": "static/DESIGN_SYSTEM_V36.css",
+      "sha256": "f3a322877eebac863cde9ade6e9252181bf61210c0acbe718673217b65b0b2b9"
+    },
+    {
+      "file": "static/DESIGN_SYSTEM_V37.css",
+      "sha256": "a3b1ed248a2f30c1d7f9d7cd1409d0c461b6d88778f8ae0c792fff1f23067d90"
+    },
+    {
+      "file": "static/index.html",
+      "sha256": "27f2c65066244cbc46a5ff2b0a5cd790cb8d8cf0255b983b665d0a1cee9e702d"
+    },
+    {
+      "file": "static/index.html.v31_reference",
+      "sha256": "ef0994fb3a1d20295739bebb9ed4062c7a08ea5dc829d0c69a60df0b59b32835"
+    },
+    {
+      "file": "study_module.py",
+      "sha256": "01b276cccdf3cb7f5c26ef1051ffbefc5b25741badf4376a32130deccdc6aef4"
+    },
+    {
+      "file": "study_spec_v09.json",
+      "sha256": "81c4d2136d4318df14f1118802fe5885b1fd23c21e818e9b5038b53cbf96182f"
+    },
+    {
+      "file": "synthetic_v32_fixtures.py",
+      "sha256": "37c898c51214d383ff938054b64bb9d709fa793eb7386cede0fb2e4ef054f75d"
+    },
+    {
+      "file": "tests/browser_phase14_acceptance.py",
+      "sha256": "21fb2f67045557d6d5fc9dd0768cada4f0f5e7de3e19368f9963f8ca4f525b35"
+    },
+    {
+      "file": "tests/browser_phase15_acceptance.py",
+      "sha256": "3f6e8821022af2901e11fbcc71b5ee257cf8c7c61bb737cedddd3ed919478ab4"
+    },
+    {
+      "file": "tests/browser_phase16_worklist.py",
+      "sha256": "d2645e106fe66914f5648dcc3ac836e6cf03006ecb6fca274372f4e054d48924"
+    },
+    {
+      "file": "tests/browser_phase17_usability.py",
+      "sha256": "4996054ced5850bf68d08212558d30f060047c7a86230a2a997e855d6ec04f5a"
+    },
+    {
+      "file": "tests/browser_phase18_reporting.py",
+      "sha256": "6dd0afad323b9b96db4561d1f4c81d79626696efb3acfae185f283c8bf034759"
+    },
+    {
+      "file": "tests/browser_phase19_acceptance.py",
+      "sha256": "8c9da337d11f37505a6859bbc10c73ed80dcd9ea9c823db5a4dd8dbd6dda6dbd"
+    },
+    {
+      "file": "tests/browser_phase19_usabilidad.py",
+      "sha256": "83366b541627f8cc5820208bd22658ed61347a57f8f3d8ab27be0da3dc22a69a"
+    },
+    {
+      "file": "tests/browser_phase20_crd.py",
+      "sha256": "92108a86ef953f522ff5b0167e4d17148e76dcfa2ee79664a5ec9e26d1a48882"
+    },
+    {
+      "file": "tests/browser_phase21_events.py",
+      "sha256": "dee6d50f848f48e75e2ccf3c8e0394a0cbc1f05786cabfd517f0d3b6a53c9ee2"
+    },
+    {
+      "file": "tests/browser_phase22_care.py",
+      "sha256": "b97e44cf19b3350ba31c40c0d6774dfcddfcde8cd965fc8f04affb9490935135"
+    },
+    {
+      "file": "tests/browser_phase23_sidebar.py",
+      "sha256": "917a2e3b7d46e93cc7e9c5a0a6b488e294aa3aa6480f42e19cebf12dabe01d34"
+    },
+    {
+      "file": "tests/browser_phase24_workspace.py",
+      "sha256": "63dc95fc9844fac79d42153f6d29a261d80493464e059bdf8adfaba640e002ba"
+    },
+    {
+      "file": "tests/browser_phase25_clinical_workspace.py",
+      "sha256": "cab67d1b7c9615682c46523bf71c531278b56cad2cda86d1d1854b3b72647733"
+    },
+    {
+      "file": "tests/browser_phase26_crd_connected.py",
+      "sha256": "8c86805e7d73e578076339588056c7b465f544423cb10b7938cbf975a842d065"
+    },
+    {
+      "file": "tests/browser_phase27_concordance.py",
+      "sha256": "67049f9316db3c22713f4624c1d09cca7580900ee5c9145eb2d480eecfd1e1d2"
+    },
+    {
+      "file": "tests/browser_phase28_journey.py",
+      "sha256": "a7050ff336d41b4be6922a7d606aa0acb304e63694e81a027c5c487c8875db9d"
+    },
+    {
+      "file": "tests/browser_phase30_premium.py",
+      "sha256": "9d906d834aa688a15c8fdde2c1d28096e17170e163179ce350f4e9ecd5b49860"
+    },
+    {
+      "file": "tests/browser_phase32_intelligent_capture.py",
+      "sha256": "f4d31187ce8e798acba3df41a307d1e984bcef9402eaf710adaf660517201ecb"
+    },
+    {
+      "file": "tests/browser_phase33_workflow_intelligence.py",
+      "sha256": "8342aa4df1527e30b6171f9df10299aef4bee8046acfa6e70a2b7177b5b1de9e"
+    },
+    {
+      "file": "tests/browser_phase34_proportions.py",
+      "sha256": "2483b0e994407937f2a3fcedc4dd34eec9c0e82cd91820f84b01e188f282c703"
+    },
+    {
+      "file": "tests/browser_phase35_design.py",
+      "sha256": "49c11d5900204d9ba5cc6b15e5ac1caf433d26e9c068bc8f440e5a60b5205dfd"
+    },
+    {
+      "file": "tests/browser_phase36_system.py",
+      "sha256": "b3959d260627ac53ea2a4b268bb13d4575963b38b4af9752188ac5cfcc7f1941"
+    },
+    {
+      "file": "tests/browser_phase37_workflow.py",
+      "sha256": "8df17914acdbca6a357bb959ae3a6c09efef205671ab393802d114cd930c8d1e"
+    },
+    {
+      "file": "tests/browser_phase38_collaboration.py",
+      "sha256": "aea535101ebc36dc5301dbf1fbea6f42694ae1458e2620ef41a90ff4347ddf0b"
+    },
+    {
+      "file": "tests/browser_phase39_intelligence.py",
+      "sha256": "301cabad3c39916b0a9f50987875c5a0bf3336ae968570b7a9ba1458d566640e"
+    },
+    {
+      "file": "tests/test_audit_v07.py",
+      "sha256": "906147352f0b3b30ff76b01714edd6ced4ebb610f6dbae063876c762a3ca0fb0"
+    },
+    {
+      "file": "tests/test_clinical_review_v10.py",
+      "sha256": "5d3975acdc8ec83627f04d2b454a80d01def029e70436bb90aa2107b00ed5d1d"
+    },
+    {
+      "file": "tests/test_crd_workflow_v11.py",
+      "sha256": "da47b4bc4c1680a51e1410e09366b21004f30056d7a932d8847265bdc7acba3e"
+    },
+    {
+      "file": "tests/test_export.py",
+      "sha256": "4c20243b7b01358bbcdd7560c1fda2851cc24526710ff141dba0f1ec3ce28497"
+    },
+    {
+      "file": "tests/test_phase12_scientific_readiness.py",
+      "sha256": "550e2d4a50f2fce71405c22bc28e4c38adbc7cc26ce684e253d19103e130a1f6"
+    },
+    {
+      "file": "tests/test_phase13_outcomes.py",
+      "sha256": "cf3a4119332162bd8f7d02865e9c8fe28c273d788003abf0a69e55d45378649d"
+    },
+    {
+      "file": "tests/test_phase14_completion.py",
+      "sha256": "c90230b08169d10f123b3a09c32840342fff22d9f87304f2374d8c6adaa87920"
+    },
+    {
+      "file": "tests/test_phase15_acceptance.py",
+      "sha256": "d62cd8eb3fef6e8b7d3786152760eed14e2dc164410f25a3e188eaf49590fed0"
+    },
+    {
+      "file": "tests/test_phase16_usability.py",
+      "sha256": "879dc895479908e47e4bc79598dd82bc13daffc4944d06913ba1a8b30e6e640c"
+    },
+    {
+      "file": "tests/test_phase18_reporting.py",
+      "sha256": "c9d46b5342f50fea04ad4b0faa5d454f9694676d07c25d5ff1a5cde5d18e6ae7"
+    },
+    {
+      "file": "tests/test_phase19_release.py",
+      "sha256": "8333b781d85ca69f946bfdb690d1ea7ad2ef723e374c1732d499c8217ccd2b0a"
+    },
+    {
+      "file": "tests/test_phase20_crd_alignment.py",
+      "sha256": "630ac790026928833a6fe9019c8318156cbaa4cbc4bc3e805d87197ced920e13"
+    },
+    {
+      "file": "tests/test_phase21_episodes_actions.py",
+      "sha256": "48a8c1f7f77fbb2d5cd19cfb4b7fe3031ed57df83ee2c2f1ba311c979492a88d"
+    },
+    {
+      "file": "tests/test_phase22_episode_care.py",
+      "sha256": "8bb25c36b0000fc2e75a03101753abeb1afca14395a6d765842d4fa164d839dd"
+    },
+    {
+      "file": "tests/test_phase27_concordance.py",
+      "sha256": "d1fac753b5d7537ddc78246626b560029f949e2823cc887e7a875484c3f621f4"
+    },
+    {
+      "file": "tests/test_phase28_journey.py",
+      "sha256": "0e84b82731c3d68469d73c433b6020d85d3ab39b3a95294731a3adcf7373d0f1"
+    },
+    {
+      "file": "tests/test_phase29_reliability.py",
+      "sha256": "ffdb6ef019e7f01b6c72a9852175f452c3afef2276edd0a9ce8a876c510ca246"
+    },
+    {
+      "file": "tests/test_phase31_scientific_uat.py",
+      "sha256": "28f8d518bd4592662c748cd72f90bf06ec2de287eeb0876e8d252f47f5ae14ef"
+    },
+    {
+      "file": "tests/test_phase32_intelligent_capture.py",
+      "sha256": "c0532c98331edc8a65940f4910d3eb0f1286c9f60c488d8781c4837a34e9f0e8"
+    },
+    {
+      "file": "tests/test_phase33_workflow_intelligence.py",
+      "sha256": "5df3f6ce4ec5014dc81c91a75eaf563cf5ebea858d8f1c6d44be2b1edb07f1a6"
+    },
+    {
+      "file": "tests/test_phase38_multicentre.py",
+      "sha256": "28599cbf55de29abb90b481497cd1824ae6c167046edcf7bb812e1e3d50797ac"
+    },
+    {
+      "file": "tests/test_phase39_intelligence.py",
+      "sha256": "e1d6f6d0c5dc95b1944e73bb70d4dbcc18c479adcf7d9aa2341a82e8a7d28e4b"
+    },
+    {
+      "file": "tests/test_phase40_operations.py",
+      "sha256": "8ccfe03e080e1b8b28594e18618db4ff7ccfeb3baa9ddc91bc9a9cc4b511e096"
+    },
+    {
+      "file": "tests/test_phase41_postgres_adapter.py",
+      "sha256": "4c6d86dae11b3554082e2f9318f89cc0ee98388a831f41d959238518ff0d7454"
+    },
+    {
+      "file": "tests/test_pilot.py",
+      "sha256": "99f0f8cd95cec5ac635d020667b2bd5a1f08066015b23059cf21f9559adb7fbd"
+    },
+    {
+      "file": "tests/test_portability_v08.py",
+      "sha256": "27f918a5639d0940f8f8896c68dce0f025efa9d0153e6e1d0192df7bfd2adf29"
+    },
+    {
+      "file": "tests/test_study_v09.py",
+      "sha256": "54ae66d8b88e98de10eab54f9d663e2dd0f036e802a1a75bf21cd18820c6fd78"
+    }
+  ]
+}

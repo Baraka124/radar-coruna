@@ -1,0 +1,50 @@
+PYTHON
+........................................................................ [ 80%]
+..................                                                       [100%]
+90 passed in 96.07s (0:01:36)
+
+NAVEGADOR
+--- tests/browser_phase20_crd.py ---
+PASS: RADAR v0.20 synthetic CRD baseline/treatment/IANUS UI and persistence
+RESULT OK tests/browser_phase20_crd.py
+--- tests/browser_phase21_events.py ---
+PASS browser v0.21: episode R074, linked emergency, discharge, clinical actions
+Task exception was never retrieved
+future: <Task finished name='Task-104' coro=<Channel.send() done, defined at /opt/pyvenv/lib/python3.13/site-packages/playwright/_impl/_connection.py:61> exception=TargetClosedError('Channel.send: Target page, context or browser has been closed')>
+Traceback (most recent call last):
+  File "/opt/pyvenv/lib/python3.13/site-packages/playwright/_impl/_connection.py", line 69, in send
+    return await self._connection.wrap_api_call(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "/opt/pyvenv/lib/python3.13/site-packages/playwright/_impl/_connection.py", line 559, in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+playwright._impl._errors.TargetClosedError: Channel.send: Target page, context or browser has been closed
+RESULT OK tests/browser_phase21_events.py
+--- tests/browser_phase22_care.py ---
+PASS browser v0.22: R081/R082, contact reconciliation, legacy action notice; screenshot /mnt/data/RADAR_CORUNA_v22_R081_R082.png
+RESULT OK tests/browser_phase22_care.py
+--- tests/browser_phase23_sidebar.py ---
+desktop sidebar: pass; width 252 => 74
+mobile drawer: pass
+RESULT OK tests/browser_phase23_sidebar.py
+--- tests/browser_phase24_workspace.py ---
+desktop: overview, cohort filter/reset, visits, analysis PASS
+mobile: drawer, cohort filters, no horizontal page overflow PASS
+RESULT OK tests/browser_phase24_workspace.py
+--- tests/browser_phase25_clinical_workspace.py ---
+PASS: desktop registration, section jumps, saved V0, treatment, edit-return context; mobile section navigation; no browser errors
+RESULT OK tests/browser_phase25_clinical_workspace.py
+--- tests/browser_phase26_crd_connected.py ---
+PASS v26: draft across V0/V1, section navigation, corrections, context, mobile 390px, no JS errors
+RESULT OK tests/browser_phase26_crd_connected.py
+--- tests/browser_phase27_concordance.py ---
+PASS browser v27: inclusion, birth date, consent, comorbidities, vaccinations, visit evaluator, concordance, mobile
+RESULT OK tests/browser_phase27_concordance.py
+--- tests/browser_phase28_journey.py ---
+Desktop + mobile longitudinal review: PASS
+RESULT OK tests/browser_phase28_journey.py
+--- tests/browser_phase30_premium.py ---
+Phase 4 responsive acceptance PASS · 5 widths, 6 routes, form & mobile menu
+RESULT OK tests/browser_phase30_premium.py

@@ -1,0 +1,25 @@
+v0.33 isolated-file Python regression: 122 passed across 23 files; 0 failing files.
+
+test_audit_v07.py: PASS ....                                                                     [100%] | 4 passed in 17.45s
+test_clinical_review_v10.py: PASS ......                                                                   [100%] | 6 passed in 11.90s
+test_crd_workflow_v11.py: PASS .....                                                                    [100%] | 5 passed in 10.08s
+test_export.py: PASS ...                                                                      [100%] | 3 passed in 9.76s
+test_phase12_scientific_readiness.py: PASS .....                                                                    [100%] | 5 passed in 12.97s
+test_phase13_outcomes.py: PASS ......                                                                   [100%] | 6 passed in 18.10s
+test_phase14_completion.py: PASS ........                                                                 [100%] | 8 passed in 16.85s
+test_phase15_acceptance.py: PASS .                                                                        [100%] | 1 passed in 5.18s
+test_phase16_usability.py: PASS ....                                                                     [100%] | 4 passed in 3.75s
+test_phase18_reporting.py: PASS ......                                                                   [100%] | 6 passed in 4.42s
+test_phase19_release.py: PASS ..                                                                       [100%] | 2 passed in 4.69s
+test_phase20_crd_alignment.py: PASS ...                                                                      [100%] | 3 passed in 4.76s
+test_phase21_episodes_actions.py: PASS ...                                                                      [100%] | 3 passed in 6.09s
+test_phase22_episode_care.py: PASS .....                                                                    [100%] | 5 passed in 14.34s
+test_phase27_concordance.py: PASS ...                                                                      [100%] | 3 passed in 7.26s
+test_phase28_journey.py: PASS ..                                                                       [100%] | 2 passed in 6.49s
+test_phase29_reliability.py: PASS .....                                                                    [100%] | 5 passed in 14.55s
+test_phase31_scientific_uat.py: PASS ........                                                                 [100%] | 8 passed in 17.46s
+test_phase32_intelligent_capture.py: PASS ..............                                                           [100%] | 14 passed in 30.44s
+test_phase33_workflow_intelligence.py: PASS ..........                                                               [100%] | 10 passed in 7.20s
+test_pilot.py: PASS .........                                                                [100%] | 9 passed in 15.53s
+test_portability_v08.py: PASS .....                                                                    [100%] | 5 passed in 10.13s
+test_study_v09.py: PASS .....                                                                    [100%] | 5 passed in 10.15s

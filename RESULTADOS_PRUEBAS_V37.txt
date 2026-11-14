@@ -1,0 +1,8 @@
+RADAR-CORUÑA v0.37 · Resultados verificables · 12/11/2026
+
+PYTHON DIRIGIDO: 42 passed (6 archivos; 10.75 s en última ejecución)
+NAVEGADOR v0.37: PASS 320/390/768/1057/1440 (continuidad, referencia, reutilización confirmada, campos pendientes, bloqueo de salida, guardado y CRD)
+NAVEGADOR v0.33: PASS 320/390/768/1024/1440 (flujos previos, derivaciones, condicionales y persistencia)
+NAVEGADOR v0.36: PASS 12 rutas × 5 tamaños; guardado V1; menús móviles; sin errores JS ni desbordamiento de página
+PYTHON HISTÓRICO ADICIONAL: los primeros 9 archivos terminaron correctamente; la ejecución posterior se atascó y se interrumpió. NO equivale a certificación integral.
+ENTORNO: local, ficticio; no producción ni validación de carga multicentro.

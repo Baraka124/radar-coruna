@@ -1,0 +1,41 @@
+/* RADAR-CORUÑA v0.37 · continuity without visual inflation */
+.workflow-ribbon{border:1px solid #e1e9f4;border-radius:10px;background:#fff;margin:0 0 17px;padding:13px 16px 12px;box-shadow:0 1px 3px rgba(29,63,100,.035)}
+.workflow-ribbon-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
+.workflow-identity{display:flex;align-items:baseline;flex-wrap:wrap;gap:8px;min-width:0}
+.workflow-identity>span{color:#8b9ab0;font-size:9px;font-weight:730;letter-spacing:.105em}
+.workflow-identity strong{color:#254a75;font-size:14px;letter-spacing:-.03em;overflow-wrap:anywhere}
+.workflow-identity small{font-size:10.5px;color:#8295a9}
+.workflow-patient-state{font-size:10px;color:#476a95;font-weight:650;white-space:nowrap}
+.workflow-ribbon-content{display:flex;gap:14px;align-items:stretch;justify-content:space-between;min-width:0}
+.workflow-ribbon-stages{display:flex;gap:5px;flex:0 1 auto;min-width:0;align-items:stretch}
+.workflow-stage{min-width:98px;max-width:146px;border:1px solid #e6ecf4;border-radius:6px;background:#fafbfd;padding:7px 11px;text-align:left;display:flex;flex-direction:column;gap:1px;color:#6d829b;cursor:pointer}
+.workflow-stage b{font-size:11px;color:#2a507c}
+.workflow-stage span{font-size:9.5px;line-height:1.35}
+.workflow-stage.current{background:#eef4fd;border-color:#b9d0ef;box-shadow:inset 2px 0 #6e99d3}
+.workflow-stage.recorded:not(.current){background:#fff}
+.workflow-stage:hover:not(:disabled){border-color:#9cbce4;background:#f5f9fe}
+.workflow-stage:disabled{opacity:.56;cursor:default}
+.workflow-reference{display:flex;flex-direction:column;justify-content:center;gap:3px;min-width:0;max-width:470px;color:#697f98}
+.workflow-reference strong{font-size:10.5px;color:#2b507d}
+.workflow-reference span{font-size:10.5px;line-height:1.35}
+.workflow-reference small{font-size:9.7px;color:#8091a6;line-height:1.4}
+.workflow-ribbon-actions{display:flex;align-items:center;justify-content:flex-end;gap:7px;margin-top:10px;border-top:1px solid #f0f3f7;padding-top:10px}
+.completion-field-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.completion-field-link{padding:4px 8px;min-height:27px;border:1px solid #d5e2f0;border-radius:6px;background:#fff;color:#325d93;font:inherit;font-size:11px;cursor:pointer;text-align:left}
+.completion-field-link:hover{background:#edf4fc;border-color:#aec8e8}
+.completion-field-link:focus-visible,.workflow-stage:focus-visible{outline:2px solid #5b87bf;outline-offset:2px}
+.completion-context{font-size:10px;color:#8699ac;margin-top:9px;line-height:1.45}
+@media(max-width:1180px){.workflow-ribbon-content{flex-direction:column;gap:9px}.workflow-reference{max-width:none}.workflow-ribbon-stages{flex-wrap:wrap}}
+@media(max-width:650px){.workflow-ribbon{padding:11px 12px;margin-bottom:13px}.workflow-ribbon-top{align-items:flex-start;gap:7px}.workflow-identity{gap:5px}.workflow-ribbon-stages{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:100%;gap:5px}.workflow-stage{min-width:0;max-width:none;padding:7px 8px;overflow-wrap:anywhere}.workflow-patient-state{font-size:9.7px}.workflow-reference small{font-size:9.5px}.workflow-ribbon-actions{justify-content:flex-start;flex-wrap:wrap}.completion-field-link{font-size:10.5px}}
+@media(prefers-reduced-motion:reduce){.workflow-stage,.completion-field-link{transition:none}}
+
+/* Information first, contextual actions in the trailing rail, without a second full-width toolbar. */
+@media(min-width:1181px){
+ .workflow-ribbon{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:15px;padding-bottom:11px}
+ .workflow-ribbon-top{grid-column:1/-1;margin-bottom:9px}
+ .workflow-ribbon-content{grid-column:1;gap:22px;justify-content:flex-start;align-items:center}
+ .workflow-reference{flex:0 1 440px}
+ .workflow-ribbon-actions{grid-column:2;align-self:end;margin:0;padding:0;border:0}
+}
+.workflow-table-next{margin-left:8px;font-weight:600}
+@media(max-width:650px){.workflow-table-next{margin-left:4px}}
