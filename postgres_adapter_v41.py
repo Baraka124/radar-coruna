@@ -161,7 +161,12 @@ def connect_postgres():
     validate_database_target(url, os.environ.get('RADAR_EXPECTED_PROJECT_REF', '').strip())
     if os.getenv('RADAR_SEED_DEMO') == '1':
         raise RuntimeError('No se permite RADAR_SEED_DEMO con PostgreSQL remoto')
-    with psycopg.connect(url, row_factory=dict_row, connect_timeout=10) as native:
+    # Pin the downloaded Supabase root CA explicitly for strict TLS verification.
+    # This is public verification material installed at Docker build time.
+    trusted_ca='/usr/local/share/ca-certificates/supabase-root-2021.crt'
+    if not os.path.isfile(trusted_ca):
+        raise RuntimeError('Falta el certificado raíz público de Supabase')
+    with psycopg.connect(url, sslrootcert=trusted_ca, row_factory=dict_row, connect_timeout=10) as native:
         # Search_path is fixed, never supplied by a browser or other request.
         with native.transaction():
             native.execute('SET LOCAL search_path TO radar, pg_catalog')
