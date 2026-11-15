@@ -68,7 +68,7 @@ def main():
    assert c.post('/api/centres',headers=csrf(),
       json={'code':'GAL_WHITE51','name':'Centro de prueba visual'}).status_code==201
    assert c.post('/api/patients',headers=csrf(),
-      json={'id':'SIM-WHITE51','center':'GAL_WHITE51','status':'incluido'}).status_code==201
+      json={'id':'SIM-WHITE51','center':'GAL_WHITE51','status':'cribado'}).status_code==201
    with sync_playwright() as pw:
     browser=pw.chromium.launch(headless=True,args=['--no-sandbox','--disable-dev-shm-usage'])
     for width in (320,390,768,1024,1440):
