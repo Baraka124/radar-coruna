@@ -124,6 +124,11 @@ def main():
      page.locator('[data-action="discardpatient"]').click()
      click_route(page,'crd',mobile)
      page.locator('#studyForm').wait_for()
+     # The connected CRD already has its own participant and V0-V2 selector.
+     # It must not repeat the workflow ribbon or top-level Ficha link.
+     assert page.locator('#root .workflow-ribbon').count()==0
+     assert page.locator('#root .module-firstfold [data-action="detail"]').count()==0
+     assert page.locator('#root .crd-context-links [data-action="detail"]').count()==1
      check_actions(page,width,'crd')
      nav=page.locator('#crdSectionNav .crd-section-tab')
      assert nav.count()>1
