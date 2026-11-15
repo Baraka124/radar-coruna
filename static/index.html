@@ -2752,6 +2752,26 @@ body.signed-in .main{box-shadow:none}
  }
 }
 
+
+/* v0.51 visual review: preserve the approved one-line overview heading
+   on wide screens while keeping the mobile stacked layout intact. */
+@media(min-width:1150px){
+ #root[data-view="inicio"] .overview-firstfold{
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr)
+ }
+ #root[data-view="inicio"] .overview-intro .head h1{
+  font-size:clamp(29px,2.25vw,33px)!important
+ }
+}
+#root[data-view="inicio"] .overview-firstfold .metric{
+ background:#fff!important
+}
+@media(max-width:690px){
+ #root[data-view="participante"] #patientForm .clinical-block-hint{
+  display:none!important
+ }
+}
+
 </style>
 </head>
 <body>
@@ -3616,7 +3636,9 @@ function makeClinicalSections(formId){
       strip.append(jump);
       return jump;
    });
+   const selectedSection={index:0};
    const select=(i)=>{
+      selectedSection.index=i;
       buttons.forEach((b,j)=>{b.classList.toggle('active',i===j);if(i===j)b.setAttribute('aria-current','location');else b.removeAttribute('aria-current')});
       status.textContent=(i+1)+' / '+sections.length;
    };
@@ -3625,7 +3647,18 @@ function makeClinicalSections(formId){
       const i=Number(jump.dataset.section),block=sections[i];if(formId==='patientForm')sections.forEach((node,j)=>{if(j!==i)node.open=false});block.open=true;select(i);
       block.scrollIntoView({behavior:'smooth',block:'start'});
    });
-   sections.forEach((block,i)=>block.addEventListener('toggle',()=>{if(block.open&&document.activeElement===block.querySelector('summary')){if(formId==='patientForm')sections.forEach((node,j)=>{if(j!==i)node.open=false});select(i)}}));
+   sections.forEach((block,i)=>{
+     const summary=block.querySelector('summary');
+     summary.addEventListener('click',()=>{if(formId==='patientForm')selectedSection.index=i});
+     block.addEventListener('toggle',()=>{
+       if(!block.open)return;
+       if(formId==='patientForm'){
+         if(selectedSection.index!==i)return;
+         sections.forEach((other,j)=>{if(j!==i)other.open=false});
+       }else if(document.activeElement!==summary)return;
+       select(i);
+     });
+   });
    select(0);nav.append(strip,status);form.querySelector('.panelhead').after(nav);
  }
  if(formId==='visitForm'){
