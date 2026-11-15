@@ -135,6 +135,7 @@ def test_orphaned_legacy_invitation_is_visible_but_not_usable(app_client):
     collaboration=app_client.get('/api/collaboration').json()
     row=next(x for x in collaboration['invitations'] if x['id']==inv_id)
     assert row['status']=='centro_no_registrado'
+    assert register(app_client,auth,'SIM-OLD01','Centro pendiente de validación').status_code==409
     rejected=app_client.post('/api/collaboration/accept',
         json={'token':token,'username':'legacy.med','password':'Otra-Sintetica-2026'})
     assert rejected.status_code==410
