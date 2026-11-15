@@ -44,11 +44,7 @@ LOCK = threading.RLock()
 PH = PasswordHasher()
 SESSION_HOURS = 8
 CODE = re.compile(r'^SIM-[A-Za-z0-9_-]{1,20}$')
-CENTRES = [
-    {'code': 'SIM-CS01', 'name': 'Centro ficticio Costa'},
-    {'code': 'SIM-CS02', 'name': 'Centro ficticio Interior'},
-    {'code': 'SIM-CS03', 'name': 'Centro ficticio Urbano'},
-]
+CENTRE_CODE = re.compile(r'^[A-Z][A-Z0-9_-]{2,23}$')
 YESNO = Literal['', 'si', 'no', 'nc']
 DATE = re.compile(r'^\d{4}-\d{2}-\d{2}$')
 
@@ -72,7 +68,7 @@ class Strict(BaseModel):
 
 class Patient(Strict):
     id: str
-    center: Literal['SIM-CS01', 'SIM-CS02', 'SIM-CS03']
+    center: str = Field(min_length=3,max_length=24,pattern=r'^[A-Z][A-Z0-9_-]{2,23}$')
     age: int | None = Field(None, ge=0, le=110)  # legacy; derived from birthDate when supplied
     birthDate: str = ''  # date-of-birth only for fictitious patients; age is derived at V0
     sex: Literal['', 'hombre', 'mujer', 'otro', 'nc'] = ''
@@ -471,6 +467,9 @@ def init_db():
     load_runtime(DB_FILE)  # Fail closed BEFORE creating or migrating any database.
     with conn() as c:
         c.executescript('''
+        CREATE TABLE IF NOT EXISTS centres(
+          code TEXT PRIMARY KEY, name TEXT NOT NULL, active INTEGER NOT NULL DEFAULT 1,
+          created_at TEXT NOT NULL, updated_at TEXT NOT NULL, created_by TEXT NOT NULL);
         CREATE TABLE IF NOT EXISTS users(id INTEGER PRIMARY KEY, username TEXT UNIQUE NOT NULL, pw_hash TEXT NOT NULL, role TEXT NOT NULL, centre TEXT);
         CREATE TABLE IF NOT EXISTS invitations(
           id INTEGER PRIMARY KEY AUTOINCREMENT, token_hash TEXT NOT NULL UNIQUE,
@@ -520,6 +519,16 @@ def init_db():
             if col not in columns:
                 c.execute(f'ALTER TABLE audit ADD COLUMN {col} {typ}')
         runtime = load_runtime(DB_FILE)
+        if not runtime.remote and os.getenv('RADAR_SEED_DEMO') == '1':
+            # Test fixtures remain exclusively in isolated local sessions.
+            for code, name in (
+                ('SIM-CS01', 'Centro ficticio Costa'),
+                ('SIM-CS02', 'Centro ficticio Interior'),
+                ('SIM-CS03', 'Centro ficticio Urbano'),
+            ):
+                if not c.execute('SELECT 1 FROM centres WHERE code=?',(code,)).fetchone():
+                    c.execute('INSERT INTO centres(code,name,active,created_at,updated_at,created_by) VALUES (?,?,?,?,?,?)',
+                              (code,name,True,now(),now(),'local_fixture'))
         if runtime.remote:
             # Refuse to expose the well-known local demonstration accounts to a public endpoint.
             for username, demo_pw in [('admin','radar-demo-admin'),('costa','radar-demo-costa'),
@@ -886,7 +895,7 @@ USERNAME_PATTERN = re.compile(r'^[a-z][a-z0-9._-]{3,31}$')
 
 
 class InvitationCreate(Strict):
-    centre: Literal['SIM-CS01', 'SIM-CS02', 'SIM-CS03']
+    centre: str = Field(min_length=3,max_length=24,pattern=r'^[A-Z][A-Z0-9_-]{2,23}$')
     role: Literal['investigator', 'reviewer']
     label: str = Field('', max_length=60)
 
@@ -906,6 +915,32 @@ class InvitationAccept(Strict):
 
 class AccountActivation(Strict):
     active: bool
+
+
+class CentreCreate(Strict):
+    code: str = Field(min_length=3,max_length=24,pattern=r'^[A-Z][A-Z0-9_-]{2,23}$')
+    name: str = Field(min_length=3,max_length=100)
+
+
+class CentreUpdate(Strict):
+    name: str | None = Field(None,min_length=3,max_length=100)
+    active: bool | None = None
+
+
+def centre_rows(c,user=None,*,include_inactive=False):
+    where='' if include_inactive else ' WHERE active=1'
+    rows=c.execute('SELECT code,name,active FROM centres'+where+' ORDER BY name,code').fetchall()
+    return [{'code':r['code'],'name':r['name'],'active':bool(r['active'])}
+            for r in rows if user is None or user['centre'] is None or r['code']==user['centre']]
+
+
+def require_active_centre(c,centre):
+    if not CENTRE_CODE.fullmatch(centre):
+        failure(422,'Código de centro incorrecto')
+    item=c.execute('SELECT active FROM centres WHERE code=?',(centre,)).fetchone()
+    if not item or not item['active']:
+        failure(422,'El centro no está registrado o no está activo')
+    return item
 
 
 def admin_only(user):
