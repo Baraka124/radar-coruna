@@ -1,0 +1,50 @@
+name: RADAR v0.47 universal layout and clinical-openings
+on:
+  push:
+    branches:
+      - ui/global-firstfold-v047-20261115
+  pull_request:
+    paths:
+      - 'static/index.html'
+      - 'tests/browser_global_firstfold_v47.py'
+      - '.github/workflows/global-firstfold.yml'
+permissions:
+  contents: read
+jobs:
+  universal-firstfold:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Python and browser test dependencies
+        run: |
+          python -m pip install -r requirements.txt
+          python -m pip install playwright
+          python -m playwright install --with-deps chromium
+      - name: Check all frontend script syntax
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          html=Path('static/index.html').read_text(encoding='utf-8')
+          js=html.rsplit('<script>',1)[1].split('</script>',1)[0]
+          Path('/tmp/radar-global-v47.js').write_text(js,encoding='utf-8')
+          PY
+          node --check /tmp/radar-global-v47.js
+      - name: Full Python regression
+        run: python -m pytest -q tests/test_*.py
+      - name: Five-width browser test of all 12 modules and editors
+        env:
+          RADAR_MODE: local_demo
+          RADAR_STORAGE: sqlite
+        run: python tests/browser_global_firstfold_v47.py
+      - name: Save synthetic browser captures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: radar-global-firstfold-v47
+          path: docs/v47/*.png
+          retention-days: 7
+          if-no-files-found: ignore
