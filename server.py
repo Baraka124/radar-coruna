@@ -15,8 +15,9 @@ import secrets
 import sqlite3
 import threading
 from contextlib import asynccontextmanager, contextmanager
+from contextvars import ContextVar
 from operational_v40 import load_runtime, validate_bootstrap_password, staging_instance_lock
-from postgres_adapter_v41 import connect_postgres, postgres_initialise, postgres_ready
+from postgres_adapter_v41 import connect_postgres, postgres_initialise, postgres_ready, close_postgres_pool
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Literal
@@ -37,6 +38,8 @@ from phase14_completion import describe as phase14_fields, validate_payload as v
 ROOT = Path(__file__).resolve().parent
 DB_FILE = Path(os.environ.get('RADAR_DB', str(ROOT / 'radar_synthetic.sqlite3')))
 POSTGRES_MODE = os.getenv("RADAR_STORAGE", "sqlite").lower() == "postgres"
+# Conservative default: non-request code retains the existing serial write lock.
+READ_ONLY_REQUEST = ContextVar('radar_readonly_request', default=False)
 LOCK = threading.RLock()
 PH = PasswordHasher()
 SESSION_HOURS = 8
@@ -437,7 +440,7 @@ def score(data):
 @contextmanager
 def conn():
     if POSTGRES_MODE:
-        with connect_postgres() as c:
+        with connect_postgres(read_only=READ_ONLY_REQUEST.get()) as c:
             yield c
         return
     DB_FILE.parent.mkdir(parents=True, exist_ok=True)
@@ -743,7 +746,11 @@ async def lifespan(app: FastAPI):
     runtime=load_runtime(DB_FILE)
     with staging_instance_lock(runtime):
         init_db()
-        yield
+        try:
+            yield
+        finally:
+            if POSTGRES_MODE:
+                close_postgres_pool()
 
 app=FastAPI(title='RADAR-CORUÑA synthetic pilot',version='0.41.0',docs_url=None,redoc_url=None,lifespan=lifespan)
 
@@ -769,7 +776,14 @@ async def security_headers(request,call_next):
             return Response('Solicitud demasiado grande.',status_code=413,media_type='text/plain')
     request_started=time.monotonic()
     request_id=secrets.token_hex(8)
-    response=await call_next(request)
+    # All GET routes are read-only except /api/session, which renews credentials.
+    # ContextVars propagate to FastAPI's sync request-handler thread pool.
+    read_only = request.method in ('GET', 'HEAD') and request.url.path != '/api/session'
+    context_token = READ_ONLY_REQUEST.set(read_only)
+    try:
+        response=await call_next(request)
+    finally:
+        READ_ONLY_REQUEST.reset(context_token)
     response.headers['X-Request-ID']=request_id
     if runtime.remote:
         # Route templates only; never log query strings, participant IDs, IPs or payloads.
@@ -806,12 +820,11 @@ def login_attempt_key(username: str) -> str:
 def login(creds: Login, response: Response):
     staging=load_runtime(DB_FILE).remote
     attempt_key=login_attempt_key(creds.username)
-    if staging:
-        with conn() as c:
+    with conn() as c:
+        if staging:
             record=c.execute('SELECT failures,window_start FROM auth_attempts WHERE key_hash=?',(attempt_key,)).fetchone()
             if record and int(time.time())-record['window_start'] < AUTH_WINDOW_SECONDS and record['failures'] >= AUTH_MAX_FAILURES:
                 failure(429,'Demasiados intentos. Pruebe más tarde')
-    with conn() as c:
         row=c.execute('SELECT * FROM users WHERE username=?',(creds.username,)).fetchone()
     valid=False
     try:
@@ -845,12 +858,13 @@ def login(creds: Login, response: Response):
 @app.get('/api/session')
 def session(request: Request,user=Depends(user_for)):
     # CSRF is kept client-side in memory; reloading page signs in via session cookie.
-    with conn() as c:
-        c.execute('UPDATE sessions SET expires=? WHERE token_hash=?',((datetime.now(timezone.utc)+timedelta(hours=SESSION_HOURS)).isoformat(),hashlib.sha256(request.cookies['radar_session'].encode()).hexdigest()))
-    # New CSRF on refresh requires a specific renewal endpoint with cookie; session check returns it after rotation.
+    # Renew expiry and rotate CSRF atomically in one pooled transaction.
     csrf=secrets.token_urlsafe(32)
+    hashed_token=hashlib.sha256(request.cookies['radar_session'].encode()).hexdigest()
     with conn() as c:
-        c.execute('UPDATE sessions SET csrf_hash=? WHERE token_hash=?',(hashlib.sha256(csrf.encode()).hexdigest(),hashlib.sha256(request.cookies['radar_session'].encode()).hexdigest()))
+        c.execute('UPDATE sessions SET expires=?,csrf_hash=? WHERE token_hash=?',
+                  ((datetime.now(timezone.utc)+timedelta(hours=SESSION_HOURS)).isoformat(),
+                   hashlib.sha256(csrf.encode()).hexdigest(),hashed_token))
     return {'user':public_user(user),'csrf':csrf,'synthetic_only':True}
 
 @app.post('/api/logout')
