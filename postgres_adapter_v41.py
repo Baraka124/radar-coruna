@@ -218,5 +218,7 @@ def postgres_initialise(existing_conn_factory):
 def postgres_ready(connection_factory):
     with connection_factory() as c:
         c.execute('SELECT 1').fetchone()
+        # A missing migration must fail readiness, not hide behind a healthy DB pool.
+        c.execute('SELECT 1 FROM centres LIMIT 1').fetchone()
         count=c.execute('SELECT count(*) n FROM users').fetchone()['n']
     return count > 0
