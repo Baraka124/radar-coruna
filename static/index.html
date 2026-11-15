@@ -2511,6 +2511,13 @@ tbody tr:hover{background:#f7fbff}
  #root .date-surface .date-face{font-size:12.1px}
 }
 
+
+/* Missing is not a recorded clinical value. Keep it legible but quiet. */
+#root[data-view="participante"] #patientForm select:has(option:checked[value=""]),
+#root[data-view="participante"] #patientForm select:has(option:checked[value="pendiente"]){
+ color:#8399ae!important;font-weight:475!important
+}
+
 </style>
 </head>
 <body>
