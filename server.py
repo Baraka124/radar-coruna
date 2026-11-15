@@ -44,11 +44,7 @@ LOCK = threading.RLock()
 PH = PasswordHasher()
 SESSION_HOURS = 8
 CODE = re.compile(r'^SIM-[A-Za-z0-9_-]{1,20}$')
-CENTRES = [
-    {'code': 'SIM-CS01', 'name': 'Centro ficticio Costa'},
-    {'code': 'SIM-CS02', 'name': 'Centro ficticio Interior'},
-    {'code': 'SIM-CS03', 'name': 'Centro ficticio Urbano'},
-]
+CENTRE_CODE = re.compile(r'^[A-Z][A-Z0-9_-]{2,23}$')
 YESNO = Literal['', 'si', 'no', 'nc']
 DATE = re.compile(r'^\d{4}-\d{2}-\d{2}$')
 
@@ -72,7 +68,7 @@ class Strict(BaseModel):
 
 class Patient(Strict):
     id: str
-    center: Literal['SIM-CS01', 'SIM-CS02', 'SIM-CS03']
+    center: str = Field(min_length=3,max_length=24,pattern=r'^[A-Z][A-Z0-9_-]{2,23}$')
     age: int | None = Field(None, ge=0, le=110)  # legacy; derived from birthDate when supplied
     birthDate: str = ''  # date-of-birth only for fictitious patients; age is derived at V0
     sex: Literal['', 'hombre', 'mujer', 'otro', 'nc'] = ''
@@ -471,6 +467,9 @@ def init_db():
     load_runtime(DB_FILE)  # Fail closed BEFORE creating or migrating any database.
     with conn() as c:
         c.executescript('''
+        CREATE TABLE IF NOT EXISTS centres(
+          code TEXT PRIMARY KEY, name TEXT NOT NULL, active INTEGER NOT NULL DEFAULT 1,
+          created_at TEXT NOT NULL, updated_at TEXT NOT NULL, created_by TEXT NOT NULL);
         CREATE TABLE IF NOT EXISTS users(id INTEGER PRIMARY KEY, username TEXT UNIQUE NOT NULL, pw_hash TEXT NOT NULL, role TEXT NOT NULL, centre TEXT);
         CREATE TABLE IF NOT EXISTS invitations(
           id INTEGER PRIMARY KEY AUTOINCREMENT, token_hash TEXT NOT NULL UNIQUE,
@@ -520,6 +519,16 @@ def init_db():
             if col not in columns:
                 c.execute(f'ALTER TABLE audit ADD COLUMN {col} {typ}')
         runtime = load_runtime(DB_FILE)
+        if not runtime.remote and os.getenv('RADAR_SEED_DEMO') == '1':
+            # Test fixtures remain exclusively in isolated local sessions.
+            for code, name in (
+                ('SIM-CS01', 'Centro ficticio Costa'),
+                ('SIM-CS02', 'Centro ficticio Interior'),
+                ('SIM-CS03', 'Centro ficticio Urbano'),
+            ):
+                if not c.execute('SELECT 1 FROM centres WHERE code=?',(code,)).fetchone():
+                    c.execute('INSERT INTO centres(code,name,active,created_at,updated_at,created_by) VALUES (?,?,?,?,?,?)',
+                              (code,name,True,now(),now(),'local_fixture'))
         if runtime.remote:
             # Refuse to expose the well-known local demonstration accounts to a public endpoint.
             for username, demo_pw in [('admin','radar-demo-admin'),('costa','radar-demo-costa'),
@@ -886,7 +895,7 @@ USERNAME_PATTERN = re.compile(r'^[a-z][a-z0-9._-]{3,31}$')
 
 
 class InvitationCreate(Strict):
-    centre: Literal['SIM-CS01', 'SIM-CS02', 'SIM-CS03']
+    centre: str = Field(min_length=3,max_length=24,pattern=r'^[A-Z][A-Z0-9_-]{2,23}$')
     role: Literal['investigator', 'reviewer']
     label: str = Field('', max_length=60)
 
@@ -908,6 +917,32 @@ class AccountActivation(Strict):
     active: bool
 
 
+class CentreCreate(Strict):
+    code: str = Field(min_length=3,max_length=24,pattern=r'^[A-Z][A-Z0-9_-]{2,23}$')
+    name: str = Field(min_length=3,max_length=100)
+
+
+class CentreUpdate(Strict):
+    name: str | None = Field(None,min_length=3,max_length=100)
+    active: bool | None = None
+
+
+def centre_rows(c,user=None,*,include_inactive=False):
+    where='' if include_inactive else ' WHERE active=1'
+    rows=c.execute('SELECT code,name,active FROM centres'+where+' ORDER BY name,code').fetchall()
+    return [{'code':r['code'],'name':r['name'],'active':bool(r['active'])}
+            for r in rows if user is None or user['centre'] is None or r['code']==user['centre']]
+
+
+def require_active_centre(c,centre):
+    if not CENTRE_CODE.fullmatch(centre):
+        failure(422,'Código de centro incorrecto')
+    item=c.execute('SELECT active FROM centres WHERE code=?',(centre,)).fetchone()
+    if not item or not item['active']:
+        failure(422,'El centro no está registrado o no está activo')
+    return item
+
+
 def admin_only(user):
     if user['role'] != 'admin' or user['centre'] is not None:
         failure(403, 'Gestión reservada al administrador del estudio')
@@ -924,7 +959,7 @@ def invitation_status(row):
 
 
 def collaborator_summary(c, user):
-    allowed = [x for x in CENTRES if user['centre'] is None or x['code'] == user['centre']]
+    allowed = centre_rows(c,user)
     result=[]
     for centre in allowed:
         cid=centre['code']
@@ -941,9 +976,61 @@ def collaboration(user=Depends(user_for)):
         centres=collaborator_summary(c,user)
         result={'centres':centres,'role':user['role'],'scope':user['centre'] or 'all'}
         if user['role']=='admin' and user['centre'] is None:
+            result['centre_registry']=centre_rows(c,include_inactive=True)
+        if user['role']=='admin' and user['centre'] is None:
             result['accounts']=[{'id':r['id'],'username':r['username'],'role':r['role'], 'centre':r['centre'], 'active':bool(r['active'])} for r in c.execute('SELECT id,username,role,centre,active FROM users ORDER BY username')]
-            result['invitations']=[{'id':r['id'],'role':r['role'],'centre':r['centre'],'label':r['label'],'created_at':r['created_at'],'expires_at':r['expires_at'],'status':invitation_status(r)} for r in c.execute('SELECT * FROM invitations ORDER BY id DESC LIMIT 100')]
+            active_codes={centre['code'] for centre in result['centre_registry'] if centre['active']}
+            result['invitations']=[{'id':r['id'],'role':r['role'],'centre':r['centre'],'label':r['label'],'created_at':r['created_at'],'expires_at':r['expires_at'],
+              'status':('centro_no_registrado' if invitation_status(r)=='pendiente' and r['centre'] not in active_codes else invitation_status(r))}
+              for r in c.execute('SELECT * FROM invitations ORDER BY id DESC LIMIT 100')]
         return result
+
+
+@app.post('/api/centres',status_code=201)
+def create_centre(d: CentreCreate,user=Depends(user_for)):
+    admin_only(user)
+    with conn() as c:
+        if c.execute('SELECT 1 FROM centres WHERE code=?',(d.code,)).fetchone():
+            failure(409,'Este código de centro ya existe')
+        # Never reactivate a historical unregistered-centre invitation implicitly.
+        pending=c.execute('SELECT 1 FROM invitations WHERE centre=? AND used_at IS NULL AND revoked_at IS NULL AND expires_at>? LIMIT 1',
+                          (d.code,now())).fetchone()
+        if pending:
+            failure(409,'Existen invitaciones anteriores para este código; revóquelas antes de registrar el centro')
+        stamp=now()
+        c.execute('INSERT INTO centres(code,name,active,created_at,updated_at,created_by) VALUES (?,?,?,?,?,?)',
+                  (d.code,d.name,True,stamp,stamp,user['username']))
+        log_audit(c,user,'CREATE','centre',d.code,d.code,new={'name':d.name,'active':True},
+                  revision_to=1,reason='Alta de centro participante')
+    return {'code':d.code,'name':d.name,'active':True}
+
+
+@app.patch('/api/centres/{centre_code}')
+def update_centre(centre_code:str,d:CentreUpdate,user=Depends(user_for)):
+    admin_only(user)
+    if not CENTRE_CODE.fullmatch(centre_code):failure(422,'Código de centro incorrecto')
+    if d.name is None and d.active is None:failure(422,'No se indicaron cambios')
+    with conn() as c:
+        item=c.execute('SELECT * FROM centres WHERE code=?',(centre_code,)).fetchone()
+        if not item:failure(404,'Centro no encontrado')
+        before={'name':item['name'],'active':bool(item['active'])}
+        after={'name':d.name if d.name is not None else item['name'],
+               'active':d.active if d.active is not None else bool(item['active'])}
+        if before==after:return {'code':centre_code,**after,'unchanged':True}
+        if not after['active']:
+            # Preserve all existing research records, accounts and live invitations.
+            linked_user=c.execute('SELECT 1 FROM users WHERE centre=? LIMIT 1',(centre_code,)).fetchone()
+            linked_patient=c.execute('SELECT 1 FROM patients WHERE centre=? LIMIT 1',(centre_code,)).fetchone()
+            linked_record=c.execute('SELECT 1 FROM phase14_records WHERE centre=? LIMIT 1',(centre_code,)).fetchone()
+            linked_invite=c.execute('SELECT 1 FROM invitations WHERE centre=? AND used_at IS NULL AND revoked_at IS NULL AND expires_at>? LIMIT 1',
+                                  (centre_code,now())).fetchone()
+            if any((linked_user,linked_patient,linked_record,linked_invite)):
+                failure(409,'El centro conserva usuarios, participantes, registros o invitaciones activas')
+        c.execute('UPDATE centres SET name=?,active=?,updated_at=? WHERE code=?',
+                  (after['name'],after['active'],now(),centre_code))
+        log_audit(c,user,'UPDATE','centre',centre_code,centre_code,old=before,new=after,
+                  reason='Actualización de datos del centro')
+    return {'code':centre_code,**after}
 
 
 @app.post('/api/collaboration/invitations',status_code=201)
@@ -953,6 +1040,7 @@ def create_invitation(d: InvitationCreate,user=Depends(user_for)):
     stamp=now()
     expires=(datetime.now(timezone.utc)+timedelta(hours=INVITE_VALID_HOURS)).isoformat()
     with conn() as c:
+        require_active_centre(c,d.centre)
         cur=c.execute('INSERT INTO invitations(token_hash,centre,role,label,created_by,created_at,expires_at) VALUES (?,?,?,?,?,?,?)',
                       (hashlib.sha256(raw.encode()).hexdigest(),d.centre,d.role,d.label,user['username'],stamp,expires))
         log_audit(c,user,'INVITE','invitation',str(cur.lastrowid),d.centre,reason='Invitación sintética para '+d.role)
@@ -984,6 +1072,8 @@ def accept_invitation(d: InvitationAccept,request:Request):
         item=c.execute('SELECT * FROM invitations WHERE token_hash=?',(hashlib.sha256(d.token.encode()).hexdigest(),)).fetchone()
         if not item or invitation_status(item)!='pendiente':
             failure(410,'Invitación no válida o no disponible')
+        if not c.execute('SELECT 1 FROM centres WHERE code=? AND active=1',(item['centre'],)).fetchone():
+            failure(410,'El centro de esta invitación no está disponible')
         try:
             cur=c.execute('INSERT INTO users(username,pw_hash,role,centre,active) VALUES (?,?,?,?,1)',
                           (d.username,PH.hash(d.password),item['role'],item['centre']))
@@ -1015,7 +1105,7 @@ def set_account_active(account_id:int,d:AccountActivation,user=Depends(user_for)
 @app.get('/api/state')
 def state(user=Depends(user_for)):
     with conn() as c:
-        allowed=[x for x in CENTRES if not user['centre'] or user['centre']==x['code']]
+        allowed=centre_rows(c,user)
         scope=' WHERE centre=?' if user['centre'] else ''
         ids=[r['id'] for r in c.execute('SELECT id FROM patients'+scope,((user['centre'],) if user['centre'] else ())).fetchall()]
         # Scope by participant membership; never return other-centre records to browsers.
@@ -1033,6 +1123,7 @@ def new_patient(d: Patient,user=Depends(user_for)):
     writable(user); accessible(user,d.center)
     data=d.model_dump(exclude={'rev'})
     with conn() as c:
+        require_active_centre(c,d.center)
         if c.execute('SELECT 1 FROM patients WHERE id=?',(d.id,)).fetchone(): failure(409,'El código ya existe')
         c.execute('INSERT INTO patients VALUES (?,?,?,?,?,?)',(d.id,d.center,json.dumps(data),1,user['username'],now()))
         log_audit(c,user,'CREATE','patient',d.id,d.center,patient_id=d.id,new=data,revision_to=1,reason='Alta inicial')
@@ -1218,7 +1309,7 @@ def get_phase14_scope(c,user):
 def phase14_state(user=Depends(user_for)):
     with conn() as c:
         rows=get_phase14_scope(c,user)
-        cent=[x for x in CENTRES if not user['centre'] or x['code']==user['centre']]
+        cent=centre_rows(c,user)
         scope=' WHERE centre=?' if user['centre'] else ''
         params=(user['centre'],) if user['centre'] else ()
         people=hydrate(c,'patients',scope,params)
@@ -1245,7 +1336,6 @@ def save_phase14(d: Phase14Record,user=Depends(user_for)):
             center=d.key.split(':')[0]
         elif d.kind=='professional':
             center=d.centre or user['centre']
-            if center not in [c['code'] for c in CENTRES]:failure(422,'Centro de profesional obligatorio')
         else:
             pid=d.key.split(':')[0]
             patient=patient_for(c,user,pid)
@@ -1261,6 +1351,7 @@ def save_phase14(d: Phase14Record,user=Depends(user_for)):
                     other=c.execute('SELECT centre FROM phase14_records WHERE kind=? AND record_key=?',('professional',assessor)).fetchone()
                     if not other or other['centre']!=center:failure(422,'Evaluador no pertenece a un profesional registrado del centro')
         accessible(user,center)
+        require_active_centre(c,center)
         if d.kind=='screening' and clean.get('screen_code'):
             for r in c.execute("SELECT record_key,payload FROM phase14_records WHERE kind='screening' AND record_key<>?",(d.key,)):
                 if json.loads(r['payload']).get('screen_code')==clean['screen_code']:
@@ -1442,7 +1533,8 @@ def scientific_summary(user=Depends(user_for)):
         episodes=hydrate(c,'episodes',where,ids)
         contacts=hydrate(c,'contacts',where,ids)
         phase14rows=get_phase14_scope(c,user)
-    metrics=make_indicators(phase14rows,patients,visits,[x for x in CENTRES if not user['centre'] or x['code']==user['centre']])
+        centres=centre_rows(c,user)
+    metrics=make_indicators(phase14rows,patients,visits,centres)
     return reconcile_legacy_analysis(make_analysis(patients,visits,episodes,contacts),metrics)
 
 
@@ -1453,7 +1545,7 @@ def phase18_reporting(user=Depends(user_for)):
     snapshot=state(user=user)
     with conn() as c:
         phase14rows=get_phase14_scope(c,user)
-    centres=[c for c in CENTRES if not user['centre'] or c['code']==user['centre']]
+        centres=centre_rows(c,user)
     return make_report(snapshot['patients'],snapshot['visits'],snapshot['events'],
                        snapshot['contacts'],phase14rows,centres)
 
@@ -1474,7 +1566,7 @@ def intelligence_snapshot(user):
         obs_where=' WHERE participant IN ('+','.join('?' for _ in ids)+')' if ids else ' WHERE 0'
         missing=[dict(r) for r in c.execute('SELECT * FROM missing_data'+obs_where,ids)]
         observations=[dict(r) for r in c.execute('SELECT * FROM study_observations'+obs_where,ids)]
-    centres=[centre for centre in CENTRES if not user['centre'] or centre['code']==user['centre']]
+        centres=centre_rows(c,user)
     return make_intelligence(patients,visits,episodes,contacts,missing,observations,centres)
 
 
@@ -1601,8 +1693,9 @@ def excel_export(user=Depends(user_for)):
         missing=[dict(r) for r in c.execute('SELECT * FROM missing_data'+missed_where+' ORDER BY participant,visit_type,field_code',codes)]
         phase14rows=get_phase14_scope(c,user)
         snapshot_time=now()
+        centres=centre_rows(c,user)
     binary=create_excel_snapshot(patients=patients,visits=visits,episodes=episodes,
-                                 contacts=contacts,audit=auditrows,changes=change_rows,centres=[x for x in CENTRES if user['centre'] is None or x['code']==user['centre']],
+                                 contacts=contacts,audit=auditrows,changes=change_rows,centres=centres,
                                  user=public_user(user),exported_at=snapshot_time,observations=observations,missing=missing,study_spec=public_catalogue(),phase14records=phase14rows)
     filename='RADAR_CORUNA_datos_'+datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')+'.xlsx'
     return Response(content=binary,

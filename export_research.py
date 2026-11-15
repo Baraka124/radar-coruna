@@ -14,7 +14,7 @@ WHITE='#FFFFFF'; INK='#213547'; MUTED='#617184'; WARN='#A45A16'; DANGER='#AC3F3F
 
 SPEC={
  'PARTICIPANTES':[
-  ('id','ID seudónimo demo','Código sintético SIM-*'),('center','Centro','Código de centro'),('status','Estado','cribado / incluido'),
+  ('id','Código del participante','Código sintético SIM-*'),('center','Centro','Código de centro'),('status','Estado','cribado / incluido'),
   ('age','Edad','años'),('sex','Sexo','Categoría'),('copd','EPOC confirmada','si/no/nc'),('regular','Seguimiento en AP','si/no/nc'),
   ('weeks','Estabilidad','Semanas desde agudización'),('capacity','Capacidad','si/no/nc'),('exclusion','Exclusión','si/no/nc'),
   ('consent','Consentimiento','si/no/nc'),('enrolDate','R026 · Fecha de inclusión/V0','aaaa-mm-dd'),('smoking','Tabaquismo','actual/ex/nunca/nc'),
@@ -22,7 +22,7 @@ SPEC={
   ('fev1','FEV1 predicho','%'),('priorEx','Agudizaciones previas','número'),('priorHosp','Ingresos previos','número'),
   ('comorbHtn','Hipertensión','si/no/nc'),('comorbHf','Insuficiencia cardíaca','si/no/nc'),('comorbDm','Diabetes','si/no/nc'),
   ('comorbOsa','SAOS','si/no/nc'),('created','Registro inicial','aaaa-mm-dd'),('rev','Versión','número'),
-  ('created_by','Creado por','usuario demo'),('updated_at','Actualización UTC','ISO-8601'),
+  ('created_by','Creado por','Cuenta registrada'),('updated_at','Actualización UTC','ISO-8601'),
   ('birthDate','Fecha nacimiento ficticia · soporte edad (NO R026)','AAAA-MM-DD (simulación)'),('priorExModerate','Agudizaciones moderadas 12m','n'),('priorExSevere','Agudizaciones graves 12m','n'),
   ('alternativeDiagnosis','R017 · Diagnóstico alternativo','Sí/No/NC'),('seriousDecompensation','R019 · Comorbilidad descompensada','Sí/No/NC'),('interferingTrial','R020 · Ensayo interferente','Sí/No/NC'),
   ('consentDate','R022 · Fecha consentimiento','AAAA-MM-DD'),('lastCopdReviewDate','Fecha última revisión EPOC AP','AAAA-MM-DD'),('otherComorbidities','R043 · Otras comorbilidades','Texto'),('charlson','R044 · Charlson','n'),
@@ -58,7 +58,7 @@ SPEC={
   ('relatedEpisodeNo','R074 · N.º episodio vinculado','Derivado por vínculo, no código clínico')
  ],
  'TRAZABILIDAD':[
-  ('id','ID movimiento','Secuencial'),('happened_at','Fecha/hora UTC','ISO-8601'),('username','Usuario demo','Cuenta'),
+  ('id','ID movimiento','Secuencial'),('happened_at','Fecha/hora UTC','ISO-8601'),('username','Usuario','Cuenta'),
   ('role','Rol','admin/investigator/reviewer'),('centre','Centro','Código'),('verb','Operación','CREATE/UPDATE/EXPORT'),
   ('kind','Entidad','participant/visit/episode/contact/export'),('object_id','ID del registro','ID'),
   ('participant_id','Participante','Código sintético'),('revision_from','Versión anterior','Número'),
@@ -67,7 +67,7 @@ SPEC={
  ],
  'CAMBIOS_CAMPO':[
   ('id','ID detalle','Secuencial'),('audit_id','ID movimiento','Enlace a TRAZABILIDAD'),
-  ('happened_at','Fecha/hora UTC','ISO-8601'),('username','Usuario demo','Cuenta'),
+  ('happened_at','Fecha/hora UTC','ISO-8601'),('username','Usuario','Cuenta'),
   ('centre','Centro','Código'),('kind','Entidad','patient/visit/episode/contact'),
   ('object_id','ID del registro','Código'),('participant_id','ID participante','Código sintético'),
   ('verb','Operación','CREATE / UPDATE'),('reason','Motivo','Texto declarativo'),

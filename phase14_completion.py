@@ -104,13 +104,14 @@ def validate_payload(kind, payload):
 
 
 def valid_key(kind,key):
- if kind in ('centre',):return bool(re.fullmatch(r'SIM-CS0[1-3]',key))
+ # Syntax validation only; API also checks an active centre in the DB.
+ centre=r'[A-Z][A-Z0-9_-]{2,23}'
+ if kind=='centre':return bool(re.fullmatch(centre,key))
  if kind=='professional':return bool(re.fullmatch(r'SIM-PRO-[A-Za-z0-9_-]{1,16}',key))
  if kind in ('screening','baseline'):return bool(re.fullmatch(r'SIM-[A-Za-z0-9_-]{1,20}',key))
  if kind=='visit':return bool(re.fullmatch(r'SIM-[A-Za-z0-9_-]{1,20}:(V0|V1|V2)',key))
- if kind=='implementation':return bool(re.fullmatch(r'SIM-CS0[1-3]:\d{4}-(0[1-9]|1[0-2])',key))
+ if kind=='implementation':return bool(re.fullmatch(centre+r':\d{4}-(0[1-9]|1[0-2])',key))
  return False
-
 
 def group_records(rows):
  return {k:sorted([r for r in rows if r['kind']==k],key=lambda r:r['key']) for k in DEFINITIONS}
