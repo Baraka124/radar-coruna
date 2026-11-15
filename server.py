@@ -959,7 +959,7 @@ def invitation_status(row):
 
 
 def collaborator_summary(c, user):
-    allowed = [x for x in CENTRES if user['centre'] is None or x['code'] == user['centre']]
+    allowed = centre_rows(c,user)
     result=[]
     for centre in allowed:
         cid=centre['code']
@@ -976,6 +976,8 @@ def collaboration(user=Depends(user_for)):
         centres=collaborator_summary(c,user)
         result={'centres':centres,'role':user['role'],'scope':user['centre'] or 'all'}
         if user['role']=='admin' and user['centre'] is None:
+            result['centre_registry']=centre_rows(c,include_inactive=True)
+        if user['role']=='admin' and user['centre'] is None:
             result['accounts']=[{'id':r['id'],'username':r['username'],'role':r['role'], 'centre':r['centre'], 'active':bool(r['active'])} for r in c.execute('SELECT id,username,role,centre,active FROM users ORDER BY username')]
             result['invitations']=[{'id':r['id'],'role':r['role'],'centre':r['centre'],'label':r['label'],'created_at':r['created_at'],'expires_at':r['expires_at'],'status':invitation_status(r)} for r in c.execute('SELECT * FROM invitations ORDER BY id DESC LIMIT 100')]
         return result
@@ -988,6 +990,7 @@ def create_invitation(d: InvitationCreate,user=Depends(user_for)):
     stamp=now()
     expires=(datetime.now(timezone.utc)+timedelta(hours=INVITE_VALID_HOURS)).isoformat()
     with conn() as c:
+        require_active_centre(c,d.centre)
         cur=c.execute('INSERT INTO invitations(token_hash,centre,role,label,created_by,created_at,expires_at) VALUES (?,?,?,?,?,?,?)',
                       (hashlib.sha256(raw.encode()).hexdigest(),d.centre,d.role,d.label,user['username'],stamp,expires))
         log_audit(c,user,'INVITE','invitation',str(cur.lastrowid),d.centre,reason='Invitación sintética para '+d.role)
@@ -1019,6 +1022,8 @@ def accept_invitation(d: InvitationAccept,request:Request):
         item=c.execute('SELECT * FROM invitations WHERE token_hash=?',(hashlib.sha256(d.token.encode()).hexdigest(),)).fetchone()
         if not item or invitation_status(item)!='pendiente':
             failure(410,'Invitación no válida o no disponible')
+        if not c.execute('SELECT 1 FROM centres WHERE code=? AND active=1',(item['centre'],)).fetchone():
+            failure(410,'El centro de esta invitación no está disponible')
         try:
             cur=c.execute('INSERT INTO users(username,pw_hash,role,centre,active) VALUES (?,?,?,?,1)',
                           (d.username,PH.hash(d.password),item['role'],item['centre']))
@@ -1050,7 +1055,7 @@ def set_account_active(account_id:int,d:AccountActivation,user=Depends(user_for)
 @app.get('/api/state')
 def state(user=Depends(user_for)):
     with conn() as c:
-        allowed=[x for x in CENTRES if not user['centre'] or user['centre']==x['code']]
+        allowed=centre_rows(c,user)
         scope=' WHERE centre=?' if user['centre'] else ''
         ids=[r['id'] for r in c.execute('SELECT id FROM patients'+scope,((user['centre'],) if user['centre'] else ())).fetchall()]
         # Scope by participant membership; never return other-centre records to browsers.
@@ -1068,6 +1073,7 @@ def new_patient(d: Patient,user=Depends(user_for)):
     writable(user); accessible(user,d.center)
     data=d.model_dump(exclude={'rev'})
     with conn() as c:
+        require_active_centre(c,d.center)
         if c.execute('SELECT 1 FROM patients WHERE id=?',(d.id,)).fetchone(): failure(409,'El código ya existe')
         c.execute('INSERT INTO patients VALUES (?,?,?,?,?,?)',(d.id,d.center,json.dumps(data),1,user['username'],now()))
         log_audit(c,user,'CREATE','patient',d.id,d.center,patient_id=d.id,new=data,revision_to=1,reason='Alta inicial')
@@ -1253,7 +1259,7 @@ def get_phase14_scope(c,user):
 def phase14_state(user=Depends(user_for)):
     with conn() as c:
         rows=get_phase14_scope(c,user)
-        cent=[x for x in CENTRES if not user['centre'] or x['code']==user['centre']]
+        cent=centre_rows(c,user)
         scope=' WHERE centre=?' if user['centre'] else ''
         params=(user['centre'],) if user['centre'] else ()
         people=hydrate(c,'patients',scope,params)
@@ -1280,7 +1286,6 @@ def save_phase14(d: Phase14Record,user=Depends(user_for)):
             center=d.key.split(':')[0]
         elif d.kind=='professional':
             center=d.centre or user['centre']
-            if center not in [c['code'] for c in CENTRES]:failure(422,'Centro de profesional obligatorio')
         else:
             pid=d.key.split(':')[0]
             patient=patient_for(c,user,pid)
@@ -1296,6 +1301,7 @@ def save_phase14(d: Phase14Record,user=Depends(user_for)):
                     other=c.execute('SELECT centre FROM phase14_records WHERE kind=? AND record_key=?',('professional',assessor)).fetchone()
                     if not other or other['centre']!=center:failure(422,'Evaluador no pertenece a un profesional registrado del centro')
         accessible(user,center)
+        require_active_centre(c,center)
         if d.kind=='screening' and clean.get('screen_code'):
             for r in c.execute("SELECT record_key,payload FROM phase14_records WHERE kind='screening' AND record_key<>?",(d.key,)):
                 if json.loads(r['payload']).get('screen_code')==clean['screen_code']:
@@ -1477,7 +1483,8 @@ def scientific_summary(user=Depends(user_for)):
         episodes=hydrate(c,'episodes',where,ids)
         contacts=hydrate(c,'contacts',where,ids)
         phase14rows=get_phase14_scope(c,user)
-    metrics=make_indicators(phase14rows,patients,visits,[x for x in CENTRES if not user['centre'] or x['code']==user['centre']])
+        centres=centre_rows(c,user)
+    metrics=make_indicators(phase14rows,patients,visits,centres)
     return reconcile_legacy_analysis(make_analysis(patients,visits,episodes,contacts),metrics)
 
 
@@ -1488,7 +1495,7 @@ def phase18_reporting(user=Depends(user_for)):
     snapshot=state(user=user)
     with conn() as c:
         phase14rows=get_phase14_scope(c,user)
-    centres=[c for c in CENTRES if not user['centre'] or c['code']==user['centre']]
+        centres=centre_rows(c,user)
     return make_report(snapshot['patients'],snapshot['visits'],snapshot['events'],
                        snapshot['contacts'],phase14rows,centres)
 
@@ -1509,7 +1516,7 @@ def intelligence_snapshot(user):
         obs_where=' WHERE participant IN ('+','.join('?' for _ in ids)+')' if ids else ' WHERE 0'
         missing=[dict(r) for r in c.execute('SELECT * FROM missing_data'+obs_where,ids)]
         observations=[dict(r) for r in c.execute('SELECT * FROM study_observations'+obs_where,ids)]
-    centres=[centre for centre in CENTRES if not user['centre'] or centre['code']==user['centre']]
+        centres=centre_rows(c,user)
     return make_intelligence(patients,visits,episodes,contacts,missing,observations,centres)
 
 
@@ -1636,8 +1643,9 @@ def excel_export(user=Depends(user_for)):
         missing=[dict(r) for r in c.execute('SELECT * FROM missing_data'+missed_where+' ORDER BY participant,visit_type,field_code',codes)]
         phase14rows=get_phase14_scope(c,user)
         snapshot_time=now()
+        centres=centre_rows(c,user)
     binary=create_excel_snapshot(patients=patients,visits=visits,episodes=episodes,
-                                 contacts=contacts,audit=auditrows,changes=change_rows,centres=[x for x in CENTRES if user['centre'] is None or x['code']==user['centre']],
+                                 contacts=contacts,audit=auditrows,changes=change_rows,centres=centres,
                                  user=public_user(user),exported_at=snapshot_time,observations=observations,missing=missing,study_spec=public_catalogue(),phase14records=phase14rows)
     filename='RADAR_CORUNA_datos_'+datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')+'.xlsx'
     return Response(content=binary,
