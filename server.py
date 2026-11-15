@@ -983,6 +983,48 @@ def collaboration(user=Depends(user_for)):
         return result
 
 
+@app.post('/api/centres',status_code=201)
+def create_centre(d: CentreCreate,user=Depends(user_for)):
+    admin_only(user)
+    with conn() as c:
+        if c.execute('SELECT 1 FROM centres WHERE code=?',(d.code,)).fetchone():
+            failure(409,'Este código de centro ya existe')
+        stamp=now()
+        c.execute('INSERT INTO centres(code,name,active,created_at,updated_at,created_by) VALUES (?,?,?,?,?,?)',
+                  (d.code,d.name,True,stamp,stamp,user['username']))
+        log_audit(c,user,'CREATE','centre',d.code,d.code,new={'name':d.name,'active':True},
+                  revision_to=1,reason='Alta de centro participante')
+    return {'code':d.code,'name':d.name,'active':True}
+
+
+@app.patch('/api/centres/{centre_code}')
+def update_centre(centre_code:str,d:CentreUpdate,user=Depends(user_for)):
+    admin_only(user)
+    if not CENTRE_CODE.fullmatch(centre_code):failure(422,'Código de centro incorrecto')
+    if d.name is None and d.active is None:failure(422,'No se indicaron cambios')
+    with conn() as c:
+        item=c.execute('SELECT * FROM centres WHERE code=?',(centre_code,)).fetchone()
+        if not item:failure(404,'Centro no encontrado')
+        before={'name':item['name'],'active':bool(item['active'])}
+        after={'name':d.name if d.name is not None else item['name'],
+               'active':d.active if d.active is not None else bool(item['active'])}
+        if before==after:return {'code':centre_code,**after,'unchanged':True}
+        if not after['active']:
+            # Preserve all existing research records, accounts and live invitations.
+            linked_user=c.execute('SELECT 1 FROM users WHERE centre=? LIMIT 1',(centre_code,)).fetchone()
+            linked_patient=c.execute('SELECT 1 FROM patients WHERE centre=? LIMIT 1',(centre_code,)).fetchone()
+            linked_record=c.execute('SELECT 1 FROM phase14_records WHERE centre=? LIMIT 1',(centre_code,)).fetchone()
+            linked_invite=c.execute('SELECT 1 FROM invitations WHERE centre=? AND used_at IS NULL AND revoked_at IS NULL AND expires_at>? LIMIT 1',
+                                  (centre_code,now())).fetchone()
+            if any((linked_user,linked_patient,linked_record,linked_invite)):
+                failure(409,'El centro conserva usuarios, participantes, registros o invitaciones activas')
+        c.execute('UPDATE centres SET name=?,active=?,updated_at=? WHERE code=?',
+                  (after['name'],after['active'],now(),centre_code))
+        log_audit(c,user,'UPDATE','centre',centre_code,centre_code,old=before,new=after,
+                  reason='Actualización de datos del centro')
+    return {'code':centre_code,**after}
+
+
 @app.post('/api/collaboration/invitations',status_code=201)
 def create_invitation(d: InvitationCreate,user=Depends(user_for)):
     admin_only(user)
