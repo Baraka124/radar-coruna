@@ -88,6 +88,21 @@ def main():
       assert abs(info['right']['y']-info['left']['y'])<=4,(width,info)
      else:
       assert info['right']['y']>=info['left']['bottom']-1,(width,info)
+     viewport=page.evaluate("""() => {
+       const blocks=[...document.querySelectorAll('#visitForm>.panelbody>.clinical-block')];
+       const footer=document.querySelector('#visitForm .footerbar').getBoundingClientRect();
+       return {
+         blockGap:blocks.length>1?blocks[1].getBoundingClientRect().top-blocks[0].getBoundingClientRect().bottom:null,
+         footerHeight:footer.height,
+         footerRight:footer.right,
+         viewportRight:innerWidth
+       };
+     }""")
+     if width>=1320:
+      assert viewport['blockGap'] is not None and viewport['blockGap']<=52,(width,'dead band before RADAR',viewport)
+     if width<=690:
+      assert viewport['footerHeight']<=83,(width,'save bar covers clinical fields',viewport)
+      assert viewport['footerRight']<=width+2,(width,'save bar overflows',viewport)
      assert page.locator('#vpatient').input_value()=='SIM-PREMIUM48'
      assert page.locator('#vtype').input_value()=='V0'
      page.locator('#vdate').fill('2026-11-15')
