@@ -1642,6 +1642,107 @@ tbody tr:hover{background:#f7fbff}
 @media(max-width:1100px) and (min-width:701px){#patientForm .clinical-block-body>.fields:not(.three),#patientForm .clinical-block-body>.fields.three{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
 @media(max-width:700px){.content{padding-left:15px;padding-right:15px}#patientForm>.panelhead{padding:14px 15px 8px!important}#patientForm .clinical-block-body>.fields:not(.three),#patientForm .clinical-block-body>.fields.three{grid-template-columns:1fr!important}}
 
+
+/* v0.44 first viewport — the information begins beside the title, not below it. */
+.content.on-overview{padding-top:17px}
+.content.on-overview .workspace-context{display:none}
+#root[data-view="inicio"] .overview-firstfold{
+ display:grid;grid-template-columns:minmax(325px,.88fr) minmax(0,1.12fr);
+ background:#fff;border:1px solid #dde8f3;border-radius:13px;overflow:hidden;
+ box-shadow:0 8px 28px rgba(26,59,100,.045);margin:0 0 16px;
+}
+#root[data-view="inicio"] .overview-intro{
+ display:flex;flex-direction:column;justify-content:center;align-items:flex-start;
+ min-width:0;padding:clamp(22px,2.5vw,34px);
+}
+#root[data-view="inicio"] .overview-intro .head{
+ display:block!important;margin:0!important;padding:0!important;width:100%;
+}
+#root[data-view="inicio"] .overview-intro .head h1{
+ font-size:clamp(26px,2.5vw,36px);line-height:1.14;
+ letter-spacing:-.047em;color:#183e64;margin:10px 0 9px;
+}
+#root[data-view="inicio"] .overview-intro .head p{
+ font-size:12.4px;color:#7189a2;line-height:1.52;max-width:415px;
+}
+#root[data-view="inicio"] .overview-intro .over{
+ font-size:10px!important;letter-spacing:.065em!important;color:#497cac!important;
+}
+#root[data-view="inicio"] .overview-intro .head .actions{
+ display:flex!important;align-items:center;justify-content:flex-start!important;
+ flex-wrap:wrap;gap:7px;margin:21px 0 0!important;
+}
+#root[data-view="inicio"] .overview-intro .head .btn{min-height:33px;font-size:11.4px;padding:6px 11px}
+#root[data-view="inicio"] .overview-intro .environment-note{
+ margin:13px 0 0!important;padding:0;max-width:100%;
+}
+#root[data-view="inicio"] .overview-intro .environment-note summary{
+ font-size:10.5px!important;color:#7890aa!important;
+}
+#root[data-view="inicio"] .overview-firstfold>.metrics{
+ display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ gap:1px!important;margin:0!important;padding:0!important;background:#e5edf6;
+ border-left:1px solid #e5edf6;min-width:0;
+}
+#root[data-view="inicio"] .overview-firstfold .metric{
+ display:flex;flex-direction:column;justify-content:center;align-items:flex-start;
+ border:0!important;border-radius:0!important;box-shadow:none!important;
+ margin:0!important;padding:clamp(19px,2vw,29px)!important;background:#fff!important;
+ min-width:0;
+}
+#root[data-view="inicio"] .overview-firstfold .metric:first-child{background:#f7faff!important}
+#root[data-view="inicio"] .overview-firstfold .metric:first-child::before{display:none}
+#root[data-view="inicio"] .overview-firstfold .metric .lab{
+ font-size:11px;color:#617d9c;font-weight:670;
+}
+#root[data-view="inicio"] .overview-firstfold .metric .val{
+ font-size:clamp(29px,2.6vw,38px);font-weight:760;
+ line-height:1.1;letter-spacing:-.045em;color:#184877;margin:7px 0 3px;
+}
+#root[data-view="inicio"] .overview-firstfold .metric:first-child .val{color:#236fbe}
+#root[data-view="inicio"] .overview-firstfold .metric .help{
+ font-size:10.5px;color:#7d91a9;line-height:1.4;
+}
+#root[data-view="inicio"] .overview-onboarding{
+ min-height:0!important;margin-top:0;margin-bottom:16px;
+ grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);
+ box-shadow:0 4px 17px rgba(26,57,96,.032);
+}
+#root[data-view="inicio"] .overview-onboard-main{padding:19px 24px;background:#fff}
+#root[data-view="inicio"] .overview-onboard-main h2{font-size:20px;margin:9px 0 5px}
+#root[data-view="inicio"] .overview-onboard-main p{font-size:11.5px;line-height:1.5}
+#root[data-view="inicio"] .overview-onboard-actions{display:none}
+#root[data-view="inicio"] .overview-onboard-steps{
+ display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+ align-items:start;gap:13px;padding:21px;
+}
+#root[data-view="inicio"] .onboard-steps-title{grid-column:1/-1;margin:0 0 1px}
+#root[data-view="inicio"] .onboard-step{display:block;padding:0}
+#root[data-view="inicio"] .onboard-step::before{display:none!important}
+#root[data-view="inicio"] .onboard-step i{display:block;margin:0 0 9px}
+#root[data-view="inicio"] .onboard-step b{font-size:11px}
+#root[data-view="inicio"] .onboard-step span{font-size:10px}
+@media(max-width:1250px){
+ #root[data-view="inicio"] .overview-firstfold{grid-template-columns:1fr}
+ #root[data-view="inicio"] .overview-intro{padding:22px 24px}
+ #root[data-view="inicio"] .overview-firstfold>.metrics{border-left:0;border-top:1px solid #e5edf6}
+ #root[data-view="inicio"] .overview-intro .head .actions{margin-top:14px!important}
+ #root[data-view="inicio"] .overview-onboarding{grid-template-columns:1fr}
+ #root[data-view="inicio"] .overview-onboard-steps{border-left:0;border-top:1px solid #e7eef7}
+}
+@media(max-width:650px){
+ .content.on-overview{padding-top:12px}
+ #root[data-view="inicio"] .overview-intro{padding:20px 17px}
+ #root[data-view="inicio"] .overview-intro .head h1{font-size:27px}
+ #root[data-view="inicio"] .overview-firstfold .metric{min-height:106px;padding:15px!important}
+ #root[data-view="inicio"] .overview-firstfold .metric .val{font-size:30px}
+ #root[data-view="inicio"] .overview-firstfold .metric .help{font-size:9.6px}
+ #root[data-view="inicio"] .overview-onboard-main{padding:18px}
+ #root[data-view="inicio"] .overview-onboard-steps{grid-template-columns:1fr;padding:17px}
+ #root[data-view="inicio"] .onboard-step{display:flex;gap:10px}
+ #root[data-view="inicio"] .onboard-step i{flex:none;margin:3px 0 0}
+}
+
 </style>
 </head>
 <body>
@@ -1861,9 +1962,9 @@ function navigate(r){
 function premiumEmptyCohort(){
  return '<section class="overview-onboarding" aria-label="Primer registro de prueba">' +
    '<div class="overview-onboard-main">' +
-      '<div class="overview-onboard-eyebrow"><span class="onboard-spark" aria-hidden="true"></span>LISTO PARA LA VALIDACIÓN</div>' +
-      '<h2>Comienza con el primer registro.</h2>' +
-      '<p>Registra un participante de prueba y comprueba sus evaluaciones, seguimiento y auditoría. Los cambios se guardan en esta base de datos.</p>' +
+      '<div class="overview-onboard-eyebrow"><span class="onboard-spark" aria-hidden="true"></span>PRIMEROS PASOS</div>' +
+      '<h2>Cómo utilizar RADAR</h2>' +
+      '<p>Registra un participante de prueba, completa una evaluación y comprueba los resultados guardados.</p>' +
       '<div class="overview-onboard-actions"><button class="btn primary overview-start-btn" data-action="newpatient" type="button">Crear participante de prueba <span aria-hidden="true">→</span></button>' +
  (currentUser?.role==='admin'&&!currentUser?.centre?'<button class="btn" type="button" data-action="open-admin-centres">Gestionar investigadores</button>':'') +
  '<span>Solo datos de prueba</span></div>' +
@@ -1876,7 +1977,7 @@ function premiumEmptyCohort(){
    '</div>' +
  '</section>';
 }
-function overview(){const complete=db.visits.filter(x=>score(x)!==null);const c={good:complete.filter(v=>score(v)<=1).length,partial:complete.filter(v=>score(v)>=2&&score(v)<=3).length,bad:complete.filter(v=>score(v)>=4).length};const n=complete.length;return heading('Estado del estudio','Seguimiento de la cohorte','Actividad y calidad del seguimiento de la cohorte RADAR-CORUÑA.',`<button class="btn primary" data-action="newpatient">+ Nuevo participante</button>`)+notice+`<section class="metrics"><div class="metric"><div class="lab">Participantes incluidos</div><div class="val">${db.patients.filter(p=>p.status==='incluido').length}</div><div class="help">${db.patients.filter(p=>p.status==='cribado').length} en cribado · ${db.centres.length} centros</div></div><div class="metric"><div class="lab">Evaluaciones realizadas</div><div class="val">${db.visits.length}</div><div class="help">V0 ${count('V0')} · V1 ${count('V1')} · V2 ${count('V2')}</div></div><div class="metric"><div class="lab">RADAR completos</div><div class="val">${complete.length}</div><div class="help">${db.visits.length?Math.round(complete.length/db.visits.length*100):0}% de evaluaciones</div></div><div class="metric"><div class="lab">Episodios registrados</div><div class="val">${db.events.length}</div><div class="help">Contactos asistenciales: ${db.contacts.length}</div></div></section>${!db.patients.length?premiumEmptyCohort():''}${nextActionsPanel()}<div class="vspace"></div><div class="split"><section class="panel"><div class="panelhead"><div><h2>Cohorte y última situación RADAR</h2><p>Selecciona un participante para consultar su evolución.</p></div></div><div class="tablewrap"><table><thead><tr><th>Participante</th><th>Centro</th><th>Última visita</th><th>RADAR</th><th></th></tr></thead><tbody>${db.patients.length?db.patients.map(p=>{const v=latestVisit(p.id),s=v?score(v):null;return `<tr><td class="code">${esc(p.id)}</td><td>${esc(p.center)}</td><td>${v?esc(v.type)+' · '+fmt(v.date):'Sin visitas'}</td><td>${tag(s===null?'Sin clasificar':`${s}/8 · ${cat(s)}`,cls(s))}</td><td><button class="linklike" data-action="detail" data-id="${esc(p.id)}">Abrir ficha</button></td></tr>`}).join(''):'<tr><td colspan="5"><div class="empty compact-empty">Sin participantes registrados. Crea la primera ficha para iniciar el seguimiento.</div></td></tr>'}</tbody></table></div></section><section class="panel"><div class="panelhead"><h2>Distribución de evaluaciones</h2></div><div class="panelbody"><div class="stack">${[['Buen control',c.good,'#207e67'],['Control parcial',c.partial,'#c19339'],['Mal control',c.bad,'#b55760']].map(([label,num,color])=>`<div><div class="inline" style="justify-content:space-between"><b>${label}</b><span class="subtle">${num} de ${n}</span></div><div style="height:10px;background:#e8efee;border-radius:8px;margin-top:8px;overflow:hidden"><div style="width:${n?100*num/n:0}%;background:${color};height:100%"></div></div></div>`).join('')}</div><p class="subtle" style="margin-top:20px">Las categorías se basan en evaluaciones completas, no necesariamente en pacientes distintos.</p></div></section></div>`}
+function overview(){const complete=db.visits.filter(x=>score(x)!==null);const c={good:complete.filter(v=>score(v)<=1).length,partial:complete.filter(v=>score(v)>=2&&score(v)<=3).length,bad:complete.filter(v=>score(v)>=4).length};const n=complete.length;return heading('Visión general','Seguimiento de la cohorte','Participantes, evaluaciones y actividad del estudio.',`<button class="btn primary" data-action="newpatient">+ Nuevo participante</button>`)+notice+`<section class="metrics"><div class="metric"><div class="lab">Participantes incluidos</div><div class="val">${db.patients.filter(p=>p.status==='incluido').length}</div><div class="help">${db.patients.filter(p=>p.status==='cribado').length} en cribado · ${db.centres.length} centros</div></div><div class="metric"><div class="lab">Evaluaciones realizadas</div><div class="val">${db.visits.length}</div><div class="help">V0 ${count('V0')} · V1 ${count('V1')} · V2 ${count('V2')}</div></div><div class="metric"><div class="lab">RADAR completos</div><div class="val">${complete.length}</div><div class="help">${db.visits.length?Math.round(complete.length/db.visits.length*100):0}% de evaluaciones</div></div><div class="metric"><div class="lab">Episodios registrados</div><div class="val">${db.events.length}</div><div class="help">Contactos asistenciales: ${db.contacts.length}</div></div></section>${!db.patients.length?premiumEmptyCohort():''}${nextActionsPanel()}<div class="vspace"></div><div class="split"><section class="panel"><div class="panelhead"><div><h2>Cohorte y última situación RADAR</h2><p>Selecciona un participante para consultar su evolución.</p></div></div><div class="tablewrap"><table><thead><tr><th>Participante</th><th>Centro</th><th>Última visita</th><th>RADAR</th><th></th></tr></thead><tbody>${db.patients.length?db.patients.map(p=>{const v=latestVisit(p.id),s=v?score(v):null;return `<tr><td class="code">${esc(p.id)}</td><td>${esc(p.center)}</td><td>${v?esc(v.type)+' · '+fmt(v.date):'Sin visitas'}</td><td>${tag(s===null?'Sin clasificar':`${s}/8 · ${cat(s)}`,cls(s))}</td><td><button class="linklike" data-action="detail" data-id="${esc(p.id)}">Abrir ficha</button></td></tr>`}).join(''):'<tr><td colspan="5"><div class="empty compact-empty">Sin participantes registrados. Crea la primera ficha para iniciar el seguimiento.</div></td></tr>'}</tbody></table></div></section><section class="panel"><div class="panelhead"><h2>Distribución de evaluaciones</h2></div><div class="panelbody"><div class="stack">${[['Buen control',c.good,'#207e67'],['Control parcial',c.partial,'#c19339'],['Mal control',c.bad,'#b55760']].map(([label,num,color])=>`<div><div class="inline" style="justify-content:space-between"><b>${label}</b><span class="subtle">${num} de ${n}</span></div><div style="height:10px;background:#e8efee;border-radius:8px;margin-top:8px;overflow:hidden"><div style="width:${n?100*num/n:0}%;background:${color};height:100%"></div></div></div>`).join('')}</div><p class="subtle" style="margin-top:20px">Las categorías se basan en evaluaciones completas, no necesariamente en pacientes distintos.</p></div></section></div>`}
 // v0.38 · Centre-scoped coordination and account invitations.
 function collaborationPage(){
  const data=collaborationState||{centres:[],accounts:[],invitations:[]};
@@ -2464,8 +2565,38 @@ function makeClinicalSections(formId){
   form.addEventListener('input',update);form.addEventListener('change',update);update();
  }
 }
+
+function composeOverviewFirstFold(){
+ const root=get('root');
+ const head=root?.querySelector(':scope > .head');
+ const metrics=root?.querySelector(':scope > .metrics');
+ const note=root?.querySelector(':scope > .environment-note');
+ if(!head||!metrics)return;
+ const shell=document.createElement('section');
+ shell.className='overview-firstfold';
+ shell.setAttribute('aria-label','Resumen de la cohorte');
+ const intro=document.createElement('div');
+ intro.className='overview-intro';
+ head.before(shell);intro.append(head);
+ if(note)intro.append(note);
+ shell.append(intro,metrics);
+ let actions=head.querySelector('.actions');
+ if(!actions){actions=document.createElement('div');actions.className='actions';head.append(actions);}
+ if(currentUser?.role==='admin'&&!currentUser?.centre){
+   const b=document.createElement('button');
+   b.type='button';b.className='btn';
+   b.dataset.action='open-admin-centres';b.textContent='Gestionar investigadores';
+   actions.append(b);
+ }
+ const exportButton=document.createElement('button');
+ exportButton.type='button';exportButton.className='btn small';
+ exportButton.dataset.action='exportxlsx';exportButton.textContent='Exportar Excel';
+ actions.append(exportButton);
+}
+
 function enhanceInterface(){
  updateContext();
+ if(route==='inicio')composeOverviewFirstFold();
  if(route==='visita'){
    makeClinicalSections('visitForm');
    const form=get('visitForm'),bar=form?.querySelector('.clinical-toolbar');
@@ -2492,7 +2623,7 @@ function enhanceInterface(){
  if(route==='evento')get('epatient')?.addEventListener('change',renderWorkflowRibbon);
 }
 
-function render(){const root=get('root');if(!root)return;root.dataset.view=route;root.dataset.empty=(route==='inicio'&&!db.patients.length)?'true':'false';const routes={inicio:overview,red:collaborationPage,cohorte:cohort,detalle:detail,participante:()=>patientForm(patient(selectedPatient)||null),visitas:visitsPage,visita:()=>visitForm(editVisit?db.visits.find(v=>v.id===editVisit):null),eventos:eventsPage,evento:()=>eventForm(eventTab),carestatus:careStatusForm,calidad:quality,flujo:workflowPage,crd:crdPage,estudio:studyPage,inteligencia:intelligencePage,analisis:analysisPage,resultados:outcomesPage,completitud:p14Page,exportacion:exportsPage};root.innerHTML=(routes[route]||overview)();if(route==='detalle')loadJourneyReview(selectedPatient);get('navigation').querySelectorAll('button').forEach(x=>x.classList.toggle('active',x.dataset.route===(route==='detalle'||route==='participante'?'cohorte':route==='visita'?'visitas':(route==='evento'||route==='carestatus')?'eventos':route)));if(route==='red'){get('networkInviteForm')?.addEventListener('submit',makeInvitation)}if(route==='inteligencia'){wireIntelligencePage()}if(route==='cohorte'){get('filterPatients').addEventListener('input',renderCohortTable);get('filterCentre').addEventListener('change',renderCohortTable);get('clearCohortFilters').addEventListener('click',()=>{get('filterPatients').value='';get('filterCentre').value='';renderCohortTable();get('filterPatients').focus()});renderCohortTable()}if(route==='participante'){const p=patient(selectedPatient);get('patientForm').dataset.edit=p?'1':'';get('patientForm').addEventListener('submit',processPatient);['pbirthdate','penrol','ppriormod','ppriorsev','pstatus','pcopd','pregular','plastrevi','pcapacity','pweeks','pexclusion','pconsent','pconsentdate','pactive','peligibility','palternativedx','pdecomp','ptrial','pspirodate','pratio','pfev1','pvital','pdeathdate','pdeathcause'].forEach(id=>{const el=get(id);if(el){el.addEventListener('change',syncDerivedPatientFields);el.addEventListener('input',syncDerivedPatientFields)}});syncDerivedPatientFields();const f=get('patientForm');f.dataset.dirty='0';['input','change'].forEach(ev=>f.addEventListener(ev,()=>{f.dataset.dirty='1'}))}if(route==='visita'){get('visitForm').addEventListener('submit',processVisit);get('visitForm')?.querySelector('button[type="submit"]')?.addEventListener('click',()=>{visitAfterSave=''});get('saveVisitAndCRD')?.addEventListener('click',()=>{visitAfterSave='crd';get('visitForm')?.requestSubmit()});['vrescue','vexacerb','vdyspnea','vactivity','vmmrc'].forEach(id=>get(id).addEventListener('change',preview));['vregimen','vmono','vstatus','vreason','vianusverified','vianuscollected','vianusdate','vtype','vpatient'].forEach(id=>get(id)?.addEventListener('change',syncVisitConditionalFields));get('visitForm').addEventListener('click',e=>{if(e.target.closest('#useMmrcHint')){const mm=val('vmmrc');if(mm!==''&&!val('vdyspnea')){get('vdyspnea').value=Number(mm)>=2?'si':'no';get('vdyspnea').dispatchEvent(new Event('change',{bubbles:true}));}}else copyPreviousVisitValues(e)});syncVisitConditionalFields();preview()}if(route==='carestatus')get('careForm')?.addEventListener('submit',processCareStatus);if(route==='evento'){get('eventForm').addEventListener('submit',processEvent);const kind=get('ekind'),sev=get('eseverity');if(kind&&sev)kind.addEventListener('change',()=>{if(kind.value==='otro')sev.value='no_aplica';else if(sev.value==='no_aplica')sev.value='moderada';});const ep=get('epatient'),related=get('eevent');if(ep&&related)ep.addEventListener('change',()=>{related.innerHTML='<option value="">No vinculado</option>'+db.events.filter(e=>e.patient===ep.value).map(e=>`<option value="${esc(e.id)}">${esc(String(e.episodeNo??'?').padStart(2,'0'))} · ${fmt(e.date)}</option>`).join('');});}
+function render(){const root=get('root');if(!root)return;root.dataset.view=route;root.dataset.empty=(route==='inicio'&&!db.patients.length)?'true':'false';document.querySelector('.content')?.classList.toggle('on-overview',route==='inicio');const routes={inicio:overview,red:collaborationPage,cohorte:cohort,detalle:detail,participante:()=>patientForm(patient(selectedPatient)||null),visitas:visitsPage,visita:()=>visitForm(editVisit?db.visits.find(v=>v.id===editVisit):null),eventos:eventsPage,evento:()=>eventForm(eventTab),carestatus:careStatusForm,calidad:quality,flujo:workflowPage,crd:crdPage,estudio:studyPage,inteligencia:intelligencePage,analisis:analysisPage,resultados:outcomesPage,completitud:p14Page,exportacion:exportsPage};root.innerHTML=(routes[route]||overview)();if(route==='detalle')loadJourneyReview(selectedPatient);get('navigation').querySelectorAll('button').forEach(x=>x.classList.toggle('active',x.dataset.route===(route==='detalle'||route==='participante'?'cohorte':route==='visita'?'visitas':(route==='evento'||route==='carestatus')?'eventos':route)));if(route==='red'){get('networkInviteForm')?.addEventListener('submit',makeInvitation)}if(route==='inteligencia'){wireIntelligencePage()}if(route==='cohorte'){get('filterPatients').addEventListener('input',renderCohortTable);get('filterCentre').addEventListener('change',renderCohortTable);get('clearCohortFilters').addEventListener('click',()=>{get('filterPatients').value='';get('filterCentre').value='';renderCohortTable();get('filterPatients').focus()});renderCohortTable()}if(route==='participante'){const p=patient(selectedPatient);get('patientForm').dataset.edit=p?'1':'';get('patientForm').addEventListener('submit',processPatient);['pbirthdate','penrol','ppriormod','ppriorsev','pstatus','pcopd','pregular','plastrevi','pcapacity','pweeks','pexclusion','pconsent','pconsentdate','pactive','peligibility','palternativedx','pdecomp','ptrial','pspirodate','pratio','pfev1','pvital','pdeathdate','pdeathcause'].forEach(id=>{const el=get(id);if(el){el.addEventListener('change',syncDerivedPatientFields);el.addEventListener('input',syncDerivedPatientFields)}});syncDerivedPatientFields();const f=get('patientForm');f.dataset.dirty='0';['input','change'].forEach(ev=>f.addEventListener(ev,()=>{f.dataset.dirty='1'}))}if(route==='visita'){get('visitForm').addEventListener('submit',processVisit);get('visitForm')?.querySelector('button[type="submit"]')?.addEventListener('click',()=>{visitAfterSave=''});get('saveVisitAndCRD')?.addEventListener('click',()=>{visitAfterSave='crd';get('visitForm')?.requestSubmit()});['vrescue','vexacerb','vdyspnea','vactivity','vmmrc'].forEach(id=>get(id).addEventListener('change',preview));['vregimen','vmono','vstatus','vreason','vianusverified','vianuscollected','vianusdate','vtype','vpatient'].forEach(id=>get(id)?.addEventListener('change',syncVisitConditionalFields));get('visitForm').addEventListener('click',e=>{if(e.target.closest('#useMmrcHint')){const mm=val('vmmrc');if(mm!==''&&!val('vdyspnea')){get('vdyspnea').value=Number(mm)>=2?'si':'no';get('vdyspnea').dispatchEvent(new Event('change',{bubbles:true}));}}else copyPreviousVisitValues(e)});syncVisitConditionalFields();preview()}if(route==='carestatus')get('careForm')?.addEventListener('submit',processCareStatus);if(route==='evento'){get('eventForm').addEventListener('submit',processEvent);const kind=get('ekind'),sev=get('eseverity');if(kind&&sev)kind.addEventListener('change',()=>{if(kind.value==='otro')sev.value='no_aplica';else if(sev.value==='no_aplica')sev.value='moderada';});const ep=get('epatient'),related=get('eevent');if(ep&&related)ep.addEventListener('change',()=>{related.innerHTML='<option value="">No vinculado</option>'+db.events.filter(e=>e.patient===ep.value).map(e=>`<option value="${esc(e.id)}">${esc(String(e.episodeNo??'?').padStart(2,'0'))} · ${fmt(e.date)}</option>`).join('');});}
 if(route==='crd'){
 get('studyPatient')?.addEventListener('change',e=>{selectedStudyPatient=e.target.value;crdFeedback='';render()});
 get('root').querySelectorAll('[data-crd-visit]').forEach(btn=>btn.addEventListener('click',()=>{selectedStudyVisit=btn.dataset.crdVisit;crdFeedback='';render()}));
