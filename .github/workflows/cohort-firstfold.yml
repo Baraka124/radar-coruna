@@ -1,0 +1,50 @@
+name: RADAR v0.46 participant layout verification
+on:
+  push:
+    branches:
+      - ui/cohort-firstfold-v046-20261115
+  pull_request:
+    paths:
+      - 'static/index.html'
+      - 'tests/browser_cohort_v46.py'
+      - '.github/workflows/cohort-firstfold.yml'
+permissions:
+  contents: read
+jobs:
+  cohort-ui:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install API and browser dependencies
+        run: |
+          python -m pip install -r requirements.txt
+          python -m pip install playwright
+          python -m playwright install --with-deps chromium
+      - name: Check frontend syntax
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          html=Path('static/index.html').read_text(encoding='utf-8')
+          code=html.rsplit('<script>',1)[1].split('</script>',1)[0]
+          Path('/tmp/radar-cohort-v46.js').write_text(code,encoding='utf-8')
+          PY
+          node --check /tmp/radar-cohort-v46.js
+      - name: Python regression
+        run: python -m pytest -q tests/test_*.py
+      - name: Live browser visual and interaction regression
+        env:
+          RADAR_MODE: local_demo
+          RADAR_STORAGE: sqlite
+        run: python tests/browser_cohort_v46.py
+      - name: Save synthetic-only screenshots
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: radar-cohort-v46-screenshots
+          path: docs/v46/cohort_*.png
+          if-no-files-found: ignore
+          retention-days: 7
