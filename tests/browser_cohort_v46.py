@@ -39,7 +39,8 @@ def main():
         with TestClient(server.app) as client:
             login=client.post('/api/session',json={'username':'admin','password':'radar-demo-admin'})
             assert login.status_code==200, login.text
-            csrf={'X-RADAR-CSRF':login.json()['csrf']}
+            def current_csrf():
+                return {'X-RADAR-CSRF':client.get('/api/session').json()['csrf']}
             assert client.get('/api/state').json()['centres']==[]
             assert client.get('/api/state').json()['patients']==[]
             with sync_playwright() as pw:
@@ -64,7 +65,7 @@ def main():
                     capture(page,'no_centres',width)
                     assert not errors,(width,errors)
                     page.close()
-                created=client.post('/api/centres',headers=csrf,
+                created=client.post('/api/centres',headers=current_csrf(),
                     json={'code':'GAL_AP_01','name':'Centro de ensayo creado por prueba automatizada'})
                 assert created.status_code==201,created.text
                 for width in (390,1440):
@@ -77,7 +78,7 @@ def main():
                     capture(page,'centre_no_records',width)
                     assert not errors,(width,errors)
                     page.close()
-                created_patient=client.post('/api/patients',headers=csrf,
+                created_patient=client.post('/api/patients',headers=current_csrf(),
                     json={'id':'SIM-UI-V46-01','center':'GAL_AP_01'})
                 assert created_patient.status_code==201,created_patient.text
                 for width in (320,390,768,1024,1440):
