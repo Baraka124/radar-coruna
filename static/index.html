@@ -1234,6 +1234,338 @@ tbody tr:hover{background:#f8fbff}
 }
 @media(prefers-reduced-motion:reduce){.nav button,.btn{transition:none!important}}
 
+
+/* RADAR-CORUÑA · v0.43 Premium clinical UI.
+   Editorial hierarchy, light surfaces, one purposeful blue accent.
+   Presentation only; clinical data, permission checks and event hooks unchanged. */
+:root{
+  --radar-canvas:#f8fafd; --radar-paper:#fff; --radar-ink:#182d46;
+  --radar-text:#38536d; --radar-muted:#6e849b; --radar-line:#e3eaf3;
+  --radar-line-strong:#d4e1ee; --radar-blue:#276ab9;
+  --radar-blue-soft:#eef5ff; --radar-shadow:0 6px 28px rgba(27,55,91,.045);
+}
+body{background:var(--radar-canvas);color:var(--radar-ink);
+  font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+  font-size:13px;line-height:1.53;letter-spacing:-.003em}
+body.signed-in .main{background:var(--radar-canvas);min-width:0}
+.layout{background:var(--radar-canvas)}
+.main{min-height:100dvh}
+::selection{background:#dceaff;color:#163a69}
+button:focus-visible,a:focus-visible,summary:focus-visible{
+ outline:2px solid #4181cc;outline-offset:2px
+}
+/* Product shell: brand anchored at top left, calm sticky utility line. */
+.sidebar{background:#fff!important;border-right:1px solid var(--radar-line-strong);
+ box-shadow:4px 0 22px rgba(27,54,92,.018);padding:20px 12px 12px!important;
+ gap:8px}
+.brand-row{padding:0 5px 16px;margin-bottom:4px;border-bottom:1px solid #e8eef5;
+ min-height:61px;align-items:center;gap:5px}
+.radar-brand-lockup{display:flex;align-items:center;gap:10px;min-width:0;flex:1}
+.radar-brand-mark{height:36px;width:36px;flex:none;display:grid;place-items:center}
+.radar-brand-mark svg{width:36px;height:36px;display:block}
+.brand{padding:0;min-width:0}
+.brand strong{font-size:17px;letter-spacing:-.063em;line-height:1.15;
+ color:#193957;font-weight:800}
+.brand strong span{color:var(--radar-blue)}
+.brand small{color:#7188a2;font-size:9.7px;letter-spacing:-.007em;
+ font-weight:580;text-transform:none;margin-top:5px}
+.sidebar-collapse{width:28px;height:28px;color:#7590aa;flex:none;border-color:transparent}
+.sidebar-collapse:hover{background:#eff5fd;color:var(--radar-blue);border-color:#dce7f6}
+.navgroup{padding:4px 2px 7px!important;overflow-y:auto;overflow-x:hidden;
+ scrollbar-width:thin;scrollbar-color:#cbd8e9 transparent;overscroll-behavior:contain;min-height:0}
+.nav{gap:2px}
+.navlabel{color:#8a9db1;font-size:9px;font-weight:770;
+ letter-spacing:.105em;padding:13px 11px 6px}
+.nav-divider{background:#e8eef5;margin:11px 9px 6px}
+.nav button{font-size:12px;font-weight:590;min-height:38px;padding:8px 10px;
+ gap:10px;border-radius:8px;color:#4d6681;
+ transition:color .15s,background .15s;letter-spacing:-.012em}
+.nav button:hover{background:#f2f6fc;color:#235b9f}
+.nav button.active{color:#205d9f!important;background:#eaf3ff!important;
+ box-shadow:inset 0 0 0 1px #dae9fc;font-weight:760}
+.nav button.active::before{width:3px;left:0;top:9px;bottom:9px;
+ background:#2e78ce;border-radius:0 4px 4px 0}
+.nav .glyph{color:#8198b1;flex-basis:19px;width:19px}
+.nav .glyph svg{width:17px;height:17px;stroke-width:1.7}
+.nav button.active .glyph{color:#2b72c5}
+.sidebar .foot{border-top:1px solid #e9eff6;background:#fff;
+ margin-top:0;padding:11px 10px 3px;display:flex;flex-direction:row;
+ align-items:center;justify-content:space-between;gap:4px}
+.foot-version{font-size:10px;color:#506d8a;font-weight:740}
+.foot-ui-version{color:#8196ab;font-size:8.5px;letter-spacing:.06em;font-weight:720}
+.foot-caption{display:none}
+.top{height:62px;border-bottom:1px solid var(--radar-line);box-shadow:none;
+ background:rgba(255,255,255,.97);backdrop-filter:blur(14px);
+ padding:0 clamp(24px,3.2vw,49px);z-index:12}
+.top .eyebrow{font-size:10.3px;font-weight:710;color:#416387;letter-spacing:.045em}
+.top .eyebrow::before{content:"";display:inline-block;width:5px;height:5px;
+ border-radius:50%;background:#347ecc;margin:0 10px 1px 0}
+.top-right{gap:11px}
+.top .status{border:1px solid #deebf7;background:#f8fbff;
+ color:#527294;border-radius:99px;min-height:27px;
+ display:inline-flex;align-items:center;letter-spacing:.032em;padding:4px 10px}
+.top .status::before{content:"";width:5px;height:5px;border-radius:50%;
+ background:#438ccf;display:inline-block;margin-right:7px}
+.user-label{font-size:11px;color:#385a7c;font-weight:680}
+.logout{border:1px solid #d5e0ec;background:#fff;border-radius:8px;
+ color:#476b8e;min-height:32px;padding:6px 11px;box-shadow:none}
+.logout:hover{background:#f0f6ff;border-color:#b5cde6;color:#225c9a}
+.content{max-width:1450px;padding:22px clamp(22px,3.2vw,49px) 84px}
+.workspace-context{margin:0 0 15px;min-height:29px;border:0;padding:0;gap:12px}
+.context-path{font-size:11px;color:#8194a8;gap:7px}
+.context-path strong{color:#416382;font-weight:680}
+.context-actions{gap:7px}
+.context-link,.context-export{font-size:11px;font-weight:680;
+ border-radius:7px;min-height:29px;padding:6px 9px;color:#306ba9}
+.context-export{background:#fff;border-color:#d7e3ef}
+.context-link:hover,.context-export:hover{background:#eff6ff;color:#215a97}
+.head{gap:18px;align-items:flex-end;margin:0 0 17px}
+.head>div:first-child{min-width:0}
+.over{font-size:9.6px;letter-spacing:.115em;text-transform:uppercase;
+ font-weight:770;color:#4079b7;display:flex;gap:8px;align-items:center}
+.over::before{content:"";width:17px;height:1px;background:#4d8fd2;flex:none}
+.head h1{color:#17314f;font-size:clamp(28px,2.7vw,35px);
+ line-height:1.17;font-weight:780;letter-spacing:-.046em;
+ margin:8px 0 8px}
+.head p{font-size:12.5px;color:#6b8197;line-height:1.55;max-width:760px}
+.head .actions{gap:7px;flex:0 0 auto}
+.environment-note{margin:1px 0 20px}
+.environment-note>summary{color:#7890a8;font-size:10.5px}
+.environment-note .environment-info{color:#6d88a2;border-color:#bfd0e0}
+.environment-note>summary:hover{color:#2d66a9}
+.environment-note-content{background:#fff;border-color:#e1e9f2;
+ box-shadow:0 4px 13px rgba(30,67,102,.025);max-width:620px}
+/* Substantial white space is intentional; useful numbers and headings stay strong. */
+.metrics{gap:12px;margin:0 0 18px}
+.metric{background:#fff;border:1px solid #e0e8f2;border-radius:11px;
+ box-shadow:0 4px 14px rgba(34,68,105,.032);
+ padding:18px 20px;position:relative;overflow:hidden}
+.metric:first-child{border-color:#cedff2;background:linear-gradient(140deg,#fff 20%,#f6faff 100%)}
+.metric:first-child::before{content:"";position:absolute;top:0;left:0;right:0;
+ height:2px;background:linear-gradient(90deg,#347ac9,#a9c9ed)}
+.metric .lab{color:#607b99;font-size:11px;font-weight:650}
+.metric .val{color:#1b426b;font-size:clamp(29px,2.65vw,37px);
+ font-weight:770;line-height:1.16;letter-spacing:-.045em;margin:6px 0 5px}
+.metric:first-child .val{color:#236ab6}
+.metric .help{color:#7a8ea5;font-size:10.7px;line-height:1.4}
+.panel,.int-panel,.network-centre,.workflow-ribbon,.patient-journey{
+ border:1px solid #dfe8f2;border-radius:11px;background:#fff;
+ box-shadow:var(--radar-shadow);overflow:clip
+}
+.panelhead{padding:18px 21px 16px;border-bottom:1px solid #eaf0f6;
+ background:#fff;gap:12px}
+.panelhead h2{color:#264666;font-size:14.2px;font-weight:760;
+ letter-spacing:-.018em;line-height:1.35}
+.panelhead p{color:#7c8ea3;font-size:11.4px;margin-top:4px}
+.panelbody{padding:20px 21px}
+.panel + .panel{margin-top:15px}
+.split{gap:15px}
+.tablewrap{border-radius:0 0 11px 11px}
+.tablewrap table{border-collapse:collapse}
+th,.tablewrap th{background:#f9fbfe;color:#6d839c;font-size:10px;
+ font-weight:750;letter-spacing:.048em;padding:12px 15px;border-bottom:1px solid #e7eef7}
+td,.tablewrap td{color:#38546c;font-size:11.9px;padding:13px 15px;
+ border-bottom:1px solid #edf2f7}
+tbody tr:last-child td{border-bottom:0}
+tbody tr:hover{background:#f7fbff}
+.code{color:#245f9a;font-weight:750;font-variant-numeric:tabular-nums}
+.linklike{color:#2365a6;font-weight:710;border-radius:6px}
+.linklike:hover{background:#edf5ff;color:#174f91}
+.tag{border:1px solid #d8e5f1;background:#f5f9ff;color:#4c7298;
+ border-radius:6px;font-size:10.5px;letter-spacing:.008em;font-weight:680}
+.tag.partial{background:#fffaf0;border-color:#f0dfbe;color:#96703e}
+.tag.bad{background:#fff4f4;border-color:#efd4d6;color:#a35e60}
+.tag.neutral{background:#f7f9fc;border-color:#e6edf5;color:#72879b}
+.empty,.compact-empty{background:#fafcff;color:#6f849c;
+ border:1px dashed #dce7f2;border-radius:9px;
+ padding:21px 18px;font-size:11.9px;line-height:1.56}
+.btn,.context-export,.clinical-return,.filter-reset{
+ border:1px solid #d2e0ed;background:#fff;color:#346596;
+ border-radius:8px;box-shadow:none;min-height:34px;padding:7px 12px;
+ font-size:11.7px;font-weight:680;line-height:1.25;
+ transition:background .15s,border-color .15s,color .15s
+}
+.btn:hover,.clinical-return:hover{background:#eff6ff;border-color:#a7c6e7;color:#225b99}
+.btn.primary{background:#edf5ff!important;border:1px solid #c3dafa!important;
+ color:#225f9f!important;box-shadow:none!important}
+.btn.primary:hover{background:#e1eeff!important;border-color:#9bbfe9!important}
+.btn.small{min-height:31px;padding:6px 10px;font-size:11px}
+.btn:focus-visible,.linklike:focus-visible{outline:2px solid #4d8fd4;outline-offset:2px}
+/* A real first-use experience instead of multiple empty tables. */
+#root[data-view="inicio"][data-empty="true"] .action-worklist,
+#root[data-view="inicio"][data-empty="true"]>.vspace,
+#root[data-view="inicio"][data-empty="true"]>.split{display:none!important}
+.overview-onboarding{display:grid;grid-template-columns:minmax(0,1.27fr) minmax(245px,.73fr);
+ border:1px solid #d9e5f3;border-radius:13px;background:#fff;
+ box-shadow:0 11px 31px rgba(33,65,107,.055);overflow:hidden;
+ margin-top:2px;min-height:254px}
+.overview-onboard-main{padding:29px clamp(22px,3vw,37px) 30px;
+ position:relative;overflow:hidden;background:
+ radial-gradient(circle at 98% 10%,rgba(181,212,249,.20),transparent 40%),#fff}
+.overview-onboard-eyebrow{font-size:10px;color:#3777bd;font-weight:790;
+ letter-spacing:.10em;display:flex;align-items:center;gap:8px}
+.onboard-spark{width:7px;height:7px;border-radius:50%;background:#347bcc;
+ box-shadow:0 0 0 4px #e9f3ff}
+.overview-onboard-main h2{font-size:clamp(21px,2.2vw,27px);
+ color:#1b3e63;letter-spacing:-.042em;line-height:1.23;
+ font-weight:780;max-width:480px;margin:17px 0 10px}
+.overview-onboard-main p{color:#6a839e;line-height:1.62;
+ font-size:12.4px;max-width:510px}
+.overview-onboard-actions{display:flex;align-items:center;gap:14px;
+ flex-wrap:wrap;margin-top:22px}
+.overview-start-btn{font-size:12px!important;min-height:36px}
+.overview-start-btn span{font-size:15px}
+.overview-onboard-actions>span{font-size:10.5px;color:#8aa0b5}
+.overview-onboard-steps{background:#f9fbfe;border-left:1px solid #e7eef7;
+ padding:25px 24px 22px}
+.onboard-steps-title{font-size:9.5px;font-weight:780;letter-spacing:.095em;
+ color:#7590a9;margin:0 0 22px}
+.onboard-step{display:flex;align-items:flex-start;gap:12px;
+ position:relative;padding:0 0 17px}
+.onboard-step:last-child{padding-bottom:0}
+.onboard-step:not(:last-child)::before{content:"";position:absolute;
+ top:14px;bottom:3px;left:5px;width:1px;background:#cbdcef}
+.onboard-step i{width:11px;height:11px;flex:none;margin-top:3px;
+ border:2px solid #86a9d0;background:#fff;border-radius:50%;z-index:1}
+.onboard-step:first-of-type i{background:#3476c1;border-color:#3476c1;
+ box-shadow:0 0 0 3px #e5f0fd}
+.onboard-step b{display:block;color:#365976;font-size:11.5px;
+ font-weight:730;margin-bottom:3px}
+.onboard-step span{display:block;color:#8299af;font-size:10.5px;line-height:1.35}
+/* Editorial forms: sections feel connected, not nested decorative cards. */
+.field label{font-size:11.4px;color:#355471;font-weight:700;
+ letter-spacing:-.005em;margin-bottom:7px}
+.field small{color:#8195ab;font-size:10.2px;line-height:1.48}
+.field input,.field select,.field textarea,
+.fbar input,.fbar select,.int-filter input,.int-filter select,
+.crd-field-grid input,.crd-field-grid select{
+ color:#254461;border:1px solid #d2deeb;border-radius:8px;background:#fff;
+ box-shadow:none;min-height:39px;transition:border-color .14s,box-shadow .14s;
+ font-size:12px}
+.field input:hover,.field select:hover,.fbar input:hover,.fbar select:hover{
+ border-color:#b8cfe5}
+.field input:focus,.field select:focus,.field textarea:focus,
+.fbar input:focus,.fbar select:focus,.crd-field-grid input:focus,
+.crd-field-grid select:focus{outline:none;border-color:#5d93ce;
+ box-shadow:0 0 0 3px rgba(82,141,205,.12)}
+.field input:disabled,.field select:disabled{background:#f7f9fc;color:#7b8fa5}
+.field input[readonly]{background:#f9fbfe;color:#587797;border-color:#e0e8f2}
+.sectiontitle,.clinical-block-title{color:#315474;font-weight:760}
+#patientForm,#visitForm{border-color:#dce6f1;overflow:visible}
+#patientForm>.panelhead,#visitForm>.panelhead{padding:20px 24px 16px}
+#patientForm>.panelbody,#visitForm>.panelbody{padding:0 24px 23px}
+#patientForm .clinical-toolbar,#visitForm .clinical-toolbar{
+ background:rgba(255,255,255,.98);top:62px;
+ border-bottom:1px solid #e5ecf5;padding:5px 0;gap:12px;z-index:9;
+ min-height:48px;backdrop-filter:blur(10px)}
+#patientForm .clinical-block,#visitForm .clinical-block{
+ background:transparent;border:0;border-bottom:1px solid #e8eff7;
+ border-radius:0;margin:0;box-shadow:none;scroll-margin-top:122px}
+#patientForm .clinical-block:last-of-type,#visitForm .clinical-block:last-of-type{border-bottom:0}
+#patientForm .clinical-block-title,#visitForm .clinical-block-title{
+ background:transparent!important;color:#305472;font-size:12.9px;
+ padding:18px 3px;min-height:48px}
+#patientForm .clinical-block-title:hover,#visitForm .clinical-block-title:hover{
+ color:#215d9d;background:#f9fbff!important}
+#patientForm .clinical-block[open]>.clinical-block-title,
+#visitForm .clinical-block[open]>.clinical-block-title{color:#225e9e}
+#patientForm .clinical-block-body,#visitForm .clinical-block-body{
+ border-top:1px solid #edf2f7;padding:18px 3px 21px}
+#patientForm .clinical-block-hint,#visitForm .clinical-block-hint{
+ font-size:10px;color:#8498ad}
+#patientForm .fields,#visitForm .fields{gap:15px 17px}
+.section-jump{color:#7189a0;font-size:11.3px;font-weight:640;
+ border-bottom:2px solid transparent;border-radius:0}
+.section-jump.active{color:#2064a8;border-bottom-color:#2878c9;
+ background:transparent!important}
+.clinical-stage-mark{border:1px solid #d7e5f5;background:#f3f8ff;
+ color:#37689a;border-radius:7px}
+#patientForm .footerbar,#visitForm .footerbar{background:#fff;
+ border-top:1px solid #dfe8f2;box-shadow:0 -6px 18px rgba(34,64,104,.038)}
+.crd-context-bar,.crd-workspace{border:1px solid #dce6f2;background:#fff;
+ border-radius:11px;box-shadow:var(--radar-shadow)}
+.crd-section-tab{color:#67829e;font-weight:610}
+.crd-section-tab.active{background:#eaf4ff;color:#1e63a6;box-shadow:inset 3px 0 #3c88d2}
+.crd-group-heading h3{color:#264c74}
+.int-panel,.int-stat{border-color:#dce6f1;background:#fff}
+.int-stat strong{color:#235582}
+.int-tools .btn,.int-filter .btn{white-space:normal}
+.workflow-stage.current,.journey-step.done{background:#f0f6ff;
+ border-color:#cbdff4}
+.network-centre h3{color:#28577f}
+/* Dense scientific tables must stay readable; no wall of pale labels. */
+#root[data-view="estudio"] #specSearch{max-width:480px;
+ border-color:#cbdced!important;padding:9px 12px!important;
+ height:38px!important;font-size:12px}
+#root[data-view="estudio"] .panelbody>.subtle{max-width:720px}
+#root .call{border-color:#dce6f1;background:#f9fbfe;color:#50708d}
+#root .call strong{color:#2b547d}
+#root .subtle{color:#8193a7}
+@media(min-width:901px){
+ .layout{grid-template-columns:250px minmax(0,1fr)}
+ body.sidebar-collapsed .layout{grid-template-columns:74px minmax(0,1fr)}
+ .sidebar{height:100dvh;max-height:100dvh;position:sticky;top:0;
+   display:grid;grid-template-rows:auto minmax(0,1fr) auto;overflow:hidden}
+ body.sidebar-collapsed .sidebar{display:grid;grid-template-rows:auto minmax(0,1fr)}
+ body.sidebar-collapsed .brand-row{padding:0 0 12px;justify-content:center;
+   display:flex;flex-direction:column;gap:5px}
+ body.sidebar-collapsed .radar-brand-lockup{justify-content:center;width:100%}
+ body.sidebar-collapsed .radar-brand-mark{width:34px;height:34px}
+ body.sidebar-collapsed .radar-brand-mark svg{width:34px;height:34px}
+ body.sidebar-collapsed .brand{display:none}
+ body.sidebar-collapsed .sidebar-collapse{width:32px}
+ body.sidebar-collapsed .navgroup{padding:0!important;overflow-y:auto}
+ body.sidebar-collapsed .nav button{min-width:39px;min-height:41px}
+ body.sidebar-collapsed .foot-ui-version{display:none}
+}
+@media(max-width:1180px) and (min-width:901px){
+ .content{padding-left:27px;padding-right:27px}
+ .head h1{font-size:31px}
+ .overview-onboarding{grid-template-columns:minmax(0,1fr) 250px}
+ .overview-onboard-main{padding:26px}
+}
+@media(max-width:900px){
+ .sidebar{position:fixed;top:0;bottom:0;left:0;display:flex;flex-direction:column;
+   height:100dvh;max-height:100dvh;overflow-y:auto;padding:19px 13px 15px!important;
+   box-shadow:16px 0 40px rgba(31,57,89,.14);z-index:102}
+ .sidebar .navgroup{flex:1 1 auto;overflow-y:auto;min-height:0}
+ .sidebar .foot{flex:none}
+ .top{height:56px;padding:0 19px}
+ .content{padding:18px 20px 65px}
+ .head h1{font-size:31px}
+ .overview-onboarding{grid-template-columns:minmax(0,1fr) minmax(225px,.75fr)}
+ #patientForm .clinical-toolbar,#visitForm .clinical-toolbar{top:56px}
+}
+@media(max-width:690px){
+ .content{padding:17px 15px 65px}
+ .top{padding:0 14px}
+ .top .eyebrow{display:none}
+ .head{display:block}
+ .head h1{font-size:27px}
+ .head p{font-size:12px}
+ .head .actions{margin-top:14px}
+ .metrics{gap:9px}
+ .metric{padding:15px}
+ .metric .val{font-size:29px}
+ .overview-onboarding{grid-template-columns:minmax(0,1fr)}
+ .overview-onboard-main{padding:24px 20px 23px}
+ .overview-onboard-main h2{font-size:23px;margin-top:15px}
+ .overview-onboard-steps{border-left:0;border-top:1px solid #e7eef7;
+   padding:20px 20px 21px}
+ .onboard-steps-title{margin-bottom:15px}
+ .onboard-step{padding-bottom:13px}
+ .panelhead{padding:16px}
+ .panelbody{padding:16px}
+ #patientForm>.panelhead,#visitForm>.panelhead{padding:18px 15px 12px}
+ #patientForm>.panelbody,#visitForm>.panelbody{padding:0 15px 17px}
+ #patientForm .clinical-toolbar,#visitForm .clinical-toolbar{top:56px}
+ #patientForm .clinical-block-title,#visitForm .clinical-block-title{padding:15px 1px}
+ #patientForm .clinical-block-body,#visitForm .clinical-block-body{padding:15px 1px}
+}
+@media(prefers-reduced-motion:reduce){
+ .nav button,.btn,.field input,.field select,.fbar input,.fbar select{transition:none!important}
+}
+
 </style>
 </head>
 <body>
