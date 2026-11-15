@@ -2009,6 +2009,131 @@ tbody tr:hover{background:#f7fbff}
  #root .module-empty-state{padding:17px}
 }
 
+
+/* v0.48 · Premium clinical form anatomy: one calm identity area and one measured area.
+   No colored filled controls, no placeholder cards, no layout-driven clinical values. */
+#root[data-view="visita"] #visitForm .visit-intake{
+ display:grid!important;grid-template-columns:minmax(0,1.12fr) minmax(0,.88fr)!important;
+ gap:0!important;align-items:stretch!important;max-width:none!important;
+ width:100%!important;margin:2px 0 8px;min-width:0
+}
+#root[data-view="visita"] #visitForm .visit-intake-group{
+ display:flex;flex-direction:column;min-width:0;padding:6px 0 15px
+}
+#root[data-view="visita"] #visitForm .visit-intake-visit{
+ padding-right:clamp(15px,2.3vw,31px)
+}
+#root[data-view="visita"] #visitForm .visit-intake-measures{
+ border-left:1px solid #e0eaf5;padding-left:clamp(15px,2.3vw,31px);
+ background:linear-gradient(90deg,rgba(245,249,255,.37),transparent 75%)
+}
+#root[data-view="visita"] #visitForm .visit-intake-heading{
+ font-size:10.4px;font-weight:780;letter-spacing:.095em;text-transform:uppercase;
+ color:#537aa2;line-height:1.35;margin:0 0 17px;
+ display:flex;align-items:center;gap:10px
+}
+#root[data-view="visita"] #visitForm .visit-intake-heading::after{
+ content:"";height:1px;background:#e6edf6;flex:1 1 auto
+}
+#root[data-view="visita"] #visitForm .visit-intake-fields{
+ display:grid!important;grid-template-columns:minmax(0,1.35fr) minmax(0,.9fr)!important;
+ gap:18px 18px!important;align-items:start;min-width:0;max-width:none!important
+}
+#root[data-view="visita"] #visitForm .visit-intake-measures .visit-intake-fields{
+ grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important
+}
+#root[data-view="visita"] #visitForm .visit-intake .field{
+ display:flex;flex-direction:column;gap:6px;
+ flex:none!important;min-width:0!important;max-width:none!important;
+ width:auto!important;align-self:start;margin:0!important;padding:0!important
+}
+#root[data-view="visita"] #visitForm .visit-intake .field[data-field-id="vsmoking"]{
+ grid-column:1/-1;max-width:310px!important
+}
+#root[data-view="visita"] #visitForm .visit-intake .field label{
+ display:block;min-height:16px;font-size:11.6px;line-height:1.35;font-weight:680;
+ letter-spacing:-.005em;color:#355676;margin:0!important
+}
+#root[data-view="visita"] #visitForm .visit-intake .field :is(input,select){
+ box-sizing:border-box;width:100%!important;max-width:100%!important;
+ height:42px!important;min-height:42px!important;
+ border:0!important;border-radius:0!important;border-bottom:1px solid #bbcede!important;
+ background-color:transparent!important;box-shadow:none!important;
+ padding:7px 23px 7px 2px!important;
+ font-family:inherit;font-size:13.3px!important;font-weight:570;
+ line-height:1.5;color:#1e4166!important;letter-spacing:-.008em;
+ transition:background-color .15s,border-color .15s,box-shadow .15s;
+}
+#root[data-view="visita"] #visitForm .visit-intake .field select{
+ padding-right:27px!important;cursor:pointer
+}
+#root[data-view="visita"] #visitForm .visit-intake .field :is(input,select):hover{
+ border-bottom-color:#779fca!important;background-color:#f8fbff!important
+}
+#root[data-view="visita"] #visitForm .visit-intake .field :is(input,select):focus-visible{
+ outline:none!important;border-bottom:2px solid #2879c5!important;
+ background-color:#f5f9ff!important;box-shadow:0 5px 12px rgba(48,104,170,.05)!important
+}
+#root[data-view="visita"] #visitForm .visit-intake .field :is(input,select):disabled{
+ color:#96a8b8!important;border-bottom-style:dashed!important
+}
+#root[data-view="visita"] #visitForm .visit-intake .field[data-field-id="vcat"] input{
+ font-size:17px!important;font-weight:690;letter-spacing:-.02em
+}
+#root[data-view="visita"] #visitForm .visit-intake .field :is(input,select):is(:invalid){
+ box-shadow:none
+}
+#root[data-view="visita"] #visitForm .visit-intake .field :is(input,select)::placeholder{
+ color:#93a6ba
+}
+@media(max-width:1150px){
+ #root[data-view="visita"] #visitForm .visit-intake{
+  grid-template-columns:minmax(0,1fr)!important
+ }
+ #root[data-view="visita"] #visitForm .visit-intake-visit{padding-right:0}
+ #root[data-view="visita"] #visitForm .visit-intake-measures{
+  border-left:0;border-top:1px solid #e5edf6;
+  padding:18px 0 6px;background:transparent
+ }
+ #root[data-view="visita"] #visitForm .visit-intake-measures .visit-intake-fields{
+  grid-template-columns:minmax(0,150px) minmax(0,175px) minmax(0,260px)!important;
+  gap:18px!important
+ }
+ #root[data-view="visita"] #visitForm .visit-intake .field[data-field-id="vsmoking"]{
+  grid-column:auto;max-width:none!important
+ }
+}
+@media(max-width:690px){
+ #root[data-view="visita"] #visitForm .visit-intake{margin:0 0 5px}
+ #root[data-view="visita"] #visitForm .visit-intake-heading{margin-bottom:10px}
+ #root[data-view="visita"] #visitForm .visit-intake-fields{
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;gap:15px 12px!important
+ }
+ #root[data-view="visita"] #visitForm .visit-intake-visit .field[data-field-id="vpatient"]{
+  grid-column:1/-1
+ }
+ #root[data-view="visita"] #visitForm .visit-intake-visit .field[data-field-id="vassessor"]{
+  grid-column:1/-1
+ }
+ #root[data-view="visita"] #visitForm .visit-intake-measures .visit-intake-fields{
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;gap:15px 12px!important
+ }
+ #root[data-view="visita"] #visitForm .visit-intake-measures .field[data-field-id="vsmoking"]{
+  grid-column:1/-1
+ }
+ #root[data-view="visita"] #visitForm .visit-intake .field label{font-size:11px}
+ #root[data-view="visita"] #visitForm .visit-intake .field :is(input,select){
+  font-size:12.7px!important;min-height:40px!important;height:40px!important
+ }
+}
+@media(max-width:365px){
+ #root[data-view="visita"] #visitForm .visit-intake-visit .field[data-field-id="vtype"],
+ #root[data-view="visita"] #visitForm .visit-intake-visit .field[data-field-id="vdate"]{grid-column:1/-1}
+}
+@media(prefers-reduced-motion:reduce){
+ #root[data-view="visita"] #visitForm .visit-intake .field :is(input,select){transition:none}
+}
+
 </style>
 </head>
 <body>
@@ -2975,6 +3100,37 @@ function composeOverviewFirstFold(){
  actions.append(exportButton);
 }
 
+/* v0.48: clinical intake is two meaningful data groups, not seven unrelated boxes.
+   This only moves existing DOM nodes; their IDs, values, validation and form events remain intact. */
+function composeVisitIntake(){
+ const form=get('visitForm');
+ const container=form?.querySelector('.clinical-block:has(#vpatient) .clinical-block-body > .fields.three');
+ if(!container||container.classList.contains('visit-intake'))return;
+ const fields=[...container.querySelectorAll(':scope > .field')];
+ const byId=id=>fields.find(node=>node.dataset.fieldId===id);
+ const groups=[
+  {key:'visit',title:'Identificación de la visita',
+   ids:['vpatient','vtype','vdate','vassessor']},
+  {key:'measures',title:'Medidas clínicas',
+   ids:['vcat','vmmrc','vsmoking']}
+ ];
+ if(groups.flatMap(g=>g.ids).some(id=>!byId(id)))return;
+ container.className='visit-intake';
+ container.setAttribute('aria-label','Registro de la evaluación');
+ for(const spec of groups){
+  const group=document.createElement('section');
+  group.className='visit-intake-group visit-intake-'+spec.key;
+  group.setAttribute('aria-label',spec.title);
+  const heading=document.createElement('h3');heading.className='visit-intake-heading';heading.textContent=spec.title;
+  const grid=document.createElement('div');grid.className='visit-intake-fields';
+  spec.ids.forEach(id=>grid.append(byId(id)));
+  group.append(heading,grid);
+  container.append(group);
+ }
+ const title=container.closest('.clinical-block')?.querySelector('.clinical-block-title > span');
+ if(title)title.textContent='Registro y valoración clínica';
+}
+
 function enhanceInterface(){
  updateContext();
  composeModuleFirstFold();
@@ -2982,6 +3138,7 @@ function enhanceInterface(){
  if(route==='inicio')composeOverviewFirstFold();
  if(route==='visita'){
    makeClinicalSections('visitForm');
+   composeVisitIntake();
    const form=get('visitForm'),bar=form?.querySelector('.clinical-toolbar');
    if(bar){
       const pid=get('vpatient')?.value||visitPatient;
