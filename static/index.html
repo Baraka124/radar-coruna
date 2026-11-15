@@ -2009,6 +2009,184 @@ tbody tr:hover{background:#f7fbff}
  #root .module-empty-state{padding:17px}
 }
 
+
+/* v0.48 · Premium clinical form anatomy: one calm identity area and one measured area.
+   No colored filled controls, no placeholder cards, no layout-driven clinical values. */
+#root[data-view="visita"] #visitForm .visit-intake{
+ display:grid!important;grid-template-columns:minmax(0,1.12fr) minmax(0,.88fr)!important;
+ gap:0!important;align-items:stretch!important;max-width:none!important;
+ width:100%!important;margin:2px 0 8px;min-width:0
+}
+#root[data-view="visita"] #visitForm .visit-intake-group{
+ display:flex;flex-direction:column;min-width:0;padding:6px 0 15px
+}
+#root[data-view="visita"] #visitForm .visit-intake-visit{
+ padding-right:clamp(15px,2.3vw,31px)
+}
+#root[data-view="visita"] #visitForm .visit-intake-measures{
+ border-left:1px solid #e0eaf5;padding-left:clamp(15px,2.3vw,31px);
+ background:linear-gradient(90deg,rgba(245,249,255,.37),transparent 75%)
+}
+#root[data-view="visita"] #visitForm .visit-intake-heading{
+ font-size:10.4px;font-weight:780;letter-spacing:.095em;text-transform:uppercase;
+ color:#537aa2;line-height:1.35;margin:0 0 17px;
+ display:flex;align-items:center;gap:10px
+}
+#root[data-view="visita"] #visitForm .visit-intake-heading::after{
+ content:"";height:1px;background:#e6edf6;flex:1 1 auto
+}
+#root[data-view="visita"] #visitForm .visit-intake-fields{
+ display:grid!important;grid-template-columns:minmax(0,1.35fr) minmax(0,.9fr)!important;
+ gap:18px 18px!important;align-items:start;min-width:0;max-width:none!important
+}
+#root[data-view="visita"] #visitForm .visit-intake-measures .visit-intake-fields{
+ grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important
+}
+#root[data-view="visita"] #visitForm .visit-intake .field{
+ display:flex;flex-direction:column;gap:6px;
+ flex:none!important;min-width:0!important;max-width:none!important;
+ width:auto!important;align-self:start;margin:0!important;padding:0!important
+}
+#root[data-view="visita"] #visitForm .visit-intake .field[data-field-id="vsmoking"]{
+ grid-column:1/-1;max-width:310px!important
+}
+#root[data-view="visita"] #visitForm .visit-intake .field label{
+ display:block;min-height:16px;font-size:11.6px;line-height:1.35;font-weight:680;
+ letter-spacing:-.005em;color:#355676;margin:0!important
+}
+#root[data-view="visita"] #visitForm .visit-intake .field :is(input,select){
+ box-sizing:border-box;width:100%!important;max-width:100%!important;
+ height:42px!important;min-height:42px!important;
+ border:0!important;border-radius:0!important;border-bottom:1px solid #bbcede!important;
+ background-color:transparent!important;box-shadow:none!important;
+ padding:7px 23px 7px 2px!important;
+ font-family:inherit;font-size:13.3px!important;font-weight:570;
+ line-height:1.5;color:#1e4166!important;letter-spacing:-.008em;
+ transition:background-color .15s,border-color .15s,box-shadow .15s;
+}
+#root[data-view="visita"] #visitForm .visit-intake .field select{
+ padding-right:27px!important;cursor:pointer
+}
+#root[data-view="visita"] #visitForm .visit-intake .field :is(input,select):hover{
+ border-bottom-color:#779fca!important;background-color:#f8fbff!important
+}
+#root[data-view="visita"] #visitForm .visit-intake .field :is(input,select):focus-visible{
+ outline:none!important;border-bottom:2px solid #2879c5!important;
+ background-color:#f5f9ff!important;box-shadow:0 5px 12px rgba(48,104,170,.05)!important
+}
+#root[data-view="visita"] #visitForm .visit-intake .field :is(input,select):disabled{
+ color:#96a8b8!important;border-bottom-style:dashed!important
+}
+#root[data-view="visita"] #visitForm .visit-intake .field[data-field-id="vcat"] input{
+ font-size:17px!important;font-weight:690;letter-spacing:-.02em
+}
+#root[data-view="visita"] #visitForm .visit-intake .field :is(input,select):is(:invalid){
+ box-shadow:none
+}
+#root[data-view="visita"] #visitForm .visit-intake .field :is(input,select)::placeholder{
+ color:#93a6ba
+}
+@media(max-width:1150px){
+ #root[data-view="visita"] #visitForm .visit-intake{
+  grid-template-columns:minmax(0,1fr)!important
+ }
+ #root[data-view="visita"] #visitForm .visit-intake-visit{padding-right:0}
+ #root[data-view="visita"] #visitForm .visit-intake-measures{
+  border-left:0;border-top:1px solid #e5edf6;
+  padding:18px 0 6px;background:transparent
+ }
+ #root[data-view="visita"] #visitForm .visit-intake-measures .visit-intake-fields{
+  grid-template-columns:minmax(0,150px) minmax(0,175px) minmax(0,260px)!important;
+  gap:18px!important
+ }
+ #root[data-view="visita"] #visitForm .visit-intake .field[data-field-id="vsmoking"]{
+  grid-column:auto;max-width:none!important
+ }
+}
+@media(max-width:690px){
+ #root[data-view="visita"] #visitForm .visit-intake{margin:0 0 5px}
+ #root[data-view="visita"] #visitForm .visit-intake-heading{margin-bottom:10px}
+ #root[data-view="visita"] #visitForm .visit-intake-fields{
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;gap:15px 12px!important
+ }
+ #root[data-view="visita"] #visitForm .visit-intake-visit .field[data-field-id="vpatient"]{
+  grid-column:1/-1
+ }
+ #root[data-view="visita"] #visitForm .visit-intake-visit .field[data-field-id="vassessor"]{
+  grid-column:1/-1
+ }
+ #root[data-view="visita"] #visitForm .visit-intake-measures .visit-intake-fields{
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;gap:15px 12px!important
+ }
+ #root[data-view="visita"] #visitForm .visit-intake-measures .field[data-field-id="vsmoking"]{
+  grid-column:1/-1
+ }
+ #root[data-view="visita"] #visitForm .visit-intake .field label{font-size:11px}
+ #root[data-view="visita"] #visitForm .visit-intake .field :is(input,select){
+  font-size:12.7px!important;min-height:40px!important;height:40px!important
+ }
+}
+@media(max-width:365px){
+ #root[data-view="visita"] #visitForm .visit-intake-visit .field[data-field-id="vtype"],
+ #root[data-view="visita"] #visitForm .visit-intake-visit .field[data-field-id="vdate"]{grid-column:1/-1}
+}
+@media(prefers-reduced-motion:reduce){
+ #root[data-view="visita"] #visitForm .visit-intake .field :is(input,select){transition:none}
+}
+
+
+/* v0.48 · A clinical evaluation cannot be invented without a registered participant. */
+#root[data-view="visitas"] .visit-precondition{
+ border:1px solid #deeaf6;border-radius:12px;background:#fff;
+ padding:clamp(25px,3vw,39px);box-shadow:0 7px 24px rgba(30,67,111,.035);
+ display:flex;flex-direction:column;align-items:flex-start;gap:0;min-height:220px;
+ justify-content:center
+}
+#root[data-view="visitas"] .visit-precondition-eyebrow{
+ font-size:10px;font-weight:760;letter-spacing:.1em;color:#5b85ad;margin-bottom:11px
+}
+#root[data-view="visitas"] .visit-precondition h2{
+ color:#20476d;font-size:clamp(19px,2vw,24px);font-weight:750;
+ letter-spacing:-.027em;line-height:1.2;margin:0 0 8px
+}
+#root[data-view="visitas"] .visit-precondition p{
+ color:#7188a1;font-size:12px;line-height:1.5;max-width:550px;margin:0
+}
+#root[data-view="visitas"] .visit-precondition-actions{margin-top:20px}
+#root[data-view="visitas"] .visit-precondition .btn{
+ min-height:35px;font-size:11.8px;box-shadow:none!important
+}
+
+
+/* v0.48 visual acceptance: the completion rail must not determine the
+   height of the first data row, leaving dead space before RADAR. */
+@media(min-width:1320px){
+ #root[data-view="visita"] #visitForm>.panelbody>.visit-completeness{
+  grid-column:2!important;
+  grid-row:1 / span 8!important;
+  align-self:start!important;
+  margin-top:9px!important;
+ }
+}
+/* Clinical save actions remain reachable but do not consume half the mobile view. */
+@media(max-width:690px){
+ #root[data-view="visita"] #visitForm .footerbar{
+  display:flex!important;flex-wrap:nowrap!important;
+  align-items:center!important;justify-content:space-between!important;
+  padding:8px 10px!important;gap:5px!important;min-height:59px!important
+ }
+ #root[data-view="visita"] #visitForm .footerbar .subtle{
+  display:none!important
+ }
+ #root[data-view="visita"] #visitForm .footerbar .btn{
+  flex:1 1 0!important;min-width:0!important;width:auto!important;
+  min-height:42px!important;margin:0!important;padding:6px 4px!important;
+  font-size:10.1px!important;font-weight:660!important;
+  line-height:1.15!important;white-space:normal!important;
+  text-align:center;box-shadow:none!important
+ }
+}
+
 </style>
 </head>
 <body>
@@ -2384,7 +2562,21 @@ ${field('peligibility','Decisión de elegibilidad (investigador)','select',p?.el
 ${field('plastknown','Fecha última información (sección 12)','date',p?.lastInformationDate||'')}${field('pvital','Estado vital','select',p?.vitalStatus||'',[['','Sin registrar'],['vivo','Vivo'],['fallecido','Fallecido'],['desconocido','Desconocido']])}
 ${field('pdeathdate','Fecha de fallecimiento (si procede)','date',p?.deathDate||'')}
 ${field('pdeathcause','Causa (si procede)','select',p?.deathCause||'',[['','Sin registrar'],['respiratoria','Respiratoria'],['otra','Otra'],['indeterminada','Indeterminada']])}</div><div class="sectiontitle">Comorbilidades relevantes (propuesta)</div><div class="fields three">${field('phtn','Hipertensión arterial','select',p?.comorbHtn||'',YESNO)}${field('phf','Insuficiencia cardiaca','select',p?.comorbHf||'',YESNO)}${field('pdm','Diabetes','select',p?.comorbDm||'',YESNO)}${field('posa','Apnea obstructiva del sueño','select',p?.comorbOsa||'',YESNO)}${field('pothercomorb','Otras comorbilidades (R043)','text',p?.otherComorbidities||'','maxlength="300"')}${field('pflu','Vacunación antigripal al día (R051)','select',p?.fluVaccination||'',YESNO)}${field('ppneumo','Vacunación neumocócica al día (R052)','select',p?.pneumococcalVaccination||'',YESNO)}</div><div class="call warn" style="margin-top:18px">La inclusión verifica los requisitos estructurados del protocolo. La comprobación del documento clínico original sigue siendo responsabilidad del investigador.</div>${exists?`<div class="sectiontitle">Trazabilidad de corrección</div><div class="fields">${field('preason','Motivo del cambio','text','','required minlength="8" maxlength="240" placeholder="Ej. Corrección del dato tras revisión"','Obligatorio al modificar la ficha · No incluir datos identificativos.')}</div>`:''}<div class="formerror" id="patientError"></div></div><div class="footerbar"><span class="subtle">Identificación y basal · Guardar para actualizar la ficha</span><div class="actions"><button type="button" class="btn" data-action="discardpatient">Descartar y volver</button><button type="submit" class="btn primary">Guardar ficha</button></div></div></form>`}
-function visitsPage(){return heading('Seguimiento clínico','Evaluaciones V0, V1 y V2','Registro por participante y visita. RADAR se calcula únicamente cuando las cuatro respuestas están completas.',`<button class="btn primary" data-action="newvisit">+ Nueva evaluación</button>`)+notice+`<section class="panel"><div class="panelhead"><div><h2>Visitas registradas</h2><p>${db.visits.length} evaluaciones en la cohorte</p></div></div><div class="tablewrap"><table><thead><tr><th>Participante</th><th>Visita</th><th>Fecha</th><th>RADAR</th><th>CAT</th><th>mMRC</th><th></th></tr></thead><tbody>${db.visits.length?[...db.visits].sort((a,b)=>b.date.localeCompare(a.date)).map(v=>`<tr><td class="code">${esc(v.patient)}</td><td>${esc(v.type)}</td><td>${fmt(v.date)}</td><td>${tag(score(v)===null?'Incompleta':score(v)+'/8 · '+cat(score(v)),cls(score(v)))}</td><td>${v.cat??'—'}</td><td>${v.mmrc??'—'}</td><td><button class="linklike" data-action="editvisit" data-id="${esc(v.id)}">Abrir</button></td></tr>`).join(''):'<tr><td colspan="7"><div class="empty compact-empty">No hay evaluaciones registradas. Usa «Nueva evaluación» para comenzar una visita V0, V1 o V2.</div></td></tr>'}</tbody></table></div></section>`}
+function visitsPage(){
+ if(!db.patients.length){
+  const admin=currentUser?.role==='admin'&&!currentUser?.centre;
+  const canAdd=currentUser?.role!=='reviewer';
+  const primary=!db.centres.length?
+    (admin?'<button type="button" class="btn primary" data-action="open-admin-centres">Registrar centro</button>':''):
+    (canAdd?'<button type="button" class="btn primary" data-action="newpatient">Añadir participante</button>':'');
+  return heading('Seguimiento clínico','Evaluaciones V0, V1 y V2','Registro longitudinal por participante.')+notice+
+   '<section class="visit-precondition" role="status"><div class="visit-precondition-eyebrow">EVALUACIONES CLÍNICAS</div>'+
+   '<h2>Primero, registra un participante</h2>'+
+   '<p>'+(!db.centres.length?'La evaluación se habilita después de registrar un centro y un participante.':
+   'Todavía no hay participantes en la cohorte. Registra una ficha antes de iniciar V0, V1 o V2.')+'</p>'+
+   (primary?'<div class="visit-precondition-actions">'+primary+'</div>':'')+'</section>';
+ }
+ return heading('Seguimiento clínico','Evaluaciones V0, V1 y V2','Registro por participante y visita. RADAR se calcula únicamente cuando las cuatro respuestas están completas.',`<button class="btn primary" data-action="newvisit">+ Nueva evaluación</button>`)+notice+`<section class="panel"><div class="panelhead"><div><h2>Visitas registradas</h2><p>${db.visits.length} evaluaciones en la cohorte</p></div></div><div class="tablewrap"><table><thead><tr><th>Participante</th><th>Visita</th><th>Fecha</th><th>RADAR</th><th>CAT</th><th>mMRC</th><th></th></tr></thead><tbody>${db.visits.length?[...db.visits].sort((a,b)=>b.date.localeCompare(a.date)).map(v=>`<tr><td class="code">${esc(v.patient)}</td><td>${esc(v.type)}</td><td>${fmt(v.date)}</td><td>${tag(score(v)===null?'Incompleta':score(v)+'/8 · '+cat(score(v)),cls(score(v)))}</td><td>${v.cat??'—'}</td><td>${v.mmrc??'—'}</td><td><button class="linklike" data-action="editvisit" data-id="${esc(v.id)}">Abrir</button></td></tr>`).join(''):'<tr><td colspan="7"><div class="empty compact-empty">No hay evaluaciones registradas. Usa «Nueva evaluación» para comenzar una visita V0, V1 o V2.</div></td></tr>'}</tbody></table></div></section>`}
 function visitForm(v=null){const exists=!!v, pid=v?.patient||visitPatient||db.patients[0]?.id||'',pv=visits(pid),suggested=v?.type||visitTargetStage||(['V0','V1','V2'].find(k=>!pv.some(x=>x.type===k))||'V2');const priorStage=suggested==='V1'?'V0':suggested==='V2'?'V1':'';
  const priorVisit=!exists&&priorStage?(pv.find(x=>x.type===priorStage)|| (suggested==='V2'?pv.find(x=>x.type==='V0'):null)):null;
  let title=exists?`Revisar ${v.type}`:'Nueva evaluación';return heading('Consulta del estudio',title,'RADAR + CAT + mMRC, junto con la valoración del profesional y las actuaciones documentadas.','<button class="btn" data-action="visitas">Volver a visitas</button>')+notice+`<form class="panel" id="visitForm"><div class="panelhead"><div><h2>Datos de la evaluación</h2><p>Complete los campos de cada sección y guarde al finalizar.</p></div><span class="clinical-stage-mark">${esc(suggested)} · ${esc(pid)}</span></div><div class="panelbody"><div class="sectiontitle">Datos de visita y síntomas</div><div class="fields three">${field('vpatient','Participante','select',pid,db.patients.map(p=>[p.id,p.id+' · '+p.center]))}${field('vtype','Visita de estudio','select',suggested,[['V0','V0 · Basal'],['V1','V1 · 6 meses'],['V2','V2 · 12 meses']])}${field('vdate','Fecha de visita (R062)','date',v?.date||(suggested==='V0'?(patient(pid)?.enrolDate||''):''))}${field('vassessor','Código de evaluador (R065)','text',v?.assessorCode||'','maxlength="64"')}${field('vcat','CAT total (0–40)','number',v?.cat??'','min="0" max="40" step="1"')}${field('vmmrc','mMRC (0–4)','select',v?.mmrc??'',[['','Sin registrar'],['0','0'],['1','1'],['2','2'],['3','3'],['4','4']])}${field('vsmoking','Tabaquismo actual','select',v?.smoking||'',[['','Sin registrar'],['actual','Fumador/a'],['ex','Exfumador/a'],['nunca','Nunca'],['nc','No consta']])}</div>${!exists&&priorVisit?`<div class="clinical-smartbar"><span id="smokingCarryStatus" class="subtle">Estado tabáquico en la nueva visita: confirmar de nuevo.</span><button type="button" class="btn small" id="copySmokingPrior" data-source-visit="${esc(priorVisit.id)}">Usar último tabaquismo tras confirmarlo</button>${priorVisit.assessorCode?`<button type="button" class="btn small" id="copyAssessorPrior" data-source-visit="${esc(priorVisit.id)}">Usar evaluador anterior</button>`:''}</div>`:''}<p class="clinical-date-hint" id="visitWindowGuidance">${esc(expectedVisitWindow(pid,suggested))}</p><div class="sectiontitle">RADAR · Cuatro preguntas</div><div class="stack"><div class="question"><div class="qbadge">R</div><div><b>Medicamento de rescate más de 3 veces por semana</b><small>3 puntos si responde sí · Umbral estrictamente mayor que 3</small></div><select id="vrescue">${options(YESNO.filter(x=>x[0]!=='nc'),v?.rescue||'')}</select></div><div class="question"><div class="qbadge">A</div><div><b>Agudización moderada/grave en últimos 3 meses</b><small>2 puntos si responde sí</small></div><select id="vexacerb">${options(YESNO.filter(x=>x[0]!=='nc'),v?.exacerb||'')}</select></div><div class="question"><div class="qbadge">D</div><div><b>Disnea significativa (equivalente a mMRC ≥2)</b><small>2 puntos si responde sí · Se comprueba concordancia con mMRC</small></div><select id="vdyspnea">${options(YESNO.filter(x=>x[0]!=='nc'),v?.dyspnea||'')}</select></div><div class="question"><div class="qbadge">A</div><div><b>Actividad física inferior a 30 minutos diarios</b><small>1 punto si responde sí</small></div><select id="vactivity">${options(YESNO.filter(x=>x[0]!=='nc'),v?.activity||'')}</select></div></div><div id="radarPreview" class="rscore" style="margin-top:18px"></div><div class="sectiontitle">Tratamiento actual · categorías según CRD</div><div class="fields three">${field('vregimen','Pauta inhalada (opciones 1–5)','select',v?.inhaledRegimen||'',[['','Sin registrar'],['ninguno','1. Ninguno'],['mono','2. LAMA o LABA'],['dual','3. LAMA + LABA'],['triple','4. LAMA + LABA + ICS'],['laba_ics','5. LABA + ICS']])}${field('vmono','Si opción 2: identificar clase','select',v?.monotherapyClass||'',[['','No procede / pendiente'],['lama','LAMA'],['laba','LABA']])}${field('vroflumilast','6. Roflumilast','select',v?.roflumilast||'',YESNO)}${field('vazithromycin','7. Azitromicina','select',v?.azithromycin||'',YESNO)}${field('vrescueprescription','Rescate prescrito (R048)','select',v?.rescuePrescription||'',[['','Sin registrar'],['saba','SABA'],['sama','SAMA'],['ambos','Ambos'],['otro','Otro'],['ninguno','Ninguno'],['nc','No consta']])}${field('vmeddetails','Fármaco / dosis / pauta / cambios','text',v?.medicationDetails||'','maxlength="500"','En V0, solo tratamiento inicial; en V1/V2 también cambios.')}</div>${!exists&&priorVisit?`<div class="clinical-smartbar"><button type="button" class="btn small" id="copyTreatmentPrior" data-source-visit="${esc(priorVisit.id)}">Reutilizar pauta previa para revisión</button><span id="treatmentCarryStatus" class="subtle">Fuente: ${esc(priorVisit.type)} · ${esc(fmt(priorVisit.date))}. Verifica cada fármaco en la visita actual; no se copian dosis, IANUS ni actuaciones.</span></div>`:''}<div class="sectiontitle">Prescripciones inhaladas · IANUS</div><div class="fields three">${field('vianusverified','Consulta IANUS (R055)','select',v?.ianusVerified||'',[['','No registrada'],['si','Verificada'],['no','No verificable']])}${field('vianuscollected','Últimas prescripciones recogidas (R056)','select',v?.ianusCollected||'',[['','Sin respuesta'],['si','Sí'],['no','No'],['nv','No verificable']])}${field('vianusdate','Fecha de consulta IANUS','date',v?.ianusCheckedAt||'')}</div><div class="hint">La recogida en IANUS es un proxy de dispensación, no demuestra uso real. La ventana exacta sigue pendiente de validación; no se infiere automáticamente.</div><div class="sectiontitle">Actuación y seguimiento</div><div class="fields three"><input type="hidden" id="vadherence" value="${esc(v?.adherence||'pendiente')}">${field('vaction','Plan clínico documentado','select',v?.action||'',[['','Sin registrar'],['seguimiento','Seguimiento habitual'],['revision','Revisión terapéutica'],['educacion','Educación / autocuidado'],['derivacion','Derivación a Neumología'],['otro','Otra actuación']])}${field('vinhaler','Revisión de técnica inhalatoria','select',v?.inhaler||'',YESNO)}${field('veducation','Educación/medidas generales','select',v?.education||'',YESNO)}${field('vreferral','Derivación a Neumología','select',v?.referral||'',YESNO)}${field('vstatus','Estado de registro','select',v?.status||'parcial',[['parcial','Parcial'],['completa','Completada'],['no_realizada','No realizada / pérdida de seguimiento']])}<input type="hidden" id="vlama" value="${esc(v?.lama||'')}"><input type="hidden" id="vlaba" value="${esc(v?.laba||'')}"><input type="hidden" id="vics" value="${esc(v?.ics||'')}">${field('vreason','Motivo si no realizada','select',v?.reason||'',[['','No aplica'],['abandono','Desistimiento'],['fallecimiento','Fallecimiento'],['traslado','Cambio de residencia/centro'],['no_contacto','No localizable'],['otro','Otro']])}</div><div class="call warn" style="margin-top:18px">El RADAR orienta la descripción del control; <b>no sugiere automáticamente tratamientos</b>. La ventana IANUS y la codificación digital final requieren validación científica.</div>${exists?`<div class="sectiontitle">Trazabilidad de corrección</div><div class="fields">${field('vreasonchange','Motivo de modificación','text','','required minlength="8" maxlength="240" placeholder="Ej. Error de transcripción corregido"','Se guardará junto al historial de variables anteriores y nuevas.')}</div>`:''}<div id="visitError" class="formerror"></div></div><div class="footerbar"><span class="subtle">Cálculo reproducible · Reglas V0/V1/V2</span><div class="actions"><button type="button" class="btn" data-action="discardvisit">Descartar y volver</button><button type="submit" class="btn primary">Guardar evaluación</button><button type="button" class="btn" id="saveVisitAndCRD">Guardar y abrir CRD</button></div></div></form>`}
@@ -2975,6 +3167,37 @@ function composeOverviewFirstFold(){
  actions.append(exportButton);
 }
 
+/* v0.48: clinical intake is two meaningful data groups, not seven unrelated boxes.
+   This only moves existing DOM nodes; their IDs, values, validation and form events remain intact. */
+function composeVisitIntake(){
+ const form=get('visitForm');
+ const container=form?.querySelector('.clinical-block:has(#vpatient) .clinical-block-body > .fields.three');
+ if(!container||container.classList.contains('visit-intake'))return;
+ const fields=[...container.querySelectorAll(':scope > .field')];
+ const byId=id=>fields.find(node=>node.dataset.fieldId===id);
+ const groups=[
+  {key:'visit',title:'Identificación de la visita',
+   ids:['vpatient','vtype','vdate','vassessor']},
+  {key:'measures',title:'Medidas clínicas',
+   ids:['vcat','vmmrc','vsmoking']}
+ ];
+ if(groups.flatMap(g=>g.ids).some(id=>!byId(id)))return;
+ container.className='visit-intake';
+ container.setAttribute('aria-label','Registro de la evaluación');
+ for(const spec of groups){
+  const group=document.createElement('section');
+  group.className='visit-intake-group visit-intake-'+spec.key;
+  group.setAttribute('aria-label',spec.title);
+  const heading=document.createElement('h3');heading.className='visit-intake-heading';heading.textContent=spec.title;
+  const grid=document.createElement('div');grid.className='visit-intake-fields';
+  spec.ids.forEach(id=>grid.append(byId(id)));
+  group.append(heading,grid);
+  container.append(group);
+ }
+ const title=container.closest('.clinical-block')?.querySelector('.clinical-block-title > span');
+ if(title)title.textContent='Registro y valoración clínica';
+}
+
 function enhanceInterface(){
  updateContext();
  composeModuleFirstFold();
@@ -2982,6 +3205,7 @@ function enhanceInterface(){
  if(route==='inicio')composeOverviewFirstFold();
  if(route==='visita'){
    makeClinicalSections('visitForm');
+   composeVisitIntake();
    const form=get('visitForm'),bar=form?.querySelector('.clinical-toolbar');
    if(bar){
       const pid=get('vpatient')?.value||visitPatient;
@@ -3015,7 +3239,7 @@ get('studyForm')?.addEventListener('submit',submitCRD);wireCRD();
 if(route==='resultados')get('missingForm')?.addEventListener('submit',submitMissing);
 if(route==='completitud')p14Attach();
 if(route==='estudio')get('specSearch')?.addEventListener('input',e=>{const q=e.target.value.toLowerCase();get('specTable').innerHTML=renderSpecRows((scientific?.variables||[]).filter(v=>[v.label,v.code,v.definition,v.entity,v.implementation].some(x=>String(x||'').toLowerCase().includes(q))))});if(currentUser?.role==='reviewer'){root.querySelectorAll('button[data-action]').forEach(b=>{if(['newpatient','editpatient','newvisit','editvisit','visitfor','newevent','newcontact','reset','importjson'].includes(b.dataset.action))b.remove()})}enhanceInterface();if(route==='visita'){primaryVisitSnapshot=snapshotPrimaryVisit();const f=get('visitForm');if(f){f.dataset.dirty='0';f.addEventListener('input',()=>{f.dataset.dirty='1'});f.addEventListener('change',()=>{f.dataset.dirty='1'})}}}
-function click(e){const el=e.target.closest('[data-action]');if(!el)return;if(el.dataset.action?.startsWith('network-')){networkAction(el);return;}const act=el.dataset.action,id=el.dataset.id;if(act==='discardpatient'){const f=get('patientForm');if(f)f.dataset.dirty='0';navigate('cohorte');return;}if(act==='discardvisit'){const f=get('visitForm');if(f)f.dataset.dirty='0';primaryVisitSnapshot=null;navigate('visitas');return;}if(route==='participante'&&get('patientForm')?.dataset.dirty==='1'&&['detail','workflowvisit','cohorte','eventfor','contactfor','visitas','nextwork'].includes(act)){error('patientError','Hay cambios sin guardar en la ficha. Guárdalos antes de navegar.');return;}if(route==='visita'&&['crdfor','detail','cohorte','workflowvisit','eventfor','contactfor','nextwork','visitas','editvisit','visitfor'].includes(act)&&((get('visitForm')?.dataset.dirty==='1')||(primaryVisitSnapshot!==null&&snapshotPrimaryVisit()!==primaryVisitSnapshot))){error('visitError','Hay cambios sin guardar en esta visita. Guarda la evaluación antes de salir para conservarlos.');return;}switch(act){case'open-admin-centres':navigate('red');break;case'p14edit':{p14Kind=el.dataset.id;p14Selected=el.dataset.key;p14Centre=el.dataset.centre;if(p14Kind==='implementation')p14Month=p14Selected.split(':')[1]||p14Month;navigate('completitud');break;}case'nextwork':{selectedPatient=id;const step=el.dataset.step,stage=el.dataset.visit;if(step==='visit'&&stage){visitPatient=id;selectedStudyPatient=id;selectedStudyVisit=stage;visitTargetStage=stage;editVisit=db.visits.find(v=>v.patient===id&&v.type===stage)?.id||null;navigate('visita')}else if(step==='screen'){navigate('cohorte');selectedPatient=id;navigate('participante')}else{selectedPatient=id;renderDetail()}break;}case'newpatient':if(!db.centres.length){navigate('red');break;}selectedPatient='';route='participante';render();break;case'editpatient':selectedPatient=id;route='participante';render();break;case'cohorte':navigate('cohorte');break;case'detail':lastSavedVisit=null;selectedPatient=id;renderDetail();break;case'workflowvisit':{selectedPatient=id;const stage=el.dataset.visit,existing=db.visits.find(v=>v.patient===id&&v.type===stage);visitPatient=id;selectedStudyPatient=id;selectedStudyVisit=stage;visitTargetStage=stage;editVisit=existing?.id||null;navigate('visita');break;}case'crdfor':selectedStudyPatient=id;selectedStudyVisit=el.dataset.visit||'V0';navigate('crd');break;case'eventfor':eventPatient=id;eventTab='episode';navigate('evento');break;case'contactfor':eventPatient=id;eventLink='';eventTab='contact';navigate('evento');break;case'careforevent':{careEpisode=id;navigate('carestatus');break;}case'contactforevent':{const episode=db.events.find(x=>x.id===id);if(!episode)break;eventPatient=episode.patient;eventLink=episode.id;eventTab='contact';navigate('evento');break;}case'visitfor':selectedPatient=id;visitPatient=id;visitTargetStage='';editVisit=null;navigate('visita');break;case'newvisit':visitPatient=db.patients[0]?.id||'';visitTargetStage='';editVisit=null;navigate('visita');break;case'editvisit':{const existing=db.visits.find(v=>v.id===id);if(existing){selectedPatient=existing.patient;visitPatient=existing.patient;selectedStudyPatient=existing.patient;selectedStudyVisit=existing.type;visitTargetStage=existing.type;}editVisit=id;navigate('visita');break;}case'visitas':navigate('visitas');break;case'newevent':eventTab='episode';navigate('evento');break;case'newcontact':eventLink='';eventTab='contact';navigate('evento');break;case'eventos':navigate('eventos');break;case'exportxlsx':downloadExcel();break;case'exportall':downloadBackup();break;case'exportpatients':csvPatients();break;case'exportvisits':csvVisits();break;case'exportevents':csvEvents();break;case'exportquality':csv('RADAR_sim_incidencias.csv',qualityChecks().map((detail,i)=>({numero:i+1,incidencia:detail})));break;}}
+function click(e){const el=e.target.closest('[data-action]');if(!el)return;if(el.dataset.action?.startsWith('network-')){networkAction(el);return;}const act=el.dataset.action,id=el.dataset.id;if(act==='discardpatient'){const f=get('patientForm');if(f)f.dataset.dirty='0';navigate('cohorte');return;}if(act==='discardvisit'){const f=get('visitForm');if(f)f.dataset.dirty='0';primaryVisitSnapshot=null;navigate('visitas');return;}if(route==='participante'&&get('patientForm')?.dataset.dirty==='1'&&['detail','workflowvisit','cohorte','eventfor','contactfor','visitas','nextwork'].includes(act)){error('patientError','Hay cambios sin guardar en la ficha. Guárdalos antes de navegar.');return;}if(route==='visita'&&['crdfor','detail','cohorte','workflowvisit','eventfor','contactfor','nextwork','visitas','editvisit','visitfor'].includes(act)&&((get('visitForm')?.dataset.dirty==='1')||(primaryVisitSnapshot!==null&&snapshotPrimaryVisit()!==primaryVisitSnapshot))){error('visitError','Hay cambios sin guardar en esta visita. Guarda la evaluación antes de salir para conservarlos.');return;}switch(act){case'open-admin-centres':navigate('red');break;case'p14edit':{p14Kind=el.dataset.id;p14Selected=el.dataset.key;p14Centre=el.dataset.centre;if(p14Kind==='implementation')p14Month=p14Selected.split(':')[1]||p14Month;navigate('completitud');break;}case'nextwork':{selectedPatient=id;const step=el.dataset.step,stage=el.dataset.visit;if(step==='visit'&&stage){visitPatient=id;selectedStudyPatient=id;selectedStudyVisit=stage;visitTargetStage=stage;editVisit=db.visits.find(v=>v.patient===id&&v.type===stage)?.id||null;navigate('visita')}else if(step==='screen'){navigate('cohorte');selectedPatient=id;navigate('participante')}else{selectedPatient=id;renderDetail()}break;}case'newpatient':if(!db.centres.length){navigate('red');break;}selectedPatient='';route='participante';render();break;case'editpatient':selectedPatient=id;route='participante';render();break;case'cohorte':navigate('cohorte');break;case'detail':lastSavedVisit=null;selectedPatient=id;renderDetail();break;case'workflowvisit':{selectedPatient=id;const stage=el.dataset.visit,existing=db.visits.find(v=>v.patient===id&&v.type===stage);visitPatient=id;selectedStudyPatient=id;selectedStudyVisit=stage;visitTargetStage=stage;editVisit=existing?.id||null;navigate('visita');break;}case'crdfor':selectedStudyPatient=id;selectedStudyVisit=el.dataset.visit||'V0';navigate('crd');break;case'eventfor':eventPatient=id;eventTab='episode';navigate('evento');break;case'contactfor':eventPatient=id;eventLink='';eventTab='contact';navigate('evento');break;case'careforevent':{careEpisode=id;navigate('carestatus');break;}case'contactforevent':{const episode=db.events.find(x=>x.id===id);if(!episode)break;eventPatient=episode.patient;eventLink=episode.id;eventTab='contact';navigate('evento');break;}case'visitfor':selectedPatient=id;visitPatient=id;visitTargetStage='';editVisit=null;navigate('visita');break;case'newvisit':if(!db.patients.length){navigate('cohorte');break;}visitPatient=db.patients[0]?.id||'';visitTargetStage='';editVisit=null;navigate('visita');break;case'editvisit':{const existing=db.visits.find(v=>v.id===id);if(existing){selectedPatient=existing.patient;visitPatient=existing.patient;selectedStudyPatient=existing.patient;selectedStudyVisit=existing.type;visitTargetStage=existing.type;}editVisit=id;navigate('visita');break;}case'visitas':navigate('visitas');break;case'newevent':eventTab='episode';navigate('evento');break;case'newcontact':eventLink='';eventTab='contact';navigate('evento');break;case'eventos':navigate('eventos');break;case'exportxlsx':downloadExcel();break;case'exportall':downloadBackup();break;case'exportpatients':csvPatients();break;case'exportvisits':csvVisits();break;case'exportevents':csvEvents();break;case'exportquality':csv('RADAR_sim_incidencias.csv',qualityChecks().map((detail,i)=>({numero:i+1,incidencia:detail})));break;}}
 
 // Sidebar presentation only; all routes, permissions and clinical logic remain unchanged.
 function closeMobileNav(){document.body.classList.remove('mobile-nav-open');get('mobileNavToggle').setAttribute('aria-expanded','false');get('mobileNavToggle').setAttribute('aria-label','Abrir menú');}
