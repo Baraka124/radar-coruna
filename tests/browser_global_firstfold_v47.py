@@ -77,7 +77,13 @@ def main():
        note.locator('summary').click()
        assert note.get_attribute('open') is not None,(module,width)
        note.locator('summary').click()
+     # Opening a persisted participant is also a routed module, not a secondary layout.
      click_route(page,'cohorte',mobile)
+     page.locator('#cohortTable [data-action="detail"]').first.click()
+     page.locator('#root[data-view="detalle"]').wait_for()
+     verify_fold(page,'detalle',width)
+     page.locator('#root .head [data-action="cohorte"]').click()
+     page.locator('#root[data-view="cohorte"]').wait_for()
      page.locator('[data-action="newpatient"]').click()
      page.locator('#patientForm').wait_for()
      verify_fold(page,'participante',width)
@@ -88,6 +94,15 @@ def main():
      page.locator('#patientForm .section-jump').nth(1).click()
      assert page.locator('#patientForm .section-jump').nth(1).get_attribute('aria-current')=='location'
      page.locator('[data-action="discardpatient"]').click()
+     # Episode/contact creation is an openable workspace, not an unstyled popover.
+     click_route(page,'eventos',mobile)
+     page.locator('#root [data-action="newevent"]').click()
+     page.locator('#eventForm').wait_for()
+     verify_fold(page,'evento',width)
+     assert page.locator('#eventForm .panelbody input, #eventForm .panelbody select').count()>0
+     snapshot(page,'evento',width)
+     page.locator('#root .head [data-action="eventos"]').click()
+     page.locator('#root[data-view="eventos"]').wait_for()
      click_route(page,'visitas',mobile)
      page.locator('#root [data-action="newvisit"]').click()
      page.locator('#visitForm').wait_for()
@@ -109,7 +124,7 @@ def main():
      assert not errors,(width,errors)
      page.close()
     browser.close()
- print('PASS global firstfold: 12 modules, opening forms, 5 widths, no empty toolbar bands')
+ print('PASS global firstfold: 12 modules + participant detail + 3 editors, 5 widths, no empty toolbar bands')
 
 
 if __name__=='__main__':
