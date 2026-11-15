@@ -2187,6 +2187,229 @@ tbody tr:hover{background:#f7fbff}
  }
 }
 
+
+/* RADAR v0.49 · Clinical control language
+   Small, confident actions with quiet outlines. No large filled action pills.
+   Accessible button hit targets remain >=32px (>=36px on narrow touch screens). */
+#root .btn,
+#root .module-firstfold>.head .actions .btn,
+#root .crd-context-links .btn,
+#root .footerbar .btn,
+#root .crd-save-bar .btn,
+#root .crd-section-footer .btn{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:auto;min-width:0;max-width:100%;
+  min-height:33px;padding:5px 9px!important;
+  border-radius:6px!important;background:#fff!important;
+  border:1px solid #dce5f0!important;color:#426b97!important;
+  box-shadow:none!important;font-size:11.1px!important;
+  line-height:1.25;font-weight:645!important;letter-spacing:-.006em;
+  white-space:normal;text-align:center;
+  transition:color .14s,background .14s,border-color .14s;
+}
+#root .btn.primary,
+#root .module-firstfold>.head .actions .btn.primary,
+#root .footerbar .btn.primary,
+#root .crd-save-bar .btn.primary{
+  background:#f9fbff!important;
+  border-color:#b9d1ed!important;color:#2366aa!important;
+  font-weight:740!important;
+}
+#root .btn.small,
+#root .crd-context-links .btn.small,
+#root .crd-section-footer .btn.small{
+  min-height:31px;padding:4px 8px!important;font-size:10.8px!important
+}
+#root .btn:not(.primary):not(.danger):hover,
+#root .crd-context-links .btn:hover{
+  background:#f8fbff!important;border-color:#c4d8ef!important;
+  color:#205c9f!important
+}
+#root .btn.primary:hover{
+  background:#eef5ff!important;border-color:#96bae5!important;color:#185c9e!important
+}
+#root .btn:disabled,#root .crd-section-tab:disabled,#root .crd-stage:disabled{
+  opacity:.48;cursor:not-allowed;box-shadow:none!important
+}
+#root .btn:focus-visible,#root .crd-stage:focus-visible,
+#root .crd-section-tab:focus-visible,#root .section-jump:focus-visible{
+  outline:2px solid #397fc6;outline-offset:2px
+}
+/* Global header actions should behave like small utilities, not giant CTAs. */
+#root .module-firstfold>.head .actions{gap:5px;max-width:100%}
+#root .module-firstfold>.head .actions .btn{
+  min-height:32px;padding:4px 8px!important;
+  background:transparent!important;border-color:#e0e8f2!important;
+  font-size:10.8px!important
+}
+#root .module-firstfold>.head .actions .btn.primary{
+  background:#f9fbff!important;border-color:#b9d1ed!important
+}
+#root .module-firstfold>.head .actions .module-utility-action{
+  color:#6784a2!important;border-color:transparent!important;
+  padding:4px 7px!important
+}
+/* Clinical form sections: same lightweight, precise field anatomy as v0.48 visit intake.
+   Only field presentation changes; native controls and all IDs remain intact. */
+#root[data-view="participante"] #patientForm .clinical-block-body>.fields,
+#root[data-view="crd"] #studyForm .crd-field-grid{
+  row-gap:18px!important;column-gap:clamp(13px,1.7vw,22px)!important
+}
+#root[data-view="participante"] #patientForm .clinical-block-body>.fields>.field,
+#root[data-view="crd"] #studyForm .crd-field-grid>.field{
+  display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;
+  gap:6px;min-width:0;box-sizing:border-box;padding-bottom:2px
+}
+#root[data-view="participante"] #patientForm .clinical-block-body>.fields>.field label,
+#root[data-view="crd"] #studyForm .crd-field-grid>.field label{
+  font-size:11.5px;line-height:1.38;font-weight:670;
+  color:#355674;letter-spacing:-.008em;margin:0
+}
+#root[data-view="participante"] #patientForm .clinical-block-body>.fields>.field :is(input,select,textarea),
+#root[data-view="crd"] #studyForm .crd-field-grid>.field :is(input,select,textarea),
+#root[data-view="crd"] #studyForm .crd-correction input{
+  width:100%!important;max-width:100%!important;min-width:0;
+  min-height:40px!important;height:40px!important;
+  padding:6px 24px 6px 2px!important;
+  border:0!important;border-radius:0!important;
+  border-bottom:1px solid #bdcede!important;
+  box-shadow:none!important;background:transparent!important;
+  font-size:12.8px!important;font-weight:570;line-height:1.5;
+  color:#1d4166!important;letter-spacing:-.005em;
+  transition:border-color .14s,background .14s
+}
+#root[data-view="participante"] #patientForm .clinical-block-body>.fields>.field :is(select,textarea),
+#root[data-view="crd"] #studyForm .crd-field-grid>.field select{
+  cursor:pointer
+}
+#root[data-view="participante"] #patientForm .clinical-block-body>.fields>.field :is(input,select,textarea):hover,
+#root[data-view="crd"] #studyForm .crd-field-grid>.field :is(input,select,textarea):hover{
+  border-bottom-color:#85a9d0!important;background:#f9fbff!important
+}
+#root[data-view="participante"] #patientForm .clinical-block-body>.fields>.field :is(input,select,textarea):focus-visible,
+#root[data-view="crd"] #studyForm .crd-field-grid>.field :is(input,select,textarea):focus-visible,
+#root[data-view="crd"] #studyForm .crd-correction input:focus-visible{
+  outline:0!important;border-bottom:2px solid #2676c1!important;
+  background:#f7faff!important;box-shadow:none!important
+}
+/* Auto-derived fields remain identifiable as non-editable, not fake user entries. */
+#root[data-view="participante"] #patientForm .clinical-block-body>.fields>.field input[readonly]{
+  color:#567894!important;border-bottom-style:dashed!important;
+  background:linear-gradient(180deg,transparent 68%,rgba(222,233,245,.32) 100%)!important;
+  cursor:default
+}
+#root[data-view="participante"] #patientForm .clinical-block-body>.fields>.field small,
+#root[data-view="crd"] #studyForm .crd-field-grid>.field small{
+  color:#8da0b4;font-size:10px;line-height:1.45;margin-top:2px
+}
+#root[data-view="crd"] #studyForm .crd-field-grid>.field :is(input,select):disabled{
+  color:#869cb1!important;border-bottom-style:dashed!important;
+  background:transparent!important;cursor:not-allowed
+}
+/* CRD stage and section navigation: open, slender, unobtrusive selection. */
+#root[data-view="crd"] .crd-context-bar{
+  padding:11px 15px;gap:10px;margin-bottom:10px
+}
+#root[data-view="crd"] .crd-stage-switch{
+  background:transparent!important;border:0!important;
+  border-bottom:1px solid #dce6f2!important;
+  border-radius:0!important;padding:0!important;gap:5px
+}
+#root[data-view="crd"] .crd-stage{
+  min-height:32px!important;border-radius:0!important;
+  padding:5px 11px!important;background:transparent!important;
+  border-bottom:2px solid transparent!important;box-shadow:none!important;
+  font-size:11.2px;font-weight:660;color:#69829d
+}
+#root[data-view="crd"] .crd-stage.active{
+  background:transparent!important;border-bottom-color:#387cc1!important;
+  color:#1b5e9e!important;box-shadow:none!important
+}
+#root[data-view="crd"] .crd-section-tab{
+  min-height:35px!important;padding:6px 10px!important;
+  border-radius:5px;background:transparent!important;box-shadow:none!important;
+  color:#64809e;font-size:11px;font-weight:620
+}
+#root[data-view="crd"] .crd-section-tab.active{
+  background:#f8fbff!important;
+  box-shadow:inset 2px 0 #4d87c7!important;
+  color:#205f9e!important;font-weight:730
+}
+#root[data-view="crd"] .crd-context-links .btn{
+  border-color:transparent!important;background:transparent!important;
+  padding:5px 7px!important;color:#50779f!important
+}
+#root[data-view="crd"] .crd-context-links .btn:hover{
+  background:#f4f8ff!important;color:#235f9e!important
+}
+#root[data-view="crd"] .crd-group-heading{margin-bottom:13px}
+#root[data-view="crd"] .crd-workspace-heading{padding:12px 18px}
+#root[data-view="crd"] .crd-section-footer{
+  gap:8px;margin:14px 0 4px;padding-top:11px
+}
+#root[data-view="crd"] .crd-section-footer .btn{
+  border-color:transparent!important;background:transparent!important;
+  color:#4f769e!important
+}
+#root[data-view="crd"] .crd-save-bar{
+  padding:10px 16px;gap:9px;align-items:center
+}
+#root[data-view="crd"] .crd-save-bar .btn{
+  min-height:34px;max-width:max-content;flex:0 0 auto
+}
+/* Patient form actions: retain full usability but reduce the visual weight. */
+#root[data-view="participante"] #patientForm .footerbar{
+  padding:9px 17px!important;gap:10px;min-height:54px;align-items:center
+}
+#root[data-view="participante"] #patientForm .footerbar .btn{
+  min-height:34px;font-size:11px!important
+}
+#root[data-view="participante"] #patientForm .footerbar .subtle{
+  color:#8297ad;font-size:10.3px
+}
+@media(max-width:690px){
+ #root .btn,#root .btn.small,#root .module-firstfold>.head .actions .btn,
+ #root .crd-save-bar .btn,#root .crd-context-links .btn{
+  min-height:36px;padding:5px 8px!important
+ }
+ #root[data-view="participante"] #patientForm .clinical-block-body>.fields{
+  row-gap:15px!important
+ }
+ #root[data-view="participante"] #patientForm .clinical-block-body>.fields>.field label,
+ #root[data-view="crd"] #studyForm .crd-field-grid>.field label{font-size:11px}
+ #root[data-view="participante"] #patientForm .clinical-block-body>.fields>.field :is(input,select,textarea),
+ #root[data-view="crd"] #studyForm .crd-field-grid>.field :is(input,select,textarea){
+  min-height:39px!important;height:39px!important;font-size:12.4px!important
+ }
+ #root[data-view="participante"] #patientForm .footerbar{
+  display:flex;justify-content:space-between;align-items:center!important;
+  padding:8px 10px!important;gap:5px;min-height:54px!important
+ }
+ #root[data-view="participante"] #patientForm .footerbar>.subtle{display:none}
+ #root[data-view="participante"] #patientForm .footerbar>.actions{
+  flex:1 1 100%;display:flex;justify-content:flex-end;flex-wrap:nowrap;gap:6px
+ }
+ #root[data-view="participante"] #patientForm .footerbar .btn{
+  flex:0 1 auto;min-height:38px!important;min-width:0;padding:6px 8px!important
+ }
+ #root[data-view="crd"] .crd-context-bar{padding:10px 12px}
+ #root[data-view="crd"] .crd-tab-navigation{padding:7px 10px}
+ #root[data-view="crd"] .crd-section-tab{
+  min-height:36px!important;padding:5px 9px!important
+ }
+ #root[data-view="crd"] .crd-save-bar{
+  flex-wrap:wrap;padding:9px 12px;gap:8px
+ }
+ #root[data-view="crd"] .crd-save-bar .subtle{
+  flex:1 1 100%;font-size:10.3px;line-height:1.4
+ }
+ #root[data-view="crd"] .crd-save-bar .btn{min-height:37px}
+}
+@media(prefers-reduced-motion:reduce){
+ #root .btn,#root[data-view="participante"] #patientForm .field input,
+ #root[data-view="crd"] #studyForm .field input{transition:none}
+}
+
 </style>
 </head>
 <body>
