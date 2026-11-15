@@ -99,14 +99,20 @@ def main():
       page.screenshot(path=str(OUT/f'patient_{width}.png'),full_page=False)
      page.locator('#patientForm .section-jump').nth(1).click()
      assert page.locator('#patientForm .clinical-block[open]').count()==1
+     assert page.locator('#patientForm .section-jump').nth(1).get_attribute('aria-current')=='location'
+     assert page.locator('#patientForm .clinical-block').nth(1).get_attribute('open') is not None
      page.locator('#plastrevi').fill('2025-08-12')
      page.locator('#pweeks').fill('5')
      page.locator('#pcopd').select_option('si')
      page.locator('#patientForm .section-jump').nth(2).click()
+     assert page.locator('#patientForm .section-jump').nth(2).get_attribute('aria-current')=='location'
      page.locator('#penrol').fill('2026-01-10')
      page.locator('#pbirthdate').fill('1986-01-10')
      assert page.locator('#page').input_value()=='40'
      page.locator('#patientForm .section-jump').nth(1).click()
+     page.wait_for_timeout(100)
+     assert page.locator('#patientForm .section-jump').nth(1).get_attribute('aria-current')=='location'
+     assert page.locator('#patientForm .clinical-block').nth(1).get_attribute('open') is not None
      assert page.locator('#plastrevi').input_value()=='2025-08-12'
      if width in (390,1440):
       page.screenshot(path=str(OUT/f'inclusion_{width}.png'),full_page=False)
