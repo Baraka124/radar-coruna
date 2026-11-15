@@ -29,7 +29,9 @@ def scan_actions(page):
        primary:b.classList.contains('primary'),height:rect.height,width:rect.width,
        paddingL:parseFloat(style.paddingLeft),paddingR:parseFloat(style.paddingRight),
        bg:style.backgroundColor,radius:style.borderRadius,
-       overflow:rect.left<0 || rect.right>innerWidth+3,
+       overflow:(rect.left<0 || rect.right>innerWidth+3) &&
+           !(b.closest('.tablewrap') &&
+               b.closest('.tablewrap').scrollWidth>b.closest('.tablewrap').clientWidth+2),
      };
    });
    return {buttons:info,viewport:innerWidth,
