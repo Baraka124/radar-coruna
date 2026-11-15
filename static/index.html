@@ -1881,6 +1881,134 @@ tbody tr:hover{background:#f7fbff}
  #root[data-view="cohorte"] .cohort-filters .filter-count{margin-left:0}
 }
 
+
+/* v0.47 · Global RADAR layout contract. Resumen and Participantes are preserved. */
+.content.on-module{padding-top:16px}
+.content.on-module>.workspace-context{display:none!important}
+#root .module-firstfold{margin:0 0 12px;min-width:0;width:100%}
+#root .module-firstfold>.head{
+ display:flex!important;align-items:center!important;justify-content:space-between;
+ gap:13px 24px;margin:0!important;padding:0!important;width:100%
+}
+#root .module-firstfold>.head>div:first-child{flex:1 1 auto;min-width:0}
+#root .module-firstfold>.head .over{
+ color:#457bad!important;font-size:10px!important;font-weight:745!important;letter-spacing:.045em!important;line-height:1.3
+}
+#root .module-firstfold>.head h1{
+ color:#193e64;font-size:clamp(25px,2.2vw,33px)!important;
+ line-height:1.14;letter-spacing:-.046em;font-weight:760;margin:6px 0 4px!important
+}
+#root .module-firstfold>.head p{max-width:690px;color:#7890a9;font-size:11.6px;line-height:1.48;margin:0}
+#root .module-firstfold>.head .actions{
+ display:flex!important;align-items:center;justify-content:flex-end;
+ gap:7px;flex-wrap:wrap;flex:0 1 auto;
+ margin:0!important;min-width:0
+}
+#root .module-firstfold>.head .actions .btn{
+ min-height:33px;padding:6px 11px;font-size:11.3px;border-radius:8px;
+ box-shadow:none!important;white-space:normal
+}
+#root .module-firstfold>.head .actions .module-utility-action{
+ font-size:10.9px;min-height:31px;padding:5px 10px;background:#fff;
+ border:1px solid #dce7f3;color:#5b7899
+}
+#root .module-firstfold>.environment-note{margin:8px 0 0!important;padding:0;max-width:100%}
+#root .module-firstfold>.environment-note summary{
+ font-size:10.4px!important;color:#8195ae!important;padding:1px 0
+}
+#root .module-firstfold>.environment-note[open]{margin-bottom:3px!important}
+#root .module-firstfold>.environment-note .environment-note-content{
+ max-width:780px;font-size:11px;line-height:1.48
+}
+#root .module-firstfold + .panel,#root .module-firstfold + form.panel,
+#root .module-firstfold + .split,#root .module-firstfold + .metrics,
+#root .module-firstfold + .crd-context-bar,#root .module-firstfold + .patient-journey,
+#root .module-firstfold + .workflow-ribbon{margin-top:0!important}
+#root .panelhead{min-height:0;gap:10px}
+#root .panelhead h2{margin:0;font-size:13.5px}
+#root .panelhead p{line-height:1.45}
+#root .panelbody{min-height:0}
+#root .module-empty-state{
+ padding:22px 23px;display:flex;align-items:center;justify-content:space-between;gap:12px;
+ flex-wrap:wrap;background:#fbfdff;border:1px solid #e3edf8;
+ border-radius:0 0 11px 11px;color:#718ba7
+}
+#root .module-empty-state p{font-size:11.8px;line-height:1.52;margin:0}
+#root .module-empty-state .btn{min-height:31px;font-size:11px;background:#f4f8ff}
+/* The two clinical editors must use exactly the same compact shell and tab system. */
+#root[data-view="visita"] #visitForm,
+#root[data-view="participante"] #patientForm{
+ width:100%!important;max-width:none!important;display:flex!important;
+ flex-direction:column!important;min-height:0!important;height:auto!important
+}
+#root[data-view="visita"] #visitForm>.panelhead,
+#root[data-view="participante"] #patientForm>.panelhead{
+ height:auto!important;min-height:0!important;max-height:none!important;
+ display:flex!important;align-items:center!important;justify-content:space-between!important;
+ gap:9px;padding:13px 22px 8px!important;flex:0 0 auto!important
+}
+#root[data-view="visita"] #visitForm>.panelhead h2,
+#root[data-view="participante"] #patientForm>.panelhead h2{
+ font-size:11px;line-height:1.35;font-weight:750;letter-spacing:.06em;
+ text-transform:uppercase;color:#6281a2
+}
+#root[data-view="visita"] #visitForm>.panelhead p,
+#root[data-view="participante"] #patientForm>.panelhead p{display:none!important}
+#root[data-view="visita"] #visitForm>.clinical-toolbar,
+#root[data-view="participante"] #patientForm>.clinical-toolbar{
+ height:auto!important;min-height:40px!important;max-height:none!important;
+ flex:0 0 auto!important;margin:0 21px!important;padding:2px 0 5px!important;
+ border-bottom:1px solid #e4edf7;background:#fff!important;
+ position:relative!important;top:auto!important;align-items:center
+}
+#root[data-view="visita"] #visitForm>.panelbody,
+#root[data-view="participante"] #patientForm>.panelbody{
+ height:auto!important;min-height:0!important;flex:0 1 auto!important;
+ padding:0 22px 20px!important
+}
+#root[data-view="visita"] #visitForm .clinical-block-title,
+#root[data-view="participante"] #patientForm .clinical-block-title{
+ padding:11px 2px!important;min-height:38px!important
+}
+#root[data-view="visita"] #visitForm .clinical-block-body,
+#root[data-view="participante"] #patientForm .clinical-block-body{
+ padding:12px 2px 16px!important
+}
+#root[data-view="visita"] #visitForm .section-jump,
+#root[data-view="participante"] #patientForm .section-jump{
+ min-height:31px;padding:5px 10px 7px!important;font-size:11px
+}
+/* Openable views: CRD stages, longitudinal navigation and disclosure sections. */
+#root details:not(.environment-note):not(.clinical-block)[open]>summary{color:#215e9d}
+#root details:not(.environment-note):not(.clinical-block)>summary{scroll-margin-top:72px}
+#root .crd-context-bar{margin-bottom:12px}
+#root .crd-workspace-heading{padding:14px 18px}
+#root .crd-tab-navigation{gap:3px}
+#root .crd-section-tab{padding:9px 11px}
+#root .workflow-ribbon{margin-bottom:12px}
+@media(max-width:900px){
+ .content.on-module{padding-top:14px}
+ #root .module-firstfold>.head{align-items:flex-start!important}
+ #root .module-firstfold>.head h1{font-size:28px!important}
+}
+@media(max-width:690px){
+ .content.on-module{padding-top:11px}
+ #root .module-firstfold>.head{
+   flex-direction:column;align-items:flex-start!important;gap:9px
+ }
+ #root .module-firstfold>.head h1{font-size:27px!important}
+ #root .module-firstfold>.head .actions{justify-content:flex-start;width:100%}
+ #root .module-firstfold>.head .actions .btn{min-height:32px}
+ #root .module-firstfold>.environment-note{margin-top:7px!important}
+ #root[data-view="visita"] #visitForm>.panelhead,
+ #root[data-view="participante"] #patientForm>.panelhead{padding:12px 15px 7px!important}
+ #root[data-view="visita"] #visitForm>.clinical-toolbar,
+ #root[data-view="participante"] #patientForm>.clinical-toolbar{margin:0 14px!important}
+ #root[data-view="visita"] #visitForm>.panelbody,
+ #root[data-view="participante"] #patientForm>.panelbody{padding:0 15px 16px!important}
+ #root .module-empty-state{padding:17px}
+}
+
 </style>
 </head>
 <body>
