@@ -106,11 +106,17 @@ def main():
      check_actions(page,width,'participante')
      assert page.locator('#pcode').is_visible()
      assert page.locator('#page').get_attribute('readonly') is not None
-     for fid in ('pcode','pcenter','pstatus','pcopd','pconsent','pbirthdate','penrol'):
-      field=measure_field(page,'#'+fid)
-      assert field['radius']=='0px',(width,fid,'rounded generic box remains',field)
-      assert field['borderBottom']>=1,(width,fid,'field underline missing',field)
-      assert 38<=field['height']<=43,(width,fid,'field disproportionately tall',field)
+     # v0.50 keeps the v0.49 form anatomy while removing resting rules and
+     # progressively opening sections instead of rendering every input at once.
+     for section,fields in [(0,('pcode','pcenter','pstatus')),
+                            (1,('pcopd','pconsent')),
+                            (2,('pbirthdate','penrol'))]:
+      page.locator('#patientForm .section-jump').nth(section).click()
+      for fid in fields:
+       field=measure_field(page,'#'+fid)
+       assert field['radius']=='0px',(width,fid,'rounded generic box remains',field)
+       assert field['borderBottom']==0,(width,fid,'unnecessary resting rule',field)
+       assert 38<=field['height']<=43,(width,fid,'field disproportionately tall',field)
      assert measure_field(page,'#page')['readonly']
      page.locator('#penrol').fill('2026-01-10')
      page.locator('#pbirthdate').fill('1986-01-10')
@@ -143,7 +149,7 @@ def main():
      nav.locator('nth='+index).click()
      assert field.is_visible()
      css=measure_field(page,'#'+field.get_attribute('id'))
-     assert css['radius']=='0px' and 38<=css['height']<=43 and css['borderBottom']>=1,(width,css)
+     assert css['radius']=='0px' and 38<=css['height']<=43 and css['borderBottom']==0,(width,css)
      # Draft is only local until explicit save. This must never silently persist.
      focus=page.locator('[data-crd-code="comorb_ihd"]')
      assert focus.count()==1

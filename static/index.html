@@ -2410,6 +2410,114 @@ tbody tr:hover{background:#f7fbff}
  #root[data-view="crd"] #studyForm .field input{transition:none}
 }
 
+
+/* v0.50 · Calm field hierarchy: editability without a rule under every value. */
+#root[data-view="participante"] #patientForm .clinical-block{
+ border-bottom:1px solid #edf2f8!important
+}
+#root[data-view="participante"] #patientForm .clinical-block:last-of-type{border-bottom:0!important}
+#root[data-view="participante"] #patientForm .clinical-block-title{
+ padding:13px 2px 10px!important;min-height:43px!important;
+ color:#64809e!important;font-size:11.8px!important;font-weight:625!important
+}
+#root[data-view="participante"] #patientForm .clinical-block[open]>.clinical-block-title{
+ color:#255b96!important;font-weight:710!important
+}
+#root[data-view="participante"] #patientForm .clinical-block-body{
+ border-top:0!important;padding:9px 2px 18px!important
+}
+#root[data-view="participante"] #patientForm .clinical-block-body>.fields{
+ column-gap:clamp(15px,2vw,28px)!important;row-gap:19px!important
+}
+#root[data-view="participante"] #patientForm .clinical-block-body>.fields>.field{
+ gap:2px!important;padding:0!important;min-width:0
+}
+#root[data-view="participante"] #patientForm .clinical-block-body>.fields>.field label,
+#root[data-view="crd"] #studyForm .crd-field-grid>.field label{
+ color:#758ba2!important;font-weight:565!important;font-size:11.2px!important;
+ letter-spacing:0!important;line-height:1.4!important
+}
+#root[data-view="participante"] #patientForm .clinical-block-body>.fields>.field :is(input,select,textarea),
+#root[data-view="crd"] #studyForm .crd-field-grid>.field :is(input,select,textarea){
+ border:0!important;border-bottom:0!important;
+ background:transparent!important;box-shadow:none!important;border-radius:0!important;
+ height:39px!important;min-height:39px!important;padding:6px 23px 6px 1px!important;
+ color:#274867!important;font-size:12.7px!important;font-weight:580!important
+}
+#root[data-view="participante"] #patientForm .clinical-block-body>.fields>.field :is(input,select,textarea):hover,
+#root[data-view="crd"] #studyForm .crd-field-grid>.field :is(input,select,textarea):hover{
+ border-bottom-color:#d7e4f1!important;background:#fafcff!important
+}
+#root[data-view="participante"] #patientForm .clinical-block-body>.fields>.field :is(input,select,textarea):focus,
+#root[data-view="crd"] #studyForm .crd-field-grid>.field :is(input,select,textarea):focus{
+ outline:none!important;border-bottom:2px solid #4d88ca!important;
+ background:#f7faff!important;box-shadow:none!important
+}
+#root[data-view="participante"] #patientForm .clinical-block-body>.fields>.field input[readonly]{
+ color:#6986a2!important;background:transparent!important;
+ border-bottom:0!important
+}
+#root[data-view="participante"] #patientForm .clinical-block-body>.fields>.field input[readonly]:hover{
+ background:transparent!important;border-bottom-color:transparent!important
+}
+#root[data-view="participante"] #patientForm .clinical-section-nav{gap:2px}
+#root[data-view="participante"] #patientForm .section-jump{
+ padding:5px 9px 7px!important;color:#879ab0;font-weight:570
+}
+#root[data-view="participante"] #patientForm .section-jump.active{
+ color:#2462a4!important;font-weight:715!important
+}
+#root[data-view="participante"] #patientForm .footerbar{
+ border-top:1px solid #e9eff7!important;box-shadow:none!important
+}
+/* Metadata explains itself on request, not as permanent miniature paragraphs. */
+#root .field-help{margin:1px 0 0;position:relative;width:fit-content;max-width:100%}
+#root .field-help-toggle{
+ display:inline-flex;align-items:center;justify-content:center;
+ height:15px;width:15px;list-style:none;border:1px solid #dbe6f2;
+ border-radius:50%;color:#7d97b1;background:transparent;cursor:pointer;
+ font-size:9.4px;font-weight:700;line-height:1
+}
+#root .field-help-toggle::-webkit-details-marker{display:none}
+#root .field-help-toggle:focus-visible{outline:2px solid #4585c8;outline-offset:2px}
+#root .field-help-text{padding:5px 0 2px;max-width:460px}
+#root .field-help-text small{font-size:10.6px;line-height:1.5;color:#748ba4}
+/* Keep native date picker and ISO value; show a human-readable face when at rest. */
+#root .date-surface{position:relative;display:block;min-width:0;width:100%}
+#root .date-surface input[type="date"]{
+ position:relative;display:block;width:100%;
+ color:transparent!important;-webkit-text-fill-color:transparent!important
+}
+#root .date-surface .date-face{
+ position:absolute;left:2px;right:32px;top:50%;transform:translateY(-50%);
+ color:#52728f;font-size:12.7px;font-weight:550;
+ pointer-events:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;z-index:2
+}
+#root .date-surface[data-empty="true"] .date-face{color:#8499ae;font-weight:475}
+#root .date-surface:focus-within .date-face{display:none}
+#root .date-surface:focus-within input[type="date"]{
+ color:#21466e!important;-webkit-text-fill-color:#21466e!important
+}
+#root .date-surface input[type="date"]::-webkit-calendar-picker-indicator{
+ opacity:.7;cursor:pointer
+}
+@media(max-width:690px){
+ #root[data-view="participante"] #patientForm .clinical-block-title{
+  min-height:40px!important;padding:12px 0 9px!important
+ }
+ #root[data-view="participante"] #patientForm .clinical-block-body>.fields{
+  row-gap:15px!important
+ }
+ #root .date-surface .date-face{font-size:12.1px}
+}
+
+
+/* Missing is not a recorded clinical value. Keep it legible but quiet. */
+#root[data-view="participante"] #patientForm select:has(option:checked[value=""]),
+#root[data-view="participante"] #patientForm select:has(option:checked[value="pendiente"]){
+ color:#8399ae!important;font-weight:475!important
+}
+
 </style>
 </head>
 <body>
@@ -2513,7 +2621,7 @@ const esc=v=>String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'
 const get=id=>document.getElementById(id);
 const fmt=d=>{if(!d)return '—';const x=new Date(d+'T12:00:00');return Number.isNaN(+x)?esc(d):new Intl.DateTimeFormat('es-ES',{day:'2-digit',month:'short',year:'numeric'}).format(x)};
 const options=(arr,value)=>arr.map(([v,l])=>`<option value="${esc(v)}" ${String(value??'')===String(v)?'selected':''}>${esc(l)}</option>`).join('');
-const field=(id,label,type='text',value='',extra='',help='')=>`<div class="field" data-field-id="${esc(id)}"><label for="${id}">${label}</label>${type==='select'?`<select id="${id}">${options(extra,value)}</select>`:`<input id="${id}" type="${type}" value="${esc(value)}" ${extra}>`}${help?`<small>${help}</small>`:''}</div>`;
+const field=(id,label,type='text',value='',extra='',help='')=>`<div class="field" data-field-id="${esc(id)}"><label for="${id}">${label}</label>${type==='select'?`<select id="${id}">${options(extra,value)}</select>`:type==='date'?`<span class="date-surface"><input id="${id}" type="date" lang="es-ES" value="${esc(value)}" ${extra}><span class="date-face" aria-hidden="true">${value?fmt(value):'Seleccionar fecha'}</span></span>`:`<input id="${id}" type="${type}" value="${esc(value)}" ${extra}>`}${help?`<small>${help}</small>`:''}</div>`;
 // R027 is a derived observation, not a second question for the investigator.
 // Full date, not birth year alone, is required to avoid fabricating precision.
 function ageAtBaseline(born,baseline){
@@ -3247,7 +3355,7 @@ function makeClinicalSections(formId){
  for(const header of headings){
    const title=header.textContent.trim();const block=document.createElement('details');block.className='clinical-block';
    const optional=(formId==='patientForm'&&(/Estado vital|Comorbilidades/i).test(title))||(formId==='visitForm'&&/Trazabilidad/i.test(title)===false&&false);
-   block.open=!optional;
+   block.open=formId==='patientForm'?headings.indexOf(header)===0:!optional;
    const summary=document.createElement('summary');summary.className='clinical-block-title';
    const heading=document.createElement('span');heading.textContent=title;
    const hint=document.createElement('span');hint.className='clinical-block-hint';hint.textContent=optional?'Complementario':'';
@@ -3280,10 +3388,10 @@ function makeClinicalSections(formId){
    };
    strip.addEventListener('click',event=>{
       const jump=event.target.closest('.section-jump');if(!jump)return;
-      const i=Number(jump.dataset.section),block=sections[i];block.open=true;select(i);
+      const i=Number(jump.dataset.section),block=sections[i];if(formId==='patientForm')sections.forEach((node,j)=>{if(j!==i)node.open=false});block.open=true;select(i);
       block.scrollIntoView({behavior:'smooth',block:'start'});
    });
-   sections.forEach((block,i)=>block.addEventListener('toggle',()=>{if(block.open&&document.activeElement===block.querySelector('summary'))select(i)}));
+   sections.forEach((block,i)=>block.addEventListener('toggle',()=>{if(block.open&&document.activeElement===block.querySelector('summary')){if(formId==='patientForm')sections.forEach((node,j)=>{if(j!==i)node.open=false});select(i)}}));
    select(0);nav.append(strip,status);form.querySelector('.panelhead').after(nav);
  }
  if(formId==='visitForm'){
@@ -3421,6 +3529,30 @@ function composeVisitIntake(){
  if(title)title.textContent='Registro y valoración clínica';
 }
 
+
+/* v0.50 · Localized resting-date display; real native ISO date inputs are retained. */
+function enhanceDateFaces(){
+ for(const shell of get('root')?.querySelectorAll('.date-surface')||[]){
+  const input=shell.querySelector('input[type="date"]'),face=shell.querySelector('.date-face');
+  if(!input||!face||shell.dataset.bound==='1')continue;
+  const sync=()=>{face.textContent=input.value?fmt(input.value):'Seleccionar fecha';shell.dataset.empty=input.value?'false':'true'};
+  input.addEventListener('input',sync);input.addEventListener('change',sync);
+  shell.dataset.bound='1';sync();
+ }
+}
+function compactFieldHelp(formId){
+ const form=get(formId);if(!form)return;
+ for(const small of form.querySelectorAll('.clinical-block-body .field > small')){
+  const title=small.closest('.field')?.querySelector('label')?.textContent?.trim()||'campo';
+  const box=document.createElement('details');box.className='field-help';
+  const summary=document.createElement('summary');summary.className='field-help-toggle';
+  summary.textContent='i';summary.title='Información del campo';
+  summary.setAttribute('aria-label','Información sobre '+title);
+  const content=document.createElement('div');content.className='field-help-text';
+  small.before(box);content.append(small);box.append(summary,content);
+ }
+}
+
 function enhanceInterface(){
  updateContext();
  composeModuleFirstFold();
@@ -3445,7 +3577,8 @@ function enhanceInterface(){
       }
    }
  }
- if(route==='participante')makeClinicalSections('patientForm');
+ if(route==='participante'){makeClinicalSections('patientForm');compactFieldHelp('patientForm');}
+  enhanceDateFaces();
  renderWorkflowRibbon();
  if(route==='visita'){
   for(const id of ['vpatient','vtype'])get(id)?.addEventListener('change',()=>{renderWorkflowRibbon();updateContext();});
