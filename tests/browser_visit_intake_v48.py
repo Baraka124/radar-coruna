@@ -48,13 +48,23 @@ def main():
    response=client.post('/api/session',json={'username':'admin','password':'radar-demo-admin'})
    assert response.status_code==200,response.text
    headers=lambda:{'X-RADAR-CSRF':client.get('/api/session').json()['csrf']}
-   centre=client.post('/api/centres',headers=headers(),json={'code':'GAL_UI48','name':'Centro sintético de evaluación'})
-   assert centre.status_code==201,centre.text
-   patient=client.post('/api/patients',headers=headers(),
-       json={'id':'SIM-PREMIUM48','center':'GAL_UI48','status':'cribado'})
-   assert patient.status_code==201,patient.text
    with sync_playwright() as pw:
     browser=pw.chromium.launch(headless=True,args=['--no-sandbox','--disable-dev-shm-usage'])
+    empty=browser.new_page(viewport={'width':1440,'height':900},device_scale_factor=1)
+    empty_errors=boot(empty,client)
+    click_route(empty,'visitas',False)
+    assert empty.locator('#root .visit-precondition').is_visible()
+    assert 'Primero, registra un participante' in empty.locator('.visit-precondition').inner_text()
+    assert empty.locator('#root [data-action="newvisit"]').count()==0
+    assert empty.locator('#root [data-action="open-admin-centres"]').count()==1
+    assert not empty_errors,empty_errors
+    empty.screenshot(path=str(OUT/'empty_without_patients_1440.png'),full_page=False)
+    empty.close()
+    centre=client.post('/api/centres',headers=headers(),json={'code':'GAL_UI48','name':'Centro sintético de evaluación'})
+    assert centre.status_code==201,centre.text
+    patient=client.post('/api/patients',headers=headers(),
+        json={'id':'SIM-PREMIUM48','center':'GAL_UI48','status':'cribado'})
+    assert patient.status_code==201,patient.text
     for width in (320,390,768,1024,1440):
      page=browser.new_page(viewport={'width':width,'height':900},device_scale_factor=1)
      page.set_default_timeout(16000)
