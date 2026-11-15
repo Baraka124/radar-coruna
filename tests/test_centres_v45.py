@@ -116,3 +116,58 @@ def test_phase14_syntax_no_longer_has_three_centre_ids():
     assert valid_key('centre','SIM-CS01')
     assert not valid_key('centre','bad code')
     assert not valid_key('implementation','GAL_AP_01:2026-13')
+
+
+def test_orphaned_legacy_invitation_is_visible_but_not_usable(app_client):
+    import hashlib
+    from datetime import datetime, timedelta, timezone
+    auth=login(app_client)
+    token='legacy-invitation-token-that-remains-secret'
+    stamp=datetime.now(timezone.utc)
+    with server.conn() as c:
+        cur=c.execute(
+            'INSERT INTO invitations(token_hash,centre,role,label,created_by,created_at,expires_at) '
+            'VALUES (?,?,?,?,?,?,?)',
+            (hashlib.sha256(token.encode()).hexdigest(),'SIM-OLD01','investigator',
+             'Legacy invitation','admin',stamp.isoformat(),
+             (stamp+timedelta(hours=12)).isoformat()))
+        inv_id=cur.lastrowid
+    collaboration=app_client.get('/api/collaboration').json()
+    row=next(x for x in collaboration['invitations'] if x['id']==inv_id)
+    assert row['status']=='centro_no_registrado'
+    rejected=app_client.post('/api/collaboration/accept',
+        json={'token':token,'username':'legacy.med','password':'Otra-Sintetica-2026'})
+    assert rejected.status_code==410
+    revoke=app_client.post('/api/collaboration/invitations/'+str(inv_id)+'/revoke',
+        headers=auth,json={})
+    assert revoke.status_code==200,revoke.text
+
+
+def test_two_new_centres_remain_server_isolated(app_client):
+    admin=login(app_client)
+    assert register(app_client,admin,'GAL_AP_01','Primer centro registrado').status_code==201
+    assert register(app_client,admin,'GAL_AP_02','Segundo centro registrado').status_code==201
+    for index in (1,2):
+        centre='GAL_AP_0'+str(index)
+        issued=app_client.post('/api/collaboration/invitations',headers=admin,
+            json={'centre':centre,'role':'investigator','label':'Investigación de centro'})
+        assert issued.status_code==201,issued.text
+        resp=app_client.post('/api/collaboration/accept',
+            json={'token':issued.json()['token'],
+                  'username':'investigador.c'+str(index),
+                  'password':'Aislado-Sintetico-'+str(index)+'-2026'})
+        assert resp.status_code==201,resp.text
+    a1=login(app_client,'investigador.c1','Aislado-Sintetico-1-2026')
+    assert app_client.post('/api/patients',headers=a1,
+        json={'id':'SIM-ISO-01','center':'GAL_AP_01'}).status_code==201
+    assert app_client.post('/api/patients',headers=a1,
+        json={'id':'SIM-ISO-02','center':'GAL_AP_02'}).status_code==403
+    a2=login(app_client,'investigador.c2','Aislado-Sintetico-2-2026')
+    assert app_client.post('/api/patients',headers=a2,
+        json={'id':'SIM-ISO-02','center':'GAL_AP_02'}).status_code==201
+    own=app_client.get('/api/state').json()
+    assert [p['id'] for p in own['patients']]==['SIM-ISO-02']
+    assert app_client.get('/api/study/participant-journey/SIM-ISO-01').status_code==403
+    a1=login(app_client,'investigador.c1','Aislado-Sintetico-1-2026')
+    own=app_client.get('/api/state').json()
+    assert [p['id'] for p in own['patients']]==['SIM-ISO-01']
