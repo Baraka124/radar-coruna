@@ -1288,10 +1288,60 @@ let clinicalReview=null,scientific=null,crdWorkflow=null,scientificAnalysis=null
 let phase16Work=[],phase18Report=null,researchIntel=null;
 let intelQualityCentre='',intelQualityStatus='all',intelQuery='';
 let collaborationState=null, createdInvitationUrl='';
-async function reloadState(){db=await requestApi('/api/state');if(!db||!Array.isArray(db.patients))throw Error('Respuesta de datos inválida');
-  scientific=await requestApi('/api/study/specification');studyObservations=await requestApi('/api/study/observations');clinicalReview=await requestApi('/api/review/clinical');crdWorkflow=await requestApi('/api/study/crd-workflow');scientificAnalysis=await requestApi('/api/study/scientific-summary');phase13Outcomes=await requestApi('/api/study/phase13-outcomes');missingRecords=await requestApi('/api/study/missing');phase14Data=await requestApi('/api/study/phase14');phase16Work=(await requestApi('/api/study/worklist')).rows||[];phase18Report=await requestApi('/api/study/reporting');researchIntel=await requestApi('/api/study/intelligence');collaborationState=await requestApi('/api/collaboration');}
+// The cohort is the only data needed to unlock the dashboard. Remaining
+// research modules are loaded with a small concurrency cap; never hold login
+// hostage to 12 unrelated API requests or overwhelm the DB session pool.
+let stateLoadEpoch=0;
+async function loadResearchModules(epoch){
+ const modules=[
+   ['/api/study/specification',v=>{scientific=v}],
+   ['/api/study/observations',v=>{studyObservations=v}],
+   ['/api/review/clinical',v=>{clinicalReview=v}],
+   ['/api/study/crd-workflow',v=>{crdWorkflow=v}],
+   ['/api/study/scientific-summary',v=>{scientificAnalysis=v}],
+   ['/api/study/phase13-outcomes',v=>{phase13Outcomes=v}],
+   ['/api/study/missing',v=>{missingRecords=v}],
+   ['/api/study/phase14',v=>{phase14Data=v}],
+   ['/api/study/worklist',v=>{phase16Work=v.rows||[]}],
+   ['/api/study/reporting',v=>{phase18Report=v}],
+   ['/api/study/intelligence',v=>{researchIntel=v}],
+   ['/api/collaboration',v=>{collaborationState=v}]
+ ];
+ let next=0;
+ const failures=[];
+ const worker=async()=>{
+   while(next<modules.length){
+     if(epoch!==stateLoadEpoch||!currentUser)return;
+     const [path,store]=modules[next++];
+     try{
+       const value=await requestApi(path);
+       if(epoch===stateLoadEpoch&&currentUser)store(value);
+     }catch(err){failures.push(path); /* Keep unavailable sections distinct from saved clinical data. */}
+   }
+ };
+ await Promise.all([worker(),worker(),worker()]);
+ if(failures.length&&epoch===stateLoadEpoch)console.warn('Secciones auxiliares no disponibles:',failures);
+}
+async function reloadState({fast=false}={}){
+ const epoch=++stateLoadEpoch;
+ const core=await requestApi('/api/state');
+ if(!core||!Array.isArray(core.patients))throw Error('Respuesta de datos inválida');
+ if(epoch!==stateLoadEpoch)return;
+ db=core;
+ const extraTask=loadResearchModules(epoch);
+ if(fast){
+   void extraTask.then(()=>{
+     if(epoch!==stateLoadEpoch||!currentUser||!document.body.classList.contains('signed-in'))return;
+     // Updating a form while someone is typing would destroy unsaved inputs.
+     const safe=['estudio','analisis','inteligencia','calidad','resultados','flujo','exportacion'];
+     if(safe.includes(route)&&!document.activeElement?.matches('input,select,textarea'))render();
+   }).catch(err=>console.warn('Carga de investigación incompleta',err));
+   return;
+ }
+ await extraTask;
+}
 
-async function loadSession(){const r=await fetch('/api/session',{credentials:'same-origin'});if(!r.ok)return false;const a=await r.json();csrfToken=a.csrf;currentUser=a.user;await reloadState();document.body.classList.add('signed-in');document.getElementById('userLabel').textContent=currentUser.username+' · '+(currentUser.centre||'todos los centros');navigate('inicio');return true}
+async function loadSession(){const r=await fetch('/api/session',{credentials:'same-origin'});if(!r.ok)return false;const a=await r.json();csrfToken=a.csrf;currentUser=a.user;await reloadState({fast:true});document.body.classList.add('signed-in');document.getElementById('userLabel').textContent=currentUser.username+' · '+(currentUser.centre||'todos los centros');navigate('inicio');return true}
 async function boot(){try{await loadSession()}catch(e){console.warn('Sesión no disponible',e)}}
 function preventDuplicateSubmissions(form, busy){form.querySelectorAll('button[type="submit"]').forEach(el=>{el.disabled=busy;el.textContent=busy?'Guardando…':'Guardar'})}
 
@@ -2046,8 +2096,34 @@ window.matchMedia('(min-width: 901px)').addEventListener('change',e=>{if(e.match
 
 window.addEventListener('beforeunload',e=>{if(crdDrafts.size||get('patientForm')?.dataset.dirty==='1'||get('visitForm')?.dataset.dirty==='1'){e.preventDefault();e.returnValue='';}});
 get('navigation').addEventListener('click',e=>{const b=e.target.closest('[data-route]');if(b)navigate(b.dataset.route)});get('root').addEventListener('click',click);get('workspaceContext').addEventListener('click',click);get('root').addEventListener('click',e=>{if(e.target.closest('[data-action="auditdetails"]'))auditDetailPanel()});
-get('authForm').addEventListener('submit',async e=>{e.preventDefault();get('authError').textContent='';try{const r=await fetch('/api/session',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:val('username'),password:val('password')})});const x=await r.json();if(!r.ok)throw Error(typeof x.detail==='string'?x.detail:'Credenciales inválidas');csrfToken=x.csrf;currentUser=x.user;await reloadState();document.body.classList.add('signed-in');get('password').value='';navigate('inicio')}catch(err){get('authError').textContent=err.message}});
-get('signout').addEventListener('click',async ()=>{try{await requestApi('/api/logout','POST',{})}catch(e){}crdDrafts.clear();crdSectionChoice.clear();crdFeedback='';primaryVisitSnapshot=null;createdInvitationUrl='';collaborationState=null;currentUser=null;csrfToken='';db=clone(DEMO);studyObservations=[];scientific=null;clinicalReview=null;crdWorkflow=null;phase13Outcomes=null;missingRecords=[];phase16Work=[];phase18Report=null;researchIntel=null;intelQualityCentre='';intelQualityStatus='all';intelQuery='';document.body.classList.remove('signed-in');get('password').value='';get('authError').textContent=''});
+let signingIn=false;
+get('authForm').addEventListener('submit',async e=>{
+ e.preventDefault();
+ if(signingIn)return;
+ signingIn=true;
+ const button=e.currentTarget.querySelector('button[type="submit"]');
+ const initialLabel=button?.textContent||'Acceder';
+ if(button){button.disabled=true;button.textContent='Accediendo…';button.setAttribute('aria-busy','true')}
+ get('authError').textContent='';
+ try{
+   const r=await fetch('/api/session',{method:'POST',credentials:'same-origin',
+     headers:{'Content-Type':'application/json'},
+     body:JSON.stringify({username:val('username'),password:val('password')})});
+   const x=await r.json();
+   if(!r.ok)throw Error(typeof x.detail==='string'?x.detail:'Credenciales inválidas');
+   csrfToken=x.csrf;currentUser=x.user;
+   await reloadState({fast:true});
+   document.body.classList.add('signed-in');
+   get('userLabel').textContent=currentUser.username+' · '+(currentUser.centre||'todos los centros');
+   get('password').value='';
+   navigate('inicio');
+ }catch(err){get('authError').textContent=err.message}
+ finally{
+   signingIn=false;
+   if(button){button.disabled=false;button.textContent=initialLabel;button.removeAttribute('aria-busy')}
+ }
+});
+get('signout').addEventListener('click',async ()=>{try{await requestApi('/api/logout','POST',{})}catch(e){}crdDrafts.clear();crdSectionChoice.clear();crdFeedback='';primaryVisitSnapshot=null;createdInvitationUrl='';collaborationState=null;currentUser=null;csrfToken='';stateLoadEpoch++;db=clone(DEMO);studyObservations=[];scientific=null;clinicalReview=null;crdWorkflow=null;phase13Outcomes=null;missingRecords=[];phase16Work=[];phase18Report=null;researchIntel=null;intelQualityCentre='';intelQualityStatus='all';intelQuery='';document.body.classList.remove('signed-in');get('password').value='';get('authError').textContent=''});
 // The secret is in the URL fragment, never in a request path or access log.
 let pendingInviteToken='';
 function clearInviteFragment(){try{history.replaceState(null,'',location.pathname||'/')}catch(_){location.hash=''}}
