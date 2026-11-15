@@ -992,6 +992,11 @@ def create_centre(d: CentreCreate,user=Depends(user_for)):
     with conn() as c:
         if c.execute('SELECT 1 FROM centres WHERE code=?',(d.code,)).fetchone():
             failure(409,'Este código de centro ya existe')
+        # Never reactivate a historical unregistered-centre invitation implicitly.
+        pending=c.execute('SELECT 1 FROM invitations WHERE centre=? AND used_at IS NULL AND revoked_at IS NULL AND expires_at>? LIMIT 1',
+                          (d.code,now())).fetchone()
+        if pending:
+            failure(409,'Existen invitaciones anteriores para este código; revóquelas antes de registrar el centro')
         stamp=now()
         c.execute('INSERT INTO centres(code,name,active,created_at,updated_at,created_by) VALUES (?,?,?,?,?,?)',
                   (d.code,d.name,True,stamp,stamp,user['username']))
