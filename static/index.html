@@ -1776,7 +1776,6 @@ tbody tr:hover{background:#f7fbff}
 <script>
 'use strict';
 (()=>{
-const KEY='radar_coruna_v15_remote_state';
 const YESNO=[['','Sin registrar'],['si','Sí'],['no','No'],['nc','No consta']];
 const EMPTY_STATE={version:'0.41',centres:[],patients:[],visits:[],events:[],contacts:[],audit:[]};
 function clone(o){return JSON.parse(JSON.stringify(o))}let db=clone(EMPTY_STATE),currentUser=null,csrfToken='';
@@ -1935,7 +1934,6 @@ const labelPatient=id=>esc(id);
 const visits=id=>db.visits.filter(v=>v.patient===id).sort((a,b)=>a.date.localeCompare(b.date));
 const latestVisit=id=>visits(id).slice(-1)[0];
 const count=(type)=>db.visits.filter(v=>v.type===type).length;
-function addAudit(action,obj,detail){db.audit.unshift({at:new Date().toISOString(),action,object:obj,detail});db.audit=db.audit.slice(0,600)}
 // No localStorage: all accepted changes are persisted through the server API.
 function newId(prefix){return prefix+'-'+(Date.now().toString(36).toUpperCase())+'-'+Math.random().toString(36).slice(2,6).toUpperCase()}
 let route='inicio', selectedPatient='', visitPatient='', visitTargetStage='',editVisit=null, eventTab='episodios';
@@ -2367,7 +2365,8 @@ async function submitMissing(e){e.preventDefault();const pid=val('mPatient'),vis
  try{await requestApi('/api/study/missing','PUT',{participant:pid,visit_type:visit,field_code:code,reason:val('mReason'),rev:existing?.rev??null,correction_reason:val('mCorrection')});await reloadState();navigate('resultados')}catch(e){error('missingError',e.message)}
 }
 // Phase 14 · Forms generated directly from the common versioned variable registry.
-let p14Kind='centre',p14Selected='',p14Centre='',p14Month='2026-10';
+function currentLocalMonth(){const today=new Date();return today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0')}
+let p14Kind='centre',p14Selected='',p14Centre='',p14Month=currentLocalMonth();
 const p14Kinds=[['centre','Centros'],['professional','Profesionales y formación'],['screening','Cribado complementario'],['baseline','Basal complementaria'],['visit','Evaluador y actuación'],['implementation','Consultas EPOC por centro y mes']];
 function p14AvailableKeys(kind){
  if(kind==='centre')return db.centres.map(c=>[c.code,c.code+' · '+c.name]);
