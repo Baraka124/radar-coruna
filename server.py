@@ -979,7 +979,10 @@ def collaboration(user=Depends(user_for)):
             result['centre_registry']=centre_rows(c,include_inactive=True)
         if user['role']=='admin' and user['centre'] is None:
             result['accounts']=[{'id':r['id'],'username':r['username'],'role':r['role'], 'centre':r['centre'], 'active':bool(r['active'])} for r in c.execute('SELECT id,username,role,centre,active FROM users ORDER BY username')]
-            result['invitations']=[{'id':r['id'],'role':r['role'],'centre':r['centre'],'label':r['label'],'created_at':r['created_at'],'expires_at':r['expires_at'],'status':invitation_status(r)} for r in c.execute('SELECT * FROM invitations ORDER BY id DESC LIMIT 100')]
+            active_codes={centre['code'] for centre in result['centre_registry'] if centre['active']}
+            result['invitations']=[{'id':r['id'],'role':r['role'],'centre':r['centre'],'label':r['label'],'created_at':r['created_at'],'expires_at':r['expires_at'],
+              'status':('centro_no_registrado' if invitation_status(r)=='pendiente' and r['centre'] not in active_codes else invitation_status(r))}
+              for r in c.execute('SELECT * FROM invitations ORDER BY id DESC LIMIT 100')]
         return result
 
 
