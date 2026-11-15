@@ -66,4 +66,19 @@ Supabase `radar-coruna-staging` (`radar` schema), consulta del 15-11-2026:
 - El catálogo clínico se mantiene intacto y versionado.
 - El entorno permanece explícitamente **sintético** hasta que existan aprobaciones y medidas institucionales adecuadas.
 
-> **Estado de este PR:** primera corrección segura de presentación y limpieza del frontend, junto a auditoría de fuentes. La sustitución de los centros ficticios y sus dependencias es el siguiente cambio estructural; no se declara implementada ni probada en esta rama.
+## Ejecución posterior de v0.45
+
+**Implementado en rama de revisión:**
+- Tabla `radar.centres` con cero registros iniciales; migración aditiva aplicada a staging, RLS activo y roles directos `anon/authenticated` sin permiso.
+- Registro, renombrado, desactivación y reactivación de centros sólo por administrador; acciones auditadas.
+- `Patient.center`, invitaciones, `/api/state`, métricas, registros CRD, análisis, informes y Excel resuelven centros desde la base de datos.
+- El administrador no puede desactivar un centro que tenga cuentas, pacientes, registros complementarios o invitaciones vigentes.
+- Las invitaciones heredadas sin centro registrado se marcan `centro_no_registrado` y no pueden aceptarse; una invitación heredada vigente debe revocarse antes de registrar su código de centro.
+- Pantalla administrativa integrada y estado inicial de **cero centros**, con acción para registrar el primero.
+- Fixtures de los tres centros sintéticos conservados exclusivamente bajo modo local explícitamente semillado o dentro de la suite pytest; jamás por arranque remoto.
+
+**Pendiente para otra fase:** estados de carga/error explícitos en todos los módulos de investigación, limpieza de mensajes antiguos de simulación en fichas/exports secundarios, pruebas de aceptación completas contra el API PostgreSQL remoto y aprobación de cualquier uso no sintético.
+
+**Verificaciones:** SQL de staging consultado tras migración (0 centros, 3 invitaciones existentes, 0 pacientes, RLS en `radar.centres`, sin permisos de lectura directos para `anon` ni `authenticated`). Pipeline GitHub valida sintaxis Python/JS y ejecuta regresión Python. La integración con servicios externos de historia clínica o IANUS no está acreditada; no se fabrican importaciones ni confirmaciones automáticas.
+
+> **Estado del PR #5:** implementación multicentro presente en una rama aislada y sometida a CI; el despliegue en vivo se realiza sólo tras verificar el resultado de la regresión y de la migración.
