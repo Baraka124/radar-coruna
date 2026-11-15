@@ -147,34 +147,53 @@ def validate_database_target(url: str, expected_ref: str) -> str:
     return 'direct' if direct else 'pooler'
 
 
+# A single bounded pool is shared by this staging process. The Supabase session
+# pooler has 15 client slots: leave spare capacity for deployments and diagnostics.
+# Connections are not exposed to callers and retain verified TLS via a pinned CA.
+_POOL = None
+_POOL_LOCK = __import__('threading').Lock()
+
+
+def close_postgres_pool():
+    global _POOL
+    with _POOL_LOCK:
+        pool, _POOL = _POOL, None
+    if pool is not None:
+        pool.close()
+
+
 @contextmanager
-def connect_postgres():
-    """One transaction per request, connection kept exclusively on the backend."""
-    try:
-        import psycopg
-        from psycopg.rows import dict_row
-    except ImportError as e:
-        raise RuntimeError('Instale psycopg[binary] en el backend para activar PostgreSQL') from e
+def connect_postgres(*, read_only=False):
+    """One transaction per operation; pooled connections never leak session state."""
+    from psycopg.rows import dict_row
+    from psycopg_pool import ConnectionPool
+    global _POOL
     url=os.environ.get('RADAR_DATABASE_URL','').strip()
     if os.getenv('RADAR_MODE') != 'synthetic_staging':
         raise RuntimeError('PostgreSQL sólo se habilita en modo synthetic_staging')
     validate_database_target(url, os.environ.get('RADAR_EXPECTED_PROJECT_REF', '').strip())
     if os.getenv('RADAR_SEED_DEMO') == '1':
         raise RuntimeError('No se permite RADAR_SEED_DEMO con PostgreSQL remoto')
-    # Pin the downloaded Supabase root CA explicitly for strict TLS verification.
-    # This is public verification material installed at Docker build time.
     trusted_ca='/usr/local/share/ca-certificates/supabase-root-2021.crt'
     if not os.path.isfile(trusted_ca):
         raise RuntimeError('Falta el certificado raíz público de Supabase')
-    with psycopg.connect(url, sslrootcert=trusted_ca, row_factory=dict_row, connect_timeout=10) as native:
-        # Search_path is fixed, never supplied by a browser or other request.
+    if _POOL is None:
+        with _POOL_LOCK:
+            if _POOL is None:
+                _POOL = ConnectionPool(
+                    conninfo=url, min_size=1, max_size=4, timeout=15,
+                    max_waiting=32, open=True, name='radar-staging',
+                    kwargs={'sslrootcert':trusted_ca,
+                            'row_factory':dict_row, 'connect_timeout':10})
+    with _POOL.connection() as native:
         with native.transaction():
+            # Fixed local schema per operation; a pooled session is never trusted
+            # to retain its prior transaction's search_path.
             native.execute('SET LOCAL search_path TO radar, pg_catalog')
-            # Shared storage makes serial read/check/update sequences safe to
-            # execute concurrently across distinct backend replicas. Serialize
-            # writers for this first staging migration; remove after atomic
-            # revision/episode-number tests have been completed.
-            native.execute('SELECT pg_advisory_xact_lock(40041, 1)')
+            # Reads can run concurrently. Mutations preserve the original
+            # staging-wide advisory lock until record-level concurrency is proven.
+            if not read_only:
+                native.execute('SELECT pg_advisory_xact_lock(40041, 1)')
             yield PgConn(native)
 
 
