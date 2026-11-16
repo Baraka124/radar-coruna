@@ -64,10 +64,10 @@ def main():
       page.screenshot(path=str(OUT/f'intelligence_api_error_{width}.png'),full_page=False)
      failed.remove('/api/study/intelligence')
      page.locator('[data-action="retry-research"]').click()
-     page.locator('#root .int-stat').first.wait_for()
+     page.locator('#root .research-cohort-empty').wait_for()
      assert page.locator('.research-resource-state').count()==0
-     assert 'Participantes incluidos' in page.locator('#root').inner_text()
-     assert '0' in page.locator('#root .int-stat').first.inner_text()
+     assert page.locator('#root .int-stat').count()==0
+     assert 'Aún no hay participantes registrados' in page.locator('#root').inner_text()
      verify_white(page,width)
      if width in (390,1440):
       page.screenshot(path=str(OUT/f'intelligence_real_empty_{width}.png'),full_page=False)
@@ -77,7 +77,8 @@ def main():
      assert 'informe de cohorte' in page.locator('.research-resource-state').inner_text()
      failed.remove('/api/study/reporting')
      page.locator('#root [data-action="retry-research"]').click()
-     page.locator('#root .metric').first.wait_for()
+     page.locator('#root .research-cohort-empty').wait_for()
+     assert page.locator('#root .metric').count()==0
      assert page.locator('.research-resource-state').count()==0
      verify_white(page,width)
      # The dictionary and linked CRD still use persisted definitions.
@@ -88,7 +89,7 @@ def main():
      assert not errors,(width,errors)
      page.close()
     browser.close()
- print('PASS v0.52: API outage not displayed as zero; explicit retry; white research modules at three widths')
+ print('PASS v0.52: API outage never displayed as zero; retry returns genuine empty cohort state on three widths')
 
 if __name__=='__main__':
  main()
