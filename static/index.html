@@ -2772,6 +2772,73 @@ body.signed-in .main{box-shadow:none}
  }
 }
 
+
+/* v0.52 · Research modules: distinguish loading, empty and failed data.
+   No simulated metrics, error-as-zero, filled cards or heavy retry buttons. */
+#root .research-resource-state{
+ display:flex;flex-direction:column;align-items:flex-start;justify-content:center;
+ min-height:190px;max-width:100%;padding:21px 22px;margin:0;
+ background:#fff;border:1px solid #e9eff6;border-radius:9px;
+ box-shadow:none!important
+}
+#root .research-resource-state .resource-state-kicker{
+ font-size:10px;font-weight:720;letter-spacing:.08em;
+ color:#6f8da9;margin-bottom:10px
+}
+#root .research-resource-state h2{
+ font-size:clamp(17px,1.7vw,22px);font-weight:690;
+ letter-spacing:-.025em;color:#264969;line-height:1.25;margin:0 0 6px
+}
+#root .research-resource-state p{
+ font-size:11.6px;line-height:1.5;color:#7289a1;margin:0;max-width:560px
+}
+#root .research-resource-state .resource-state-detail{
+ font-size:11px;color:#8da0b3;margin-top:8px
+}
+#root .research-resource-state .btn{
+ min-height:33px!important;padding:5px 9px!important;
+ font-size:11px!important;margin-top:16px;
+ background:#fff!important;border-color:#d8e5f1!important;box-shadow:none!important
+}
+/* Dense research pages: measured information without decorative containers. */
+#root[data-view="inteligencia"] .int-intro,
+#root[data-view="analisis"] .panelhead,
+#root[data-view="calidad"] .panelhead,
+#root[data-view="flujo"] .panelhead,
+#root[data-view="resultados"] .panelhead,
+#root[data-view="completitud"] .panelhead{
+ background:#fff!important;box-shadow:none!important
+}
+#root[data-view="inteligencia"] .int-intro{
+ padding:13px 16px!important;margin-bottom:11px!important
+}
+#root[data-view="analisis"] .vspace,
+#root[data-view="calidad"] .vspace,
+#root[data-view="resultados"] .vspace{
+ height:10px!important;min-height:0!important
+}
+#root[data-view="inteligencia"] .int-stat,
+#root[data-view="analisis"] .metric,
+#root[data-view="calidad"] .metric,
+#root[data-view="flujo"] .metric,
+#root[data-view="resultados"] .metric,
+#root[data-view="completitud"] .metric{
+ box-shadow:none!important;background:#fff!important
+}
+#root[data-view="estudio"] #specSearch{
+ max-width:430px!important;width:100%!important;
+ height:35px!important;min-height:35px!important;
+ border-color:#e4ecf5!important;border-radius:6px!important;
+ padding:6px 10px!important;background:#fff!important;
+}
+#root .int-table th,
+#root .int-table td{vertical-align:middle}
+@media(max-width:690px){
+ #root .research-resource-state{min-height:155px;padding:18px 15px}
+ #root[data-view="estudio"] #specSearch{max-width:100%!important}
+ #root[data-view="inteligencia"] .int-intro{padding:11px!important}
+}
+
 </style>
 </head>
 <body>
@@ -2818,35 +2885,116 @@ let collaborationState=null, createdInvitationUrl='';
 // research modules are loaded with a small concurrency cap; never hold login
 // hostage to 12 unrelated API requests or overwhelm the DB session pool.
 let stateLoadEpoch=0;
+/* v0.52 · The server, never a fallback array, is the source of study evidence. */
+const RESEARCH_MODULES=[
+ ['/api/study/specification',v=>{scientific=v}],
+ ['/api/study/observations',v=>{studyObservations=v}],
+ ['/api/review/clinical',v=>{clinicalReview=v}],
+ ['/api/study/crd-workflow',v=>{crdWorkflow=v}],
+ ['/api/study/scientific-summary',v=>{scientificAnalysis=v}],
+ ['/api/study/phase13-outcomes',v=>{phase13Outcomes=v}],
+ ['/api/study/missing',v=>{missingRecords=v}],
+ ['/api/study/phase14',v=>{phase14Data=v}],
+ ['/api/study/worklist',v=>{phase16Work=v.rows||[]}],
+ ['/api/study/reporting',v=>{phase18Report=v}],
+ ['/api/study/intelligence',v=>{researchIntel=v}],
+ ['/api/collaboration',v=>{collaborationState=v}]
+];
+const RESEARCH_ROUTE_DEPS={
+ red:['/api/collaboration'],
+ flujo:['/api/study/crd-workflow'],
+ crd:['/api/study/specification','/api/study/observations'],
+ calidad:['/api/review/clinical'],
+ estudio:['/api/study/specification'],
+ inteligencia:['/api/study/intelligence'],
+ analisis:['/api/study/scientific-summary','/api/study/reporting'],
+ resultados:['/api/study/phase13-outcomes','/api/study/missing'],
+ completitud:['/api/study/phase14','/api/study/specification']
+};
+const RESEARCH_RESOURCE_NAMES={
+ '/api/collaboration':'red de centros',
+ '/api/study/crd-workflow':'seguimiento del CRD',
+ '/api/study/specification':'diccionario de variables',
+ '/api/study/observations':'mediciones complementarias',
+ '/api/review/clinical':'revisión clínica',
+ '/api/study/scientific-summary':'análisis científico',
+ '/api/study/reporting':'informe de cohorte',
+ '/api/study/phase13-outcomes':'resultados derivados',
+ '/api/study/missing':'ausencias documentadas',
+ '/api/study/phase14':'implantación',
+ '/api/study/intelligence':'inteligencia de datos',
+ '/api/study/worklist':'trabajo pendiente'
+};
+let researchAvailability=Object.create(null);
+function clearResearchCache(){
+ scientific=null;studyObservations=[];clinicalReview=null;crdWorkflow=null;
+ scientificAnalysis=null;phase13Outcomes=null;missingRecords=[];phase14Data=null;
+ phase16Work=[];phase18Report=null;researchIntel=null;collaborationState=null;
+}
+function refreshWaitingResearch(){
+ if(!document.body.classList.contains('signed-in')||!get('root')?.querySelector('.research-resource-state'))return;
+ render();
+}
+async function fetchResearchModule(path,store,epoch){
+ try{
+  const result=await requestApi(path);
+  if(epoch!==stateLoadEpoch||!currentUser)return;
+  store(result);
+  researchAvailability[path]='ready';
+ }catch(err){
+  if(epoch!==stateLoadEpoch||!currentUser)return;
+  researchAvailability[path]='error';
+  console.warn('Módulo de investigación no disponible:',RESEARCH_RESOURCE_NAMES[path]||'módulo');
+ }finally{
+  if(epoch===stateLoadEpoch&&currentUser)refreshWaitingResearch();
+ }
+}
+function researchRouteGate(currentRoute){
+ const deps=RESEARCH_ROUTE_DEPS[currentRoute];
+ if(!deps?.length)return null;
+ const failed=deps.filter(p=>researchAvailability[p]==='error');
+ const pending=deps.filter(p=>researchAvailability[p]!=='ready'&&researchAvailability[p]!=='error');
+ if(!failed.length&&!pending.length)return null;
+ const info=UI_ROUTES[currentRoute]||['Investigación'];
+ const failedText=failed.map(p=>RESEARCH_RESOURCE_NAMES[p]||'sección').join(' y ');
+ const pendingText=pending.map(p=>RESEARCH_RESOURCE_NAMES[p]||'sección').join(' y ');
+ const error=failed.length>0;
+ const title=error?'No se han podido consultar estos datos':'Consultando información guardada';
+ const description=error?'No se muestra un cero ni un resultado anterior como si fuera un registro actual.':
+  'El módulo aparecerá cuando se reciba la respuesta del servidor.';
+ return heading('Datos del estudio',info[0],'Información vinculada a los registros persistidos en el servidor.')+notice+
+  '<section class="research-resource-state '+(error?'is-error':'is-loading')+'" role="'+(error?'alert':'status')+'" aria-live="polite" data-resource-state="'+(error?'error':'loading')+'">'+
+  '<div class="resource-state-kicker">'+(error?'DATOS NO DISPONIBLES':'CONSULTA EN CURSO')+'</div>'+
+  '<h2>'+title+'</h2><p>'+description+'</p>'+
+  '<div class="resource-state-detail">'+esc(error?failedText:pendingText)+'</div>'+
+  (error?'<button type="button" class="btn" data-action="retry-research">Reintentar consulta</button>':'')+
+  '</section>';
+}
+async function retryResearchRoute(){
+ const deps=RESEARCH_ROUTE_DEPS[route]||[];
+ const pending=deps.filter(p=>researchAvailability[p]!=='ready');
+ if(!pending.length)return;
+ const epoch=stateLoadEpoch;
+ pending.forEach(p=>{researchAvailability[p]='loading'});
+ render();
+ await Promise.all(pending.map(path=>{
+  const item=RESEARCH_MODULES.find(([name])=>name===path);
+  return item?fetchResearchModule(item[0],item[1],epoch):Promise.resolve();
+ }));
+ if(epoch===stateLoadEpoch&&currentUser)refreshWaitingResearch();
+}
 async function loadResearchModules(epoch){
- const modules=[
-   ['/api/study/specification',v=>{scientific=v}],
-   ['/api/study/observations',v=>{studyObservations=v}],
-   ['/api/review/clinical',v=>{clinicalReview=v}],
-   ['/api/study/crd-workflow',v=>{crdWorkflow=v}],
-   ['/api/study/scientific-summary',v=>{scientificAnalysis=v}],
-   ['/api/study/phase13-outcomes',v=>{phase13Outcomes=v}],
-   ['/api/study/missing',v=>{missingRecords=v}],
-   ['/api/study/phase14',v=>{phase14Data=v}],
-   ['/api/study/worklist',v=>{phase16Work=v.rows||[]}],
-   ['/api/study/reporting',v=>{phase18Report=v}],
-   ['/api/study/intelligence',v=>{researchIntel=v}],
-   ['/api/collaboration',v=>{collaborationState=v}]
- ];
+ clearResearchCache();
+ RESEARCH_MODULES.forEach(([path])=>{researchAvailability[path]='loading'});
  let next=0;
- const failures=[];
  const worker=async()=>{
-   while(next<modules.length){
-     if(epoch!==stateLoadEpoch||!currentUser)return;
-     const [path,store]=modules[next++];
-     try{
-       const value=await requestApi(path);
-       if(epoch===stateLoadEpoch&&currentUser)store(value);
-     }catch(err){failures.push(path); /* Keep unavailable sections distinct from saved clinical data. */}
-   }
+  while(next<RESEARCH_MODULES.length){
+   if(epoch!==stateLoadEpoch||!currentUser)return;
+   const [path,store]=RESEARCH_MODULES[next++];
+   await fetchResearchModule(path,store,epoch);
+  }
  };
  await Promise.all([worker(),worker(),worker()]);
- if(failures.length&&epoch===stateLoadEpoch)console.warn('Secciones auxiliares no disponibles:',failures);
 }
 async function reloadState({fast=false}={}){
  const epoch=++stateLoadEpoch;
@@ -3173,7 +3321,7 @@ async function processCareStatus(ev){ev.preventDefault();const e=db.events.find(
 function eventForm(kind){const contact=kind==='contact';return heading('Registro longitudinal',contact?'Nuevo contacto asistencial':'Nuevo episodio clínico',contact?'Urgencias o ingreso hospitalario; si pertenece a un episodio registrado, vincularlo con su número R074.':'El número R074 se asigna automáticamente para cada participante (01, 02, 03…).','<button class="btn" data-action="eventos">Volver a eventos</button>')+notice+`<form id="eventForm" class="panel" data-kind="${kind}"><div class="panelhead"><h2>${contact?'Contacto asistencial':'Episodio clínico'}</h2></div><div class="panelbody"><div class="fields">${field('epatient','Participante','select',(db.patients.some(p=>p.id===eventPatient)?eventPatient:db.patients[0]?.id)||'',db.patients.map(p=>[p.id,p.id]))}${field('edate','Fecha','date',new Date().toISOString().slice(0,10))}${contact?`${field('etype','Tipo de contacto','select','urgencias',[['urgencias','Urgencias'],['ingreso','Hospitalización']])}${field('edischarged','Alta (fecha, si consta)','date','')}${field('ecarecentre','Centro asistencial (ficticio)','text','','maxlength=\"100\"')}${field('eevent','N.º de episodio relacionado (R074)','select',eventLink,[['','No vinculado'],...db.events.filter(e=>e.patient===((db.patients.some(p=>p.id===eventPatient)?eventPatient:db.patients[0]?.id)||'')).map(e=>[e.id,String(e.episodeNo??'?').padStart(2,'0')+' · '+fmt(e.date)])])}`:`${field('ekind','Tipo de episodio (R076)','select','agudizacion',[['agudizacion','E · Agudización'],['otro','O · Otro evento']])}${field('eseverity','Gravedad del episodio','select','moderada',[['moderada','Moderada'],['grave','Grave'],['indeterminada','Por confirmar'],['no_aplica','No aplica']])}${field('esteroid','Corticoide sistémico','select','',YESNO)}${field('eanti','Antibióticos','select','',YESNO)}`}${field('ecopd','Relacionado con EPOC','select','si',YESNO)}${field('esource','Fuente de constatación','select','hce',[['hce','Historia clínica'],['paciente','Paciente'],['informe','Informe'],['otro','Otro']])}</div><div id="eventError" class="formerror"></div></div><div class="footerbar"><span class="subtle">R074: 01, 02, 03… por participante; contacto y episodio son registros distintos. No es un código diagnóstico.</span><button type="submit" class="btn primary">Guardar ${contact?'contacto':'episodio'}</button></div></form>`}
 function qualityChecks(){return (clinicalReview?.issues||[]).map(x=>`${x.patient} · ${x.item}: ${x.issue}`)}
 function quality(){
- const r=clinicalReview||{issues:[],visit_coverage:[],gates:[],open_decisions:20,metrics:{findings:0,prioritary:0,core_visits_complete:0}};
+ const r=clinicalReview||{issues:[],visit_coverage:[],gates:[],open_decisions:null,metrics:{findings:0,prioritary:0,core_visits_complete:0}};
  const is=r.issues,cv=r.visit_coverage,gates=r.gates;
  return heading('Calidad científica y seguimiento','Validación técnica del CRD',
  'Controles coherentes con los borradores. Las alertas requieren revisión por los investigadores, no constituyen exclusiones automáticas.',
@@ -3181,7 +3329,7 @@ function quality(){
  `<div class="call warn" style="margin-bottom:18px"><b>NO APTO PARA DATOS REALES.</b> La ausencia de alertas no equivale a aprobación científica ni institucional.</div>`+
  `<section class="metrics"><div class="metric"><div class="lab">Incidencias de revisión</div><div class="val">${is.length}</div><div class="help">${r.metrics.prioritary||0} prioritarias</div></div>`+
  `<div class="metric"><div class="lab">Visitas núcleo completo</div><div class="val">${r.metrics.core_visits_complete||0}</div><div class="help">de ${cv.filter(x=>x.fields_expected>0).length} visitas evaluables</div></div>`+
- `<div class="metric"><div class="lab">Decisiones metodológicas</div><div class="val">${r.open_decisions??20}</div><div class="help">Pendientes de acuerdo</div></div>`+
+ `<div class="metric"><div class="lab">Decisiones metodológicas</div><div class="val">${r.open_decisions??'—'}</div><div class="help">Pendientes de acuerdo</div></div>`+
  `<div class="metric"><div class="lab">Autorización clínica</div><div class="val" style="font-size:20px;color:#a45a16">Pendiente</div><div class="help">No permite datos reales</div></div></section>`+
  `<section class="panel"><div class="panelhead"><div><h2>Incidencias y comprobaciones</h2><p>Las observaciones son orientativas y están vinculadas a cada registro.</p></div></div>`+
  `<div class="tablewrap"><table><thead><tr><th>Regla</th><th>Prioridad</th><th>Participante</th><th>Etapa</th><th>Observación y acción</th></tr></thead><tbody>`+
@@ -3281,7 +3429,7 @@ const all=rows.filter(x=>x.visit_status!=='No registrada');
 return heading('Cuaderno de recogida de datos','CRD por visitas · V0 / V1 / V2',
  'Ruta clínica para revisar el estado de las evaluaciones y sus mediciones. Un campo ausente no equivale a una respuesta negativa.')+notice+
  `<div class="call warn" style="margin-bottom:18px"><b>Especificación provisional v0.11.</b> Estas comprobaciones ayudan a preparar el CRD; no autorizan la inclusión de pacientes ni sustituyen la revisión del IP.</div>`+
- `<section class="metrics"><div class="metric"><div class="lab">Participantes</div><div class="val">${w.summary.patients||0}</div><div class="help">Cero registros al instalar</div></div><div class="metric"><div class="lab">Visitas registradas</div><div class="val">${w.summary.visits||0}</div><div class="help">V0 · V1 · V2</div></div><div class="metric"><div class="lab">Núcleo completo</div><div class="val">${w.summary.core_complete||0}</div><div class="help">Siete campos propuestos</div></div><div class="metric"><div class="lab">Basales por revisar</div><div class="val">${w.summary.pending_baseline||0}</div><div class="help">Revisión técnica, no exclusión</div></div></section>`+
+ `<section class="metrics"><div class="metric"><div class="lab">Participantes</div><div class="val">${w.summary.patients||0}</div><div class="help">Cohorte accesible</div></div><div class="metric"><div class="lab">Visitas registradas</div><div class="val">${w.summary.visits||0}</div><div class="help">V0 · V1 · V2</div></div><div class="metric"><div class="lab">Núcleo completo</div><div class="val">${w.summary.core_complete||0}</div><div class="help">Siete campos propuestos</div></div><div class="metric"><div class="lab">Basales por revisar</div><div class="val">${w.summary.pending_baseline||0}</div><div class="help">Revisión técnica, no exclusión</div></div></section>`+
  `<section class="panel"><div class="panelhead"><div><h2>Estado del CRD por participante</h2><p>El porcentaje se refiere exclusivamente al núcleo propuesto de la visita, no a los 107 campos candidatos.</p></div></div><div class="tablewrap"><table><thead><tr><th>Participante</th><th>Visita</th><th>Situación</th><th>Núcleo</th><th>Caracterización basal</th><th>Observaciones</th><th></th></tr></thead><tbody>`+
  (rows.length?rows.map(r=>`<tr><td class="code">${esc(r.patient)}</td><td>${esc(r.stage)}</td><td>${tag(r.visit_status,r.visit_status==='No registrada'?'neutral':r.visit_status==='No realizada'?'partial':'')}</td><td>${r.core_pct===null?'—':esc(r.core_present)+' / 7 · '+esc(r.core_pct)+'%'}</td><td>${r.stage!=='V0'?'—':esc(r.baseline_present)+' / '+esc(r.baseline_expected)}</td><td>${r.core_missing.length?'<span class="subtle">Faltan: '+esc(r.core_missing.join(', '))+'</span>':''}${r.alerts.length?'<div class="subtle" style="color:#9a671a">'+esc(r.alerts.join('; '))+'</div>':''}${!r.alerts.length&&!r.core_missing.length?'—':''}</td><td><button class="linklike" data-action="workflowvisit" data-id="${esc(r.patient)}" data-visit="${esc(r.stage)}">${r.visit_status==='No registrada'?'Registrar':'Abrir'} ${esc(r.stage)}</button></td></tr>`).join(''):'<tr><td colspan="7"><div class="empty">Todavía no hay participantes. La estructura está lista para revisar; no se precargan historias sintéticas.</div></td></tr>')+
  `</tbody></table></div></section><div class="vspace"></div>`+
@@ -3394,7 +3542,7 @@ try{const pid=selectedStudyPatient,visit=selectedStudyVisit;await requestApi(`/a
 }
 function studyPage(){const rows=scientific?.variables||[],decisions=scientific?.decisions||[];const counts={};for(const r of rows)counts[r.implementation]=(counts[r.implementation]||0)+1;
 return heading('Gobernanza científica','Diccionario y decisiones','Fuente única de definiciones propuestas. Distingue qué está implementado, qué puede capturarse y qué requiere validación metodológica.')+notice+
-`<section class="metrics"><div class="metric"><div class="lab">Variables candidatas</div><div class="val">${rows.length}</div><div class="help">Versión 0.9</div></div><div class="metric"><div class="lab">CRD ampliado</div><div class="val">${counts['CRD ampliado']||0}</div><div class="help">Campos adicionales habilitados</div></div><div class="metric"><div class="lab">Pendientes metodológicos</div><div class="val">${decisions.length}</div><div class="help">Revisión por IP/estadística</div></div><div class="metric"><div class="lab">Variables aprobadas</div><div class="val">0</div><div class="help">El catálogo sigue siendo borrador</div></div></section>
+`<section class="metrics"><div class="metric"><div class="lab">Variables candidatas</div><div class="val">${rows.length}</div><div class="help">Versión 0.9</div></div><div class="metric"><div class="lab">CRD ampliado</div><div class="val">${counts['CRD ampliado']||0}</div><div class="help">Campos adicionales habilitados</div></div><div class="metric"><div class="lab">Pendientes metodológicos</div><div class="val">${decisions.length}</div><div class="help">Revisión por IP/estadística</div></div><div class="metric"><div class="lab">Variables aprobadas</div><div class="val">Por validar</div><div class="help">El catálogo sigue siendo borrador</div></div></section>
 <div class="call" style="margin:0 0 16px">Concordancia clínica v0.27: los campos de cribado, vacunación, Charlson y evaluador están integrados en los formularios principales. R055/R056 se consultan en IANUS, sin equipararlos a las antiguas escalas de adherencia. <span class="subtle">Correspondencia descargable en el paquete técnico.</span></div><section class="panel"><div class="panelhead"><div><h2>Diccionario científico</h2><p>Definición, procedencia, prioridad y estado de implementación.</p></div></div><div class="panelbody"><input id="specSearch" type="search" placeholder="Buscar variable, código o definición…" style="width:100%;height:42px;padding:9px;border:1px solid #cfdddf;border-radius:8px"><p class="subtle">No todos los 107 campos son entradas de consulta. Los derivados se calculan y los exploratorios permanecen pendientes.</p></div><div class="tablewrap"><table><thead><tr><th>ID</th><th>Variable</th><th>Tipo</th><th>Prioridad</th><th>Implementación</th><th>Revisión</th></tr></thead><tbody id="specTable">${renderSpecRows(rows)}</tbody></table></div></section>
 <section class="panel"><div class="panelhead"><div><h2>Decisiones pendientes del protocolo</h2><p>No deben considerarse aprobadas ni resolverse automáticamente en el software.</p></div></div><div class="tablewrap"><table><thead><tr><th>ID</th><th>Prioridad</th><th>Asunto</th><th>Revisión</th><th>Estado</th></tr></thead><tbody>${decisions.map(d=>`<tr><td class="code">${esc(d.id)}</td><td>${esc(d.priority)}</td><td><b>${esc(d.topic)}</b><div class="subtle">${esc(d.question)}</div></td><td>${esc(d.reviewer)}</td><td>${tag(d.status,'partial')}</td></tr>`).join('')}</tbody></table></div></section>`;
 }
@@ -3414,7 +3562,7 @@ function intelligencePage(){
  const centres=(data.centres||[]).map(c=>`<tr><td class="code">${esc(c.centre)}</td><td>${c.included}</td><td>${c.screening}</td><td>${c.baseline_evaluable} / ${c.included}</td><td>${c.poor_baseline_pct===null?'—':c.poor_baseline_pct+' %'} <span class="subtle">(${c.poor_baseline_n}/${c.poor_baseline_denominator})</span></td><td>${c.v1_performed}</td><td>${c.v2_performed}</td></tr>`).join('');
  const centreOptions=(data.centres||[]).length>1?`<select id="intelQualityCentre" aria-label="Filtrar incidencias por centro"><option value="">Todos los centros</option>${options(data.centres.map(c=>[c.centre,c.centre]),intelQualityCentre)}</select>`:'';
  return heading('Inteligencia de investigación','Datos de la cohorte','Lectura estructurada de calidad, cobertura y evolución longitudinal. Todos los cálculos se limitan a los centros autorizados.')+notice+
- `<section class="int-intro"><div><span class="int-flag">LECTURA CIENTÍFICA · v0.39</span><p>Una fuente de verdad para la red de investigación, con muestras y denominadores explícitos. La ausencia de registros no se interpreta como un resultado negativo.</p></div><div class="int-tools"><button class="btn small" type="button" data-intel-export="longitudinal">CSV longitudinal</button><button class="btn small" type="button" data-intel-export="quality">CSV incidencias</button><button class="btn small" type="button" data-action="exportxlsx">Libro Excel</button></div></section>`+
+ `<section class="int-intro"><div><span class="int-flag">LECTURA CIENTÍFICA</span><p>Una fuente de verdad para la red de investigación, con muestras y denominadores explícitos. La ausencia de registros no se interpreta como un resultado negativo.</p></div><div class="int-tools"><button class="btn small" type="button" data-intel-export="longitudinal">CSV longitudinal</button><button class="btn small" type="button" data-intel-export="quality">CSV incidencias</button><button class="btn small" type="button" data-action="exportxlsx">Libro Excel</button></div></section>`+
  `<section class="int-summary">${cohort}</section>`+
  `<div class="int-columns"><section class="int-panel"><div class="int-panel-head"><div><h2>Cobertura por visita</h2><p>Clasificación RADAR, CAT y mMRC con denominadores independientes</p></div><button class="btn small" data-intel-export="stages" type="button">CSV</button></div><div class="tablewrap"><table class="int-table"><thead><tr><th>Visita</th><th>Realizadas / incluidos</th><th>RADAR / realizadas</th><th>Cobertura de incluidos</th><th>CAT / realizadas</th><th>mMRC / realizadas</th></tr></thead><tbody>${stages||'<tr><td colspan="6">Sin evaluaciones</td></tr>'}</tbody></table></div></section>`+
  `<section class="int-panel"><div class="int-panel-head"><div><h2>Comparación por centro</h2><p>Volumen y cobertura; no clasificación de desempeño de profesionales</p></div><button class="btn small" data-intel-export="centres" type="button">CSV</button></div><div class="tablewrap"><table class="int-table"><thead><tr><th>Centro</th><th>Incluidos</th><th>Cribado</th><th>V0 RADAR</th><th>Mal control V0</th><th>V1</th><th>V2</th></tr></thead><tbody>${centres||'<tr><td colspan="7">Sin centros</td></tr>'}</tbody></table></div></section></div>`+
@@ -3440,7 +3588,7 @@ function wireIntelligencePage(){
  renderIntelligenceQuality();
 }
 function analysisPage(){
- const a=scientificAnalysis||{metrics:[],paired:[],coverage:[],coverage_counts:{},total_variables:107};
+ const a=scientificAnalysis||{metrics:[],paired:[],coverage:[],coverage_counts:{},total_variables:null};
  const n=a.coverage_counts||{},metrics=a.metrics||[],pairs=a.paired||[],mapping=a.coverage||[];
  const brief=(name)=>{const m=metrics.find(x=>x.indicator===name);return m?(m.value===null||m.value===undefined?'No estimable':String(m.value)+(m.unit==='%'?' %':m.unit==='puntos'?' puntos':'')):'—'};
  const r=phase18Report||{counts:{included:0,baseline_complete:0,radar_pairs:0,cat_pairs:0},indicators:[],distributions:[],transitions:[]};
@@ -3520,7 +3668,7 @@ function p14Page(){
  const rows=phase14Data?.records||[],metrics=phase14Data?.metrics?.indicators||[],counts={};
  for(const x of phase14Data?.coverage||[])counts[x.status]=(counts[x.status]||0)+1;
  const table=rows.map(x=>`<tr><td>${esc(p14Kinds.find(k=>k[0]===x.kind)?.[1]||x.kind)}</td><td class="code">${esc(x.key)}</td><td>${esc(x.centre)}</td><td>${Object.values(x.payload||{}).filter(v=>v!==null&&v!=='').length}</td><td><button type="button" class="linklike" data-action="p14edit" data-id="${esc(x.kind)}" data-key="${esc(x.key)}" data-centre="${esc(x.centre)}">Abrir</button></td></tr>`).join('');
- return heading('RADAR-CORUÑA · Estudio','Implantación y variables','Centro, equipo investigador, cribado, mediciones complementarias e indicadores. Definiciones pendientes de consenso están identificadas como propuestas.')+notice+`<div class="metrics"><div class="metric"><div class="lab">Variables del catálogo</div><div class="val">${(phase14Data?.coverage||[]).length}/107</div><div class="help">Disponibles para revisión</div></div><div class="metric"><div class="lab">Variables sin implementación</div><div class="val">${counts['No implementada']||0}</div><div class="help">Ámbito técnico</div></div><div class="metric"><div class="lab">Registros adicionales</div><div class="val">${rows.length}</div><div class="help">Registrados en el sistema</div></div></div>
+ return heading('RADAR-CORUÑA · Estudio','Implantación y variables','Centro, equipo investigador, cribado, mediciones complementarias e indicadores. Definiciones pendientes de consenso están identificadas como propuestas.')+notice+`<div class="metrics"><div class="metric"><div class="lab">Variables del catálogo</div><div class="val">${(phase14Data?.coverage||[]).length}/${scientific?.variables?.length??'—'}</div><div class="help">Disponibles para revisión</div></div><div class="metric"><div class="lab">Variables sin implementación</div><div class="val">${counts['No implementada']||0}</div><div class="help">Ámbito técnico</div></div><div class="metric"><div class="lab">Registros adicionales</div><div class="val">${rows.length}</div><div class="help">Registrados en el sistema</div></div></div>
  <section class="panel"><div class="panelhead"><h2>Indicadores de implantación</h2><p>Solo se calculan tasas cuando consta un denominador documentado.</p></div><div class="tablewrap"><table><thead><tr><th>Indicador</th><th>Numerador</th><th>Denominador</th><th>Resultado</th><th>Criterio</th></tr></thead><tbody>${metrics.map(m=>`<tr><td><b>${esc(m.indicator)}</b></td><td>${m.numerator??'—'}</td><td>${m.denominator??'—'}</td><td>${m.value===null?'No estimable':esc(m.value)+(m.unit&&m.unit!=='n'?' '+esc(m.unit):'')}</td><td class="subtle">${esc(m.note)}</td></tr>`).join('')}</tbody></table></div></section>
  <section class="panel"><div class="panelhead"><h2>Completar variables</h2><p>Elija una sección y un registro. Los campos se construyen desde el diccionario de variables.</p></div><div class="panelbody"><form id="p14Form"><div class="fields">${field('p14Kind','Sección','select',p14Kind,p14Kinds)}</div><div id="p14Selectors">${p14SelectControls(p14Kind)}</div><div id="p14Fields"></div></form></div></section>
  <section class="panel"><div class="panelhead"><h2>Registros complementarios</h2><p>${rows.length} registros · El libro Excel conserva las observaciones por entidad.</p></div><div class="tablewrap"><table><thead><tr><th>Sección</th><th>Clave</th><th>Centro</th><th>Campos registrados</th><th></th></tr></thead><tbody>${table||'<tr><td colspan="5" class="subtle">Sin registros complementarios</td></tr>'}</tbody></table></div></section>`;
@@ -3853,7 +4001,7 @@ function enhanceInterface(){
  if(route==='evento')get('epatient')?.addEventListener('change',renderWorkflowRibbon);
 }
 
-function render(){const root=get('root');if(!root)return;root.dataset.view=route;root.dataset.empty=(route==='inicio'&&!db.patients.length)?'true':'false';document.querySelector('.content')?.classList.toggle('on-overview',route==='inicio');document.querySelector('.content')?.classList.toggle('on-cohort',route==='cohorte');document.querySelector('.content')?.classList.toggle('on-module',route!=='inicio'&&route!=='cohorte');const routes={inicio:overview,red:collaborationPage,cohorte:cohort,detalle:detail,participante:()=>patientForm(patient(selectedPatient)||null),visitas:visitsPage,visita:()=>visitForm(editVisit?db.visits.find(v=>v.id===editVisit):null),eventos:eventsPage,evento:()=>eventForm(eventTab),carestatus:careStatusForm,calidad:quality,flujo:workflowPage,crd:crdPage,estudio:studyPage,inteligencia:intelligencePage,analisis:analysisPage,resultados:outcomesPage,completitud:p14Page,exportacion:exportsPage};root.innerHTML=(routes[route]||overview)();if(route==='detalle')loadJourneyReview(selectedPatient);get('navigation').querySelectorAll('button').forEach(x=>x.classList.toggle('active',x.dataset.route===(route==='detalle'||route==='participante'?'cohorte':route==='visita'?'visitas':(route==='evento'||route==='carestatus')?'eventos':route)));if(route==='red'){get('networkInviteForm')?.addEventListener('submit',makeInvitation);get('networkCentreForm')?.addEventListener('submit',saveCentre);get('centreCode')?.addEventListener('input',e=>{if(!centreEditCode)e.target.value=e.target.value.toUpperCase()})}if(route==='inteligencia'){wireIntelligencePage()}if(route==='cohorte'&&get('filterPatients')){get('filterPatients').addEventListener('input',renderCohortTable);get('filterCentre')?.addEventListener('change',renderCohortTable);get('clearCohortFilters')?.addEventListener('click',()=>{get('filterPatients').value='';get('filterCentre').value='';renderCohortTable();get('filterPatients').focus()});renderCohortTable()}if(route==='participante'){const p=patient(selectedPatient);get('patientForm').dataset.edit=p?'1':'';get('patientForm').addEventListener('submit',processPatient);['pbirthdate','penrol','ppriormod','ppriorsev','pstatus','pcopd','pregular','plastrevi','pcapacity','pweeks','pexclusion','pconsent','pconsentdate','pactive','peligibility','palternativedx','pdecomp','ptrial','pspirodate','pratio','pfev1','pvital','pdeathdate','pdeathcause'].forEach(id=>{const el=get(id);if(el){el.addEventListener('change',syncDerivedPatientFields);el.addEventListener('input',syncDerivedPatientFields)}});syncDerivedPatientFields();const f=get('patientForm');f.dataset.dirty='0';['input','change'].forEach(ev=>f.addEventListener(ev,()=>{f.dataset.dirty='1'}))}if(route==='visita'){get('visitForm').addEventListener('submit',processVisit);get('visitForm')?.querySelector('button[type="submit"]')?.addEventListener('click',()=>{visitAfterSave=''});get('saveVisitAndCRD')?.addEventListener('click',()=>{visitAfterSave='crd';get('visitForm')?.requestSubmit()});['vrescue','vexacerb','vdyspnea','vactivity','vmmrc'].forEach(id=>get(id).addEventListener('change',preview));['vregimen','vmono','vstatus','vreason','vianusverified','vianuscollected','vianusdate','vtype','vpatient'].forEach(id=>get(id)?.addEventListener('change',syncVisitConditionalFields));get('visitForm').addEventListener('click',e=>{if(e.target.closest('#useMmrcHint')){const mm=val('vmmrc');if(mm!==''&&!val('vdyspnea')){get('vdyspnea').value=Number(mm)>=2?'si':'no';get('vdyspnea').dispatchEvent(new Event('change',{bubbles:true}));}}else copyPreviousVisitValues(e)});syncVisitConditionalFields();preview()}if(route==='carestatus')get('careForm')?.addEventListener('submit',processCareStatus);if(route==='evento'){get('eventForm').addEventListener('submit',processEvent);const kind=get('ekind'),sev=get('eseverity');if(kind&&sev)kind.addEventListener('change',()=>{if(kind.value==='otro')sev.value='no_aplica';else if(sev.value==='no_aplica')sev.value='moderada';});const ep=get('epatient'),related=get('eevent');if(ep&&related)ep.addEventListener('change',()=>{related.innerHTML='<option value="">No vinculado</option>'+db.events.filter(e=>e.patient===ep.value).map(e=>`<option value="${esc(e.id)}">${esc(String(e.episodeNo??'?').padStart(2,'0'))} · ${fmt(e.date)}</option>`).join('');});}
+function render(){const root=get('root');if(!root)return;root.dataset.view=route;root.dataset.empty=(route==='inicio'&&!db.patients.length)?'true':'false';document.querySelector('.content')?.classList.toggle('on-overview',route==='inicio');document.querySelector('.content')?.classList.toggle('on-cohort',route==='cohorte');document.querySelector('.content')?.classList.toggle('on-module',route!=='inicio'&&route!=='cohorte');const routes={inicio:overview,red:collaborationPage,cohorte:cohort,detalle:detail,participante:()=>patientForm(patient(selectedPatient)||null),visitas:visitsPage,visita:()=>visitForm(editVisit?db.visits.find(v=>v.id===editVisit):null),eventos:eventsPage,evento:()=>eventForm(eventTab),carestatus:careStatusForm,calidad:quality,flujo:workflowPage,crd:crdPage,estudio:studyPage,inteligencia:intelligencePage,analisis:analysisPage,resultados:outcomesPage,completitud:p14Page,exportacion:exportsPage};root.innerHTML=researchRouteGate(route)??(routes[route]||overview)();if(route==='detalle')loadJourneyReview(selectedPatient);get('navigation').querySelectorAll('button').forEach(x=>x.classList.toggle('active',x.dataset.route===(route==='detalle'||route==='participante'?'cohorte':route==='visita'?'visitas':(route==='evento'||route==='carestatus')?'eventos':route)));if(route==='red'){get('networkInviteForm')?.addEventListener('submit',makeInvitation);get('networkCentreForm')?.addEventListener('submit',saveCentre);get('centreCode')?.addEventListener('input',e=>{if(!centreEditCode)e.target.value=e.target.value.toUpperCase()})}if(route==='inteligencia'){wireIntelligencePage()}if(route==='cohorte'&&get('filterPatients')){get('filterPatients').addEventListener('input',renderCohortTable);get('filterCentre')?.addEventListener('change',renderCohortTable);get('clearCohortFilters')?.addEventListener('click',()=>{get('filterPatients').value='';get('filterCentre').value='';renderCohortTable();get('filterPatients').focus()});renderCohortTable()}if(route==='participante'){const p=patient(selectedPatient);get('patientForm').dataset.edit=p?'1':'';get('patientForm').addEventListener('submit',processPatient);['pbirthdate','penrol','ppriormod','ppriorsev','pstatus','pcopd','pregular','plastrevi','pcapacity','pweeks','pexclusion','pconsent','pconsentdate','pactive','peligibility','palternativedx','pdecomp','ptrial','pspirodate','pratio','pfev1','pvital','pdeathdate','pdeathcause'].forEach(id=>{const el=get(id);if(el){el.addEventListener('change',syncDerivedPatientFields);el.addEventListener('input',syncDerivedPatientFields)}});syncDerivedPatientFields();const f=get('patientForm');f.dataset.dirty='0';['input','change'].forEach(ev=>f.addEventListener(ev,()=>{f.dataset.dirty='1'}))}if(route==='visita'){get('visitForm').addEventListener('submit',processVisit);get('visitForm')?.querySelector('button[type="submit"]')?.addEventListener('click',()=>{visitAfterSave=''});get('saveVisitAndCRD')?.addEventListener('click',()=>{visitAfterSave='crd';get('visitForm')?.requestSubmit()});['vrescue','vexacerb','vdyspnea','vactivity','vmmrc'].forEach(id=>get(id).addEventListener('change',preview));['vregimen','vmono','vstatus','vreason','vianusverified','vianuscollected','vianusdate','vtype','vpatient'].forEach(id=>get(id)?.addEventListener('change',syncVisitConditionalFields));get('visitForm').addEventListener('click',e=>{if(e.target.closest('#useMmrcHint')){const mm=val('vmmrc');if(mm!==''&&!val('vdyspnea')){get('vdyspnea').value=Number(mm)>=2?'si':'no';get('vdyspnea').dispatchEvent(new Event('change',{bubbles:true}));}}else copyPreviousVisitValues(e)});syncVisitConditionalFields();preview()}if(route==='carestatus')get('careForm')?.addEventListener('submit',processCareStatus);if(route==='evento'){get('eventForm').addEventListener('submit',processEvent);const kind=get('ekind'),sev=get('eseverity');if(kind&&sev)kind.addEventListener('change',()=>{if(kind.value==='otro')sev.value='no_aplica';else if(sev.value==='no_aplica')sev.value='moderada';});const ep=get('epatient'),related=get('eevent');if(ep&&related)ep.addEventListener('change',()=>{related.innerHTML='<option value="">No vinculado</option>'+db.events.filter(e=>e.patient===ep.value).map(e=>`<option value="${esc(e.id)}">${esc(String(e.episodeNo??'?').padStart(2,'0'))} · ${fmt(e.date)}</option>`).join('');});}
 if(route==='crd'){
 get('studyPatient')?.addEventListener('change',e=>{selectedStudyPatient=e.target.value;crdFeedback='';render()});
 get('root').querySelectorAll('[data-crd-visit]').forEach(btn=>btn.addEventListener('click',()=>{selectedStudyVisit=btn.dataset.crdVisit;crdFeedback='';render()}));
@@ -3862,7 +4010,7 @@ get('studyForm')?.addEventListener('submit',submitCRD);wireCRD();
 if(route==='resultados')get('missingForm')?.addEventListener('submit',submitMissing);
 if(route==='completitud')p14Attach();
 if(route==='estudio')get('specSearch')?.addEventListener('input',e=>{const q=e.target.value.toLowerCase();get('specTable').innerHTML=renderSpecRows((scientific?.variables||[]).filter(v=>[v.label,v.code,v.definition,v.entity,v.implementation].some(x=>String(x||'').toLowerCase().includes(q))))});if(currentUser?.role==='reviewer'){root.querySelectorAll('button[data-action]').forEach(b=>{if(['newpatient','editpatient','newvisit','editvisit','visitfor','newevent','newcontact','reset','importjson'].includes(b.dataset.action))b.remove()})}enhanceInterface();if(route==='visita'){primaryVisitSnapshot=snapshotPrimaryVisit();const f=get('visitForm');if(f){f.dataset.dirty='0';f.addEventListener('input',()=>{f.dataset.dirty='1'});f.addEventListener('change',()=>{f.dataset.dirty='1'})}}}
-function click(e){const el=e.target.closest('[data-action]');if(!el)return;if(el.dataset.action?.startsWith('network-')){networkAction(el);return;}const act=el.dataset.action,id=el.dataset.id;if(act==='discardpatient'){const f=get('patientForm');if(f)f.dataset.dirty='0';navigate('cohorte');return;}if(act==='discardvisit'){const f=get('visitForm');if(f)f.dataset.dirty='0';primaryVisitSnapshot=null;navigate('visitas');return;}if(route==='participante'&&get('patientForm')?.dataset.dirty==='1'&&['detail','workflowvisit','cohorte','eventfor','contactfor','visitas','nextwork'].includes(act)){error('patientError','Hay cambios sin guardar en la ficha. Guárdalos antes de navegar.');return;}if(route==='visita'&&['crdfor','detail','cohorte','workflowvisit','eventfor','contactfor','nextwork','visitas','editvisit','visitfor'].includes(act)&&((get('visitForm')?.dataset.dirty==='1')||(primaryVisitSnapshot!==null&&snapshotPrimaryVisit()!==primaryVisitSnapshot))){error('visitError','Hay cambios sin guardar en esta visita. Guarda la evaluación antes de salir para conservarlos.');return;}switch(act){case'open-admin-centres':navigate('red');break;case'p14edit':{p14Kind=el.dataset.id;p14Selected=el.dataset.key;p14Centre=el.dataset.centre;if(p14Kind==='implementation')p14Month=p14Selected.split(':')[1]||p14Month;navigate('completitud');break;}case'nextwork':{selectedPatient=id;const step=el.dataset.step,stage=el.dataset.visit;if(step==='visit'&&stage){visitPatient=id;selectedStudyPatient=id;selectedStudyVisit=stage;visitTargetStage=stage;editVisit=db.visits.find(v=>v.patient===id&&v.type===stage)?.id||null;navigate('visita')}else if(step==='screen'){navigate('cohorte');selectedPatient=id;navigate('participante')}else{selectedPatient=id;renderDetail()}break;}case'newpatient':if(!db.centres.length){navigate('red');break;}selectedPatient='';route='participante';render();break;case'editpatient':selectedPatient=id;route='participante';render();break;case'cohorte':navigate('cohorte');break;case'detail':lastSavedVisit=null;selectedPatient=id;renderDetail();break;case'workflowvisit':{selectedPatient=id;const stage=el.dataset.visit,existing=db.visits.find(v=>v.patient===id&&v.type===stage);visitPatient=id;selectedStudyPatient=id;selectedStudyVisit=stage;visitTargetStage=stage;editVisit=existing?.id||null;navigate('visita');break;}case'crdfor':selectedStudyPatient=id;selectedStudyVisit=el.dataset.visit||'V0';navigate('crd');break;case'eventfor':eventPatient=id;eventTab='episode';navigate('evento');break;case'contactfor':eventPatient=id;eventLink='';eventTab='contact';navigate('evento');break;case'careforevent':{careEpisode=id;navigate('carestatus');break;}case'contactforevent':{const episode=db.events.find(x=>x.id===id);if(!episode)break;eventPatient=episode.patient;eventLink=episode.id;eventTab='contact';navigate('evento');break;}case'visitfor':selectedPatient=id;visitPatient=id;visitTargetStage='';editVisit=null;navigate('visita');break;case'newvisit':if(!db.patients.length){navigate('cohorte');break;}visitPatient=db.patients[0]?.id||'';visitTargetStage='';editVisit=null;navigate('visita');break;case'editvisit':{const existing=db.visits.find(v=>v.id===id);if(existing){selectedPatient=existing.patient;visitPatient=existing.patient;selectedStudyPatient=existing.patient;selectedStudyVisit=existing.type;visitTargetStage=existing.type;}editVisit=id;navigate('visita');break;}case'visitas':navigate('visitas');break;case'newevent':eventTab='episode';navigate('evento');break;case'newcontact':eventLink='';eventTab='contact';navigate('evento');break;case'eventos':navigate('eventos');break;case'exportxlsx':downloadExcel();break;case'exportall':downloadBackup();break;case'exportpatients':csvPatients();break;case'exportvisits':csvVisits();break;case'exportevents':csvEvents();break;case'exportquality':csv('RADAR_sim_incidencias.csv',qualityChecks().map((detail,i)=>({numero:i+1,incidencia:detail})));break;}}
+function click(e){const el=e.target.closest('[data-action]');if(!el)return;if(el.dataset.action?.startsWith('network-')){networkAction(el);return;}const act=el.dataset.action,id=el.dataset.id;if(act==='retry-research'){void retryResearchRoute();return;}if(act==='discardpatient'){const f=get('patientForm');if(f)f.dataset.dirty='0';navigate('cohorte');return;}if(act==='discardvisit'){const f=get('visitForm');if(f)f.dataset.dirty='0';primaryVisitSnapshot=null;navigate('visitas');return;}if(route==='participante'&&get('patientForm')?.dataset.dirty==='1'&&['detail','workflowvisit','cohorte','eventfor','contactfor','visitas','nextwork'].includes(act)){error('patientError','Hay cambios sin guardar en la ficha. Guárdalos antes de navegar.');return;}if(route==='visita'&&['crdfor','detail','cohorte','workflowvisit','eventfor','contactfor','nextwork','visitas','editvisit','visitfor'].includes(act)&&((get('visitForm')?.dataset.dirty==='1')||(primaryVisitSnapshot!==null&&snapshotPrimaryVisit()!==primaryVisitSnapshot))){error('visitError','Hay cambios sin guardar en esta visita. Guarda la evaluación antes de salir para conservarlos.');return;}switch(act){case'open-admin-centres':navigate('red');break;case'p14edit':{p14Kind=el.dataset.id;p14Selected=el.dataset.key;p14Centre=el.dataset.centre;if(p14Kind==='implementation')p14Month=p14Selected.split(':')[1]||p14Month;navigate('completitud');break;}case'nextwork':{selectedPatient=id;const step=el.dataset.step,stage=el.dataset.visit;if(step==='visit'&&stage){visitPatient=id;selectedStudyPatient=id;selectedStudyVisit=stage;visitTargetStage=stage;editVisit=db.visits.find(v=>v.patient===id&&v.type===stage)?.id||null;navigate('visita')}else if(step==='screen'){navigate('cohorte');selectedPatient=id;navigate('participante')}else{selectedPatient=id;renderDetail()}break;}case'newpatient':if(!db.centres.length){navigate('red');break;}selectedPatient='';route='participante';render();break;case'editpatient':selectedPatient=id;route='participante';render();break;case'cohorte':navigate('cohorte');break;case'detail':lastSavedVisit=null;selectedPatient=id;renderDetail();break;case'workflowvisit':{selectedPatient=id;const stage=el.dataset.visit,existing=db.visits.find(v=>v.patient===id&&v.type===stage);visitPatient=id;selectedStudyPatient=id;selectedStudyVisit=stage;visitTargetStage=stage;editVisit=existing?.id||null;navigate('visita');break;}case'crdfor':selectedStudyPatient=id;selectedStudyVisit=el.dataset.visit||'V0';navigate('crd');break;case'eventfor':eventPatient=id;eventTab='episode';navigate('evento');break;case'contactfor':eventPatient=id;eventLink='';eventTab='contact';navigate('evento');break;case'careforevent':{careEpisode=id;navigate('carestatus');break;}case'contactforevent':{const episode=db.events.find(x=>x.id===id);if(!episode)break;eventPatient=episode.patient;eventLink=episode.id;eventTab='contact';navigate('evento');break;}case'visitfor':selectedPatient=id;visitPatient=id;visitTargetStage='';editVisit=null;navigate('visita');break;case'newvisit':if(!db.patients.length){navigate('cohorte');break;}visitPatient=db.patients[0]?.id||'';visitTargetStage='';editVisit=null;navigate('visita');break;case'editvisit':{const existing=db.visits.find(v=>v.id===id);if(existing){selectedPatient=existing.patient;visitPatient=existing.patient;selectedStudyPatient=existing.patient;selectedStudyVisit=existing.type;visitTargetStage=existing.type;}editVisit=id;navigate('visita');break;}case'visitas':navigate('visitas');break;case'newevent':eventTab='episode';navigate('evento');break;case'newcontact':eventLink='';eventTab='contact';navigate('evento');break;case'eventos':navigate('eventos');break;case'exportxlsx':downloadExcel();break;case'exportall':downloadBackup();break;case'exportpatients':csvPatients();break;case'exportvisits':csvVisits();break;case'exportevents':csvEvents();break;case'exportquality':csv('RADAR_sim_incidencias.csv',qualityChecks().map((detail,i)=>({numero:i+1,incidencia:detail})));break;}}
 
 // Sidebar presentation only; all routes, permissions and clinical logic remain unchanged.
 function closeMobileNav(){document.body.classList.remove('mobile-nav-open');get('mobileNavToggle').setAttribute('aria-expanded','false');get('mobileNavToggle').setAttribute('aria-label','Abrir menú');}
@@ -3902,7 +4050,7 @@ get('authForm').addEventListener('submit',async e=>{
    if(button){button.disabled=false;button.textContent=initialLabel;button.removeAttribute('aria-busy')}
  }
 });
-get('signout').addEventListener('click',async ()=>{try{await requestApi('/api/logout','POST',{})}catch(e){}crdDrafts.clear();crdSectionChoice.clear();crdFeedback='';primaryVisitSnapshot=null;createdInvitationUrl='';collaborationState=null;currentUser=null;csrfToken='';stateLoadEpoch++;db=clone(EMPTY_STATE);studyObservations=[];scientific=null;clinicalReview=null;crdWorkflow=null;phase13Outcomes=null;missingRecords=[];phase16Work=[];phase18Report=null;researchIntel=null;intelQualityCentre='';intelQualityStatus='all';intelQuery='';document.body.classList.remove('signed-in');get('password').value='';get('authError').textContent=''});
+get('signout').addEventListener('click',async ()=>{try{await requestApi('/api/logout','POST',{})}catch(e){}crdDrafts.clear();crdSectionChoice.clear();crdFeedback='';primaryVisitSnapshot=null;createdInvitationUrl='';collaborationState=null;currentUser=null;csrfToken='';stateLoadEpoch++;db=clone(EMPTY_STATE);studyObservations=[];scientific=null;clinicalReview=null;crdWorkflow=null;scientificAnalysis=null;phase13Outcomes=null;phase14Data=null;missingRecords=[];phase16Work=[];phase18Report=null;researchIntel=null;researchAvailability=Object.create(null);intelQualityCentre='';intelQualityStatus='all';intelQuery='';document.body.classList.remove('signed-in');get('password').value='';get('authError').textContent=''});
 // The secret is in the URL fragment, never in a request path or access log.
 let pendingInviteToken='';
 function clearInviteFragment(){try{history.replaceState(null,'',location.pathname||'/')}catch(_){location.hash=''}}
