@@ -2839,6 +2839,36 @@ body.signed-in .main{box-shadow:none}
  #root[data-view="inteligencia"] .int-intro{padding:11px!important}
 }
 
+
+/* One compact first-use surface, never a dashboard made of zero-filled tables. */
+#root .research-cohort-empty{
+ min-height:205px;display:flex;flex-direction:column;
+ justify-content:center;align-items:flex-start;
+ background:#fff;border:1px solid #edf1f6;border-radius:9px;
+ padding:20px 23px;margin:0;box-shadow:none!important
+}
+#root .research-cohort-empty .resource-state-kicker{
+ font-size:10px;font-weight:735;letter-spacing:.09em;
+ color:#6487ac;margin-bottom:10px
+}
+#root .research-cohort-empty h2{
+ margin:0 0 7px;color:#28496c;font-size:clamp(18px,1.9vw,23px);
+ letter-spacing:-.025em;font-weight:700;line-height:1.3
+}
+#root .research-cohort-empty p{
+ margin:0;max-width:610px;font-size:11.8px;line-height:1.52;
+ color:#7890a8
+}
+#root .research-cohort-empty .resource-empty-actions{margin-top:16px}
+#root .research-cohort-empty .btn{
+ background:#fff!important;border-color:#dce7f2!important;
+ min-height:33px;padding:5px 9px!important;
+ box-shadow:none!important
+}
+@media(max-width:690px){
+ #root .research-cohort-empty{min-height:176px;padding:17px 15px}
+}
+
 </style>
 </head>
 <body>
@@ -2970,6 +3000,22 @@ function researchRouteGate(currentRoute){
   (error?'<button type="button" class="btn" data-action="retry-research">Reintentar consulta</button>':'')+
   '</section>';
 }
+
+/* A genuinely empty cohort deserves one purposeful state, not four panels of 0 / 0. */
+function researchCohortEmpty(currentRoute){
+ if(db.patients.length||!['inteligencia','analisis','flujo','resultados'].includes(currentRoute))return null;
+ const name=(UI_ROUTES[currentRoute]||['Investigación'])[0];
+ const action=!db.centres.length&&currentUser?.role==='admin'&&!currentUser?.centre?
+  '<button type="button" class="btn" data-action="open-admin-centres">Registrar centro</button>':
+  '<button type="button" class="btn" data-action="cohorte">Abrir participantes</button>';
+ return heading('Datos del estudio',name,'Información derivada exclusivamente de los registros guardados.')+notice+
+ '<section class="research-cohort-empty" role="status" aria-label="Estudio sin participantes">'+
+ '<div class="resource-state-kicker">COHORTE SIN REGISTROS</div>'+
+ '<h2>Aún no hay participantes registrados</h2>'+
+ '<p>Los indicadores y las tablas de este módulo se calcularán cuando existan registros de investigación. No se muestran datos de ejemplo ni resultados estimados.</p>'+
+ '<div class="resource-empty-actions">'+action+'</div></section>';
+}
+
 async function retryResearchRoute(){
  const deps=RESEARCH_ROUTE_DEPS[route]||[];
  const pending=deps.filter(p=>researchAvailability[p]!=='ready');
@@ -4001,7 +4047,7 @@ function enhanceInterface(){
  if(route==='evento')get('epatient')?.addEventListener('change',renderWorkflowRibbon);
 }
 
-function render(){const root=get('root');if(!root)return;root.dataset.view=route;root.dataset.empty=(route==='inicio'&&!db.patients.length)?'true':'false';document.querySelector('.content')?.classList.toggle('on-overview',route==='inicio');document.querySelector('.content')?.classList.toggle('on-cohort',route==='cohorte');document.querySelector('.content')?.classList.toggle('on-module',route!=='inicio'&&route!=='cohorte');const routes={inicio:overview,red:collaborationPage,cohorte:cohort,detalle:detail,participante:()=>patientForm(patient(selectedPatient)||null),visitas:visitsPage,visita:()=>visitForm(editVisit?db.visits.find(v=>v.id===editVisit):null),eventos:eventsPage,evento:()=>eventForm(eventTab),carestatus:careStatusForm,calidad:quality,flujo:workflowPage,crd:crdPage,estudio:studyPage,inteligencia:intelligencePage,analisis:analysisPage,resultados:outcomesPage,completitud:p14Page,exportacion:exportsPage};root.innerHTML=researchRouteGate(route)??(routes[route]||overview)();if(route==='detalle')loadJourneyReview(selectedPatient);get('navigation').querySelectorAll('button').forEach(x=>x.classList.toggle('active',x.dataset.route===(route==='detalle'||route==='participante'?'cohorte':route==='visita'?'visitas':(route==='evento'||route==='carestatus')?'eventos':route)));if(route==='red'){get('networkInviteForm')?.addEventListener('submit',makeInvitation);get('networkCentreForm')?.addEventListener('submit',saveCentre);get('centreCode')?.addEventListener('input',e=>{if(!centreEditCode)e.target.value=e.target.value.toUpperCase()})}if(route==='inteligencia'){wireIntelligencePage()}if(route==='cohorte'&&get('filterPatients')){get('filterPatients').addEventListener('input',renderCohortTable);get('filterCentre')?.addEventListener('change',renderCohortTable);get('clearCohortFilters')?.addEventListener('click',()=>{get('filterPatients').value='';get('filterCentre').value='';renderCohortTable();get('filterPatients').focus()});renderCohortTable()}if(route==='participante'){const p=patient(selectedPatient);get('patientForm').dataset.edit=p?'1':'';get('patientForm').addEventListener('submit',processPatient);['pbirthdate','penrol','ppriormod','ppriorsev','pstatus','pcopd','pregular','plastrevi','pcapacity','pweeks','pexclusion','pconsent','pconsentdate','pactive','peligibility','palternativedx','pdecomp','ptrial','pspirodate','pratio','pfev1','pvital','pdeathdate','pdeathcause'].forEach(id=>{const el=get(id);if(el){el.addEventListener('change',syncDerivedPatientFields);el.addEventListener('input',syncDerivedPatientFields)}});syncDerivedPatientFields();const f=get('patientForm');f.dataset.dirty='0';['input','change'].forEach(ev=>f.addEventListener(ev,()=>{f.dataset.dirty='1'}))}if(route==='visita'){get('visitForm').addEventListener('submit',processVisit);get('visitForm')?.querySelector('button[type="submit"]')?.addEventListener('click',()=>{visitAfterSave=''});get('saveVisitAndCRD')?.addEventListener('click',()=>{visitAfterSave='crd';get('visitForm')?.requestSubmit()});['vrescue','vexacerb','vdyspnea','vactivity','vmmrc'].forEach(id=>get(id).addEventListener('change',preview));['vregimen','vmono','vstatus','vreason','vianusverified','vianuscollected','vianusdate','vtype','vpatient'].forEach(id=>get(id)?.addEventListener('change',syncVisitConditionalFields));get('visitForm').addEventListener('click',e=>{if(e.target.closest('#useMmrcHint')){const mm=val('vmmrc');if(mm!==''&&!val('vdyspnea')){get('vdyspnea').value=Number(mm)>=2?'si':'no';get('vdyspnea').dispatchEvent(new Event('change',{bubbles:true}));}}else copyPreviousVisitValues(e)});syncVisitConditionalFields();preview()}if(route==='carestatus')get('careForm')?.addEventListener('submit',processCareStatus);if(route==='evento'){get('eventForm').addEventListener('submit',processEvent);const kind=get('ekind'),sev=get('eseverity');if(kind&&sev)kind.addEventListener('change',()=>{if(kind.value==='otro')sev.value='no_aplica';else if(sev.value==='no_aplica')sev.value='moderada';});const ep=get('epatient'),related=get('eevent');if(ep&&related)ep.addEventListener('change',()=>{related.innerHTML='<option value="">No vinculado</option>'+db.events.filter(e=>e.patient===ep.value).map(e=>`<option value="${esc(e.id)}">${esc(String(e.episodeNo??'?').padStart(2,'0'))} · ${fmt(e.date)}</option>`).join('');});}
+function render(){const root=get('root');if(!root)return;root.dataset.view=route;root.dataset.empty=(route==='inicio'&&!db.patients.length)?'true':'false';document.querySelector('.content')?.classList.toggle('on-overview',route==='inicio');document.querySelector('.content')?.classList.toggle('on-cohort',route==='cohorte');document.querySelector('.content')?.classList.toggle('on-module',route!=='inicio'&&route!=='cohorte');const routes={inicio:overview,red:collaborationPage,cohorte:cohort,detalle:detail,participante:()=>patientForm(patient(selectedPatient)||null),visitas:visitsPage,visita:()=>visitForm(editVisit?db.visits.find(v=>v.id===editVisit):null),eventos:eventsPage,evento:()=>eventForm(eventTab),carestatus:careStatusForm,calidad:quality,flujo:workflowPage,crd:crdPage,estudio:studyPage,inteligencia:intelligencePage,analisis:analysisPage,resultados:outcomesPage,completitud:p14Page,exportacion:exportsPage};root.innerHTML=researchRouteGate(route)??researchCohortEmpty(route)??(routes[route]||overview)();if(route==='detalle')loadJourneyReview(selectedPatient);get('navigation').querySelectorAll('button').forEach(x=>x.classList.toggle('active',x.dataset.route===(route==='detalle'||route==='participante'?'cohorte':route==='visita'?'visitas':(route==='evento'||route==='carestatus')?'eventos':route)));if(route==='red'){get('networkInviteForm')?.addEventListener('submit',makeInvitation);get('networkCentreForm')?.addEventListener('submit',saveCentre);get('centreCode')?.addEventListener('input',e=>{if(!centreEditCode)e.target.value=e.target.value.toUpperCase()})}if(route==='inteligencia'){wireIntelligencePage()}if(route==='cohorte'&&get('filterPatients')){get('filterPatients').addEventListener('input',renderCohortTable);get('filterCentre')?.addEventListener('change',renderCohortTable);get('clearCohortFilters')?.addEventListener('click',()=>{get('filterPatients').value='';get('filterCentre').value='';renderCohortTable();get('filterPatients').focus()});renderCohortTable()}if(route==='participante'){const p=patient(selectedPatient);get('patientForm').dataset.edit=p?'1':'';get('patientForm').addEventListener('submit',processPatient);['pbirthdate','penrol','ppriormod','ppriorsev','pstatus','pcopd','pregular','plastrevi','pcapacity','pweeks','pexclusion','pconsent','pconsentdate','pactive','peligibility','palternativedx','pdecomp','ptrial','pspirodate','pratio','pfev1','pvital','pdeathdate','pdeathcause'].forEach(id=>{const el=get(id);if(el){el.addEventListener('change',syncDerivedPatientFields);el.addEventListener('input',syncDerivedPatientFields)}});syncDerivedPatientFields();const f=get('patientForm');f.dataset.dirty='0';['input','change'].forEach(ev=>f.addEventListener(ev,()=>{f.dataset.dirty='1'}))}if(route==='visita'){get('visitForm').addEventListener('submit',processVisit);get('visitForm')?.querySelector('button[type="submit"]')?.addEventListener('click',()=>{visitAfterSave=''});get('saveVisitAndCRD')?.addEventListener('click',()=>{visitAfterSave='crd';get('visitForm')?.requestSubmit()});['vrescue','vexacerb','vdyspnea','vactivity','vmmrc'].forEach(id=>get(id).addEventListener('change',preview));['vregimen','vmono','vstatus','vreason','vianusverified','vianuscollected','vianusdate','vtype','vpatient'].forEach(id=>get(id)?.addEventListener('change',syncVisitConditionalFields));get('visitForm').addEventListener('click',e=>{if(e.target.closest('#useMmrcHint')){const mm=val('vmmrc');if(mm!==''&&!val('vdyspnea')){get('vdyspnea').value=Number(mm)>=2?'si':'no';get('vdyspnea').dispatchEvent(new Event('change',{bubbles:true}));}}else copyPreviousVisitValues(e)});syncVisitConditionalFields();preview()}if(route==='carestatus')get('careForm')?.addEventListener('submit',processCareStatus);if(route==='evento'){get('eventForm').addEventListener('submit',processEvent);const kind=get('ekind'),sev=get('eseverity');if(kind&&sev)kind.addEventListener('change',()=>{if(kind.value==='otro')sev.value='no_aplica';else if(sev.value==='no_aplica')sev.value='moderada';});const ep=get('epatient'),related=get('eevent');if(ep&&related)ep.addEventListener('change',()=>{related.innerHTML='<option value="">No vinculado</option>'+db.events.filter(e=>e.patient===ep.value).map(e=>`<option value="${esc(e.id)}">${esc(String(e.episodeNo??'?').padStart(2,'0'))} · ${fmt(e.date)}</option>`).join('');});}
 if(route==='crd'){
 get('studyPatient')?.addEventListener('change',e=>{selectedStudyPatient=e.target.value;crdFeedback='';render()});
 get('root').querySelectorAll('[data-crd-visit]').forEach(btn=>btn.addEventListener('click',()=>{selectedStudyVisit=btn.dataset.crdVisit;crdFeedback='';render()}));
